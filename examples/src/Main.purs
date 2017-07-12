@@ -1,6 +1,6 @@
 module Main where
 
-import Prelude (bind, Unit, unit)
+import Prelude
 import Control.Monad.Eff (Eff)
 
 import Halogen.Aff as HA

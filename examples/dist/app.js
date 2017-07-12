@@ -259,6 +259,340 @@ var PS = {};
   exports["discardUnit"] = discardUnit;
 })(PS["Control.Bind"] = PS["Control.Bind"] || {});
 (function(exports) {
+  /* globals setTimeout, clearTimeout, setImmediate, clearImmediate */
+  "use strict";
+
+  exports._cancelWith = function (nonCanceler, aff, canceler1) {
+    return function (success, error) {
+      var canceler2 = aff(success, error);
+
+      return function (e) {
+        return function (success, error) {
+          var cancellations = 0;
+          var result = false;
+          var errored = false;
+
+          var s = function (bool) {
+            cancellations = cancellations + 1;
+            result = result || bool;
+
+            if (cancellations === 2 && !errored) {
+              success(result);
+            }
+          };
+
+          var f = function (err) {
+            if (!errored) {
+              errored = true;
+              error(err);
+            }
+          };
+
+          canceler2(e)(s, f);
+          canceler1(e)(s, f);
+
+          return nonCanceler;
+        };
+      };
+    };
+  };
+
+  exports._forkAff = function (nonCanceler, aff) {
+    var voidF = function () {};
+
+    return function (success) {
+      var canceler = aff(voidF, voidF);
+      success(canceler);
+      return nonCanceler;
+    };
+  };
+
+  exports._forkAll = function (nonCanceler, foldl, affs) {
+    var voidF = function () {};
+
+    return function (success) {
+      var cancelers = foldl(function (acc) {
+        return function (aff) {
+          acc.push(aff(voidF, voidF));
+          return acc;
+        };
+      })([])(affs);
+
+      var canceler = function (e) {
+        return function (success, error) {
+          var cancellations = 0;
+          var result        = false;
+          var errored       = false;
+
+          var s = function (bool) {
+            cancellations = cancellations + 1;
+            result        = result || bool;
+
+            if (cancellations === cancelers.length && !errored) {
+              success(result);
+            }
+          };
+
+          var f = function (err) {
+            if (!errored) {
+              errored = true;
+              error(err);
+            }
+          };
+
+          for (var i = 0; i < cancelers.length; i++) {
+            cancelers[i](e)(s, f);
+          }
+
+          return nonCanceler;
+        };
+      };
+
+      success(canceler);
+      return nonCanceler;
+    };
+  };
+
+  exports._makeAff = function (cb) {
+    return function (success, error) {
+      try {
+        return cb(function (e) {
+          return function () {
+            error(e);
+          };
+        })(function (v) {
+          return function () {
+            success(v);
+          };
+        })();
+      } catch (err) {
+        error(err);
+      }
+    };
+  };
+
+  exports._pure = function (nonCanceler, v) {
+    return function (success) {
+      success(v);
+      return nonCanceler;
+    };
+  };
+
+  exports._throwError = function (nonCanceler, e) {
+    return function (success, error) {
+      error(e);
+      return nonCanceler;
+    };
+  };
+
+  exports._fmap = function (f, aff) {
+    return function (success, error) {
+      return aff(function (v) {
+        success(f(v));
+      }, error);
+    };
+  };
+
+  exports._bind = function (alwaysCanceler, aff, f) {
+    return function (success, error) {
+      var canceler1, canceler2;
+
+      var isCanceled    = false;
+      var requestCancel = false;
+
+      var onCanceler = function () {};
+
+      canceler1 = aff(function (v) {
+        if (requestCancel) {
+          isCanceled = true;
+
+          return alwaysCanceler;
+        } else {
+          canceler2 = f(v)(success, error);
+
+          onCanceler(canceler2);
+
+          return canceler2;
+        }
+      }, error);
+
+      return function (e) {
+        return function (s, f) {
+          requestCancel = true;
+
+          if (canceler2 !== undefined) {
+            return canceler2(e)(s, f);
+          } else {
+            return canceler1(e)(function (bool) {
+              if (bool || isCanceled) {
+                s(true);
+              } else {
+                onCanceler = function (canceler) {
+                  canceler(e)(s, f);
+                };
+              }
+            }, f);
+          }
+        };
+      };
+    };
+  };
+
+  exports._attempt = function (Left, Right, aff) {
+    return function (success) {
+      return aff(function (v) {
+        success(Right(v));
+      }, function (e) {
+        success(Left(e));
+      });
+    };
+  };
+
+  exports._runAff = function (errorT, successT, aff) {
+    // If errorT or successT throw, and an Aff is comprised only of synchronous
+    // effects, then it's possible for makeAff/liftEff to accidentally catch
+    // it, which may end up rerunning the Aff depending on error recovery
+    // behavior. To mitigate this, we observe synchronicity using mutation. If
+    // an Aff is observed to be synchronous, we let the stack reset and run the
+    // handlers outside of the normal callback flow.
+    return function () {
+      var status = 0;
+      var result, success;
+
+      var canceler = aff(function (v) {
+        if (status === 2) {
+          successT(v)();
+        } else {
+          status = 1;
+          result = v;
+          success = true;
+        }
+      }, function (e) {
+        if (status === 2) {
+          errorT(e)();
+        } else {
+          status = 1;
+          result = e;
+          success = false;
+        }
+      });
+
+      if (status === 1) {
+        if (success) {
+          successT(result)();
+        } else {
+          errorT(result)();
+        }
+      } else {
+        status = 2;
+      }
+
+      return canceler;
+    };
+  };
+
+  exports._liftEff = function (nonCanceler, e) {
+    return function (success, error) {
+      var result;
+      try {
+        result = e();
+      } catch (err) {
+        error(err);
+        return nonCanceler;
+      }
+
+      success(result);
+      return nonCanceler;
+    };
+  };
+
+  exports._tailRecM = function (isLeft, f, a) {
+    return function (success, error) {
+      return function go (acc) {
+        var result, status, canceler;
+
+        // Observes synchronous effects using a flag.
+        //   status = 0 (unresolved status)
+        //   status = 1 (synchronous effect)
+        //   status = 2 (asynchronous effect)
+
+        var csuccess = function (v) {
+          // If the status is still unresolved, we have observed a
+          // synchronous effect. Otherwise, the status will be `2`.
+          if (status === 0) {
+            // Store the result for further synchronous processing.
+            result = v;
+            status = 1;
+          } else {
+            // When we have observed an asynchronous effect, we use normal
+            // recursion. This is safe because we will be on a new stack.
+            if (isLeft(v)) {
+              go(v.value0);
+            } else {
+              success(v.value0);
+            }
+          }
+        };
+
+        while (true) {
+          status = 0;
+          canceler = f(acc)(csuccess, error);
+
+          // If the status has already resolved to `1` by our Aff handler, then
+          // we have observed a synchronous effect. Otherwise it will still be
+          // `0`.
+          if (status === 1) {
+            // When we have observed a synchronous effect, we merely swap out the
+            // accumulator and continue the loop, preserving stack.
+            if (isLeft(result)) {
+              acc = result.value0;
+              continue;
+            } else {
+              success(result.value0);
+            }
+          } else {
+            // If the status has not resolved yet, then we have observed an
+            // asynchronous effect.
+            status = 2;
+          }
+          return canceler;
+        }
+
+      }(a);
+    };
+  };
+})(PS["Control.Monad.Aff"] = PS["Control.Monad.Aff"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Data.Semigroup"];
+  var Data_Unit = PS["Data.Unit"];
+  var Data_Void = PS["Data.Void"];        
+  var Semigroup = function (append) {
+      this.append = append;
+  };                                                       
+  var append = function (dict) {
+      return dict.append;
+  };
+  exports["Semigroup"] = Semigroup;
+  exports["append"] = append;
+})(PS["Data.Semigroup"] = PS["Data.Semigroup"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Data_Functor = PS["Data.Functor"];
+  var Data_Semigroup = PS["Data.Semigroup"];        
+  var Alt = function (Functor0, alt) {
+      this.Functor0 = Functor0;
+      this.alt = alt;
+  };                                                       
+  var alt = function (dict) {
+      return dict.alt;
+  };
+  exports["Alt"] = Alt;
+  exports["alt"] = alt;
+})(PS["Control.Alt"] = PS["Control.Alt"] || {});
+(function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
   var Control_Applicative = PS["Control.Applicative"];
@@ -284,6 +618,180 @@ var PS = {};
   exports["Monad"] = Monad;
   exports["ap"] = ap;
 })(PS["Control.Monad"] = PS["Control.Monad"] || {});
+(function(exports) {
+    "use strict";
+
+  exports._makeVar = function (nonCanceler) {
+    return function (success) {
+      success({
+        consumers: [],
+        producers: [],
+        error: undefined
+      });
+      return nonCanceler;
+    };
+  };
+
+  exports._takeVar = function (nonCanceler, avar) {
+    return function (success, error) {
+      if (avar.error !== undefined) {
+        error(avar.error);
+      } else if (avar.producers.length > 0) {
+        avar.producers.shift()(success, error);
+      } else {
+        avar.consumers.push({ peek: false, success: success, error: error });
+      }
+
+      return nonCanceler;
+    };
+  };
+
+  exports._peekVar = function (nonCanceler, avar) {
+    return function (success, error) {
+      if (avar.error !== undefined) {
+        error(avar.error);
+      } else if (avar.producers.length > 0) {
+        avar.producers[0](success, error);
+      } else {
+        avar.consumers.push({ peek: true, success: success, error: error });
+      }
+      return nonCanceler;
+    };
+  };
+
+  exports._putVar = function (nonCanceler, avar, a) {
+    return function (success, error) {
+      if (avar.error !== undefined) {
+        error(avar.error);
+      } else {
+        var shouldQueue = true;
+        var consumers = [];
+        var consumer;
+
+        while (true) {
+          consumer = avar.consumers.shift();
+          if (consumer) {
+            consumers.push(consumer);
+            if (consumer.peek) {
+              continue;
+            } else {
+              shouldQueue = false;
+            }
+          }
+          break;
+        }
+
+        if (shouldQueue) {
+          avar.producers.push(function (success) {
+            success(a);
+            return nonCanceler;
+          });
+        }
+
+        for (var i = 0; i < consumers.length; i++) {
+          consumers[i].success(a);
+        }
+
+        success({});
+      }
+
+      return nonCanceler;
+    };
+  };
+
+  exports._killVar = function (nonCanceler, avar, e) {
+    return function (success, error) {
+      if (avar.error !== undefined) {
+        error(avar.error);
+      } else {
+        avar.error = e;
+        while (avar.consumers.length) {
+          avar.consumers.shift().error(e);
+        }
+        success({});
+      }
+
+      return nonCanceler;
+    };
+  };
+})(PS["Control.Monad.Aff.Internal"] = PS["Control.Monad.Aff.Internal"] || {});
+(function(exports) {
+    "use strict";
+
+  exports.error = function (msg) {
+    return new Error(msg);
+  };
+
+  exports.throwException = function (e) {
+    return function () {
+      throw e;
+    };
+  };
+})(PS["Control.Monad.Eff.Exception"] = PS["Control.Monad.Eff.Exception"] || {});
+(function(exports) {
+    "use strict";
+
+  exports.pureE = function (a) {
+    return function () {
+      return a;
+    };
+  };
+
+  exports.bindE = function (a) {
+    return function (f) {
+      return function () {
+        return f(a())();
+      };
+    };
+  };
+
+  exports.runPure = function (f) {
+    return f();
+  };
+
+  exports.foreachE = function (as) {
+    return function (f) {
+      return function () {
+        for (var i = 0, l = as.length; i < l; i++) {
+          f(as[i])();
+        }
+      };
+    };
+  };
+})(PS["Control.Monad.Eff"] = PS["Control.Monad.Eff"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Control.Monad.Eff"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad = PS["Control.Monad"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_Unit = PS["Data.Unit"];        
+  var monadEff = new Control_Monad.Monad(function () {
+      return applicativeEff;
+  }, function () {
+      return bindEff;
+  });
+  var bindEff = new Control_Bind.Bind(function () {
+      return applyEff;
+  }, $foreign.bindE);
+  var applyEff = new Control_Apply.Apply(function () {
+      return functorEff;
+  }, Control_Monad.ap(monadEff));
+  var applicativeEff = new Control_Applicative.Applicative(function () {
+      return applyEff;
+  }, $foreign.pureE);
+  var functorEff = new Data_Functor.Functor(Control_Applicative.liftA1(applicativeEff));
+  exports["functorEff"] = functorEff;
+  exports["applyEff"] = applyEff;
+  exports["applicativeEff"] = applicativeEff;
+  exports["bindEff"] = bindEff;
+  exports["monadEff"] = monadEff;
+  exports["foreachE"] = $foreign.foreachE;
+  exports["runPure"] = $foreign.runPure;
+})(PS["Control.Monad.Eff"] = PS["Control.Monad.Eff"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -325,46 +833,26 @@ var PS = {};
       };
   });
   var eqString = new Eq($foreign.refEq);
-  var eqInt = new Eq($foreign.refEq);
+  var eqInt = new Eq($foreign.refEq); 
+  var eqBoolean = new Eq($foreign.refEq);
   var eq = function (dict) {
       return dict.eq;
+  }; 
+  var notEq = function (dictEq) {
+      return function (x) {
+          return function (y) {
+              return eq(eqBoolean)(eq(dictEq)(x)(y))(false);
+          };
+      };
   };
   exports["Eq"] = Eq;
   exports["eq"] = eq;
+  exports["notEq"] = notEq;
+  exports["eqBoolean"] = eqBoolean;
   exports["eqInt"] = eqInt;
   exports["eqString"] = eqString;
   exports["eqVoid"] = eqVoid;
 })(PS["Data.Eq"] = PS["Data.Eq"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var $foreign = PS["Data.Semigroup"];
-  var Data_Unit = PS["Data.Unit"];
-  var Data_Void = PS["Data.Void"];        
-  var Semigroup = function (append) {
-      this.append = append;
-  };                                                       
-  var append = function (dict) {
-      return dict.append;
-  };
-  exports["Semigroup"] = Semigroup;
-  exports["append"] = append;
-})(PS["Data.Semigroup"] = PS["Data.Semigroup"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Data_Functor = PS["Data.Functor"];
-  var Data_Semigroup = PS["Data.Semigroup"];        
-  var Alt = function (Functor0, alt) {
-      this.Functor0 = Functor0;
-      this.alt = alt;
-  };                                                       
-  var alt = function (dict) {
-      return dict.alt;
-  };
-  exports["Alt"] = Alt;
-  exports["alt"] = alt;
-})(PS["Control.Alt"] = PS["Control.Alt"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -649,12 +1137,40 @@ var PS = {};
           return Nothing.value;
       };
   });
+  var applyMaybe = new Control_Apply.Apply(function () {
+      return functorMaybe;
+  }, function (v) {
+      return function (v1) {
+          if (v instanceof Just) {
+              return Data_Functor.map(functorMaybe)(v.value0)(v1);
+          };
+          if (v instanceof Nothing) {
+              return Nothing.value;
+          };
+          throw new Error("Failed pattern match at Data.Maybe line 68, column 1 - line 68, column 35: " + [ v.constructor.name, v1.constructor.name ]);
+      };
+  });
+  var bindMaybe = new Control_Bind.Bind(function () {
+      return applyMaybe;
+  }, function (v) {
+      return function (v1) {
+          if (v instanceof Just) {
+              return v1(v.value0);
+          };
+          if (v instanceof Nothing) {
+              return Nothing.value;
+          };
+          throw new Error("Failed pattern match at Data.Maybe line 127, column 1 - line 127, column 33: " + [ v.constructor.name, v1.constructor.name ]);
+      };
+  });
   exports["Nothing"] = Nothing;
   exports["Just"] = Just;
   exports["isJust"] = isJust;
   exports["isNothing"] = isNothing;
   exports["maybe"] = maybe;
   exports["functorMaybe"] = functorMaybe;
+  exports["applyMaybe"] = applyMaybe;
+  exports["bindMaybe"] = bindMaybe;
 })(PS["Data.Maybe"] = PS["Data.Maybe"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
@@ -791,153 +1307,6 @@ var PS = {};
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Biapplicative = PS["Control.Biapplicative"];
-  var Control_Biapply = PS["Control.Biapply"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Comonad = PS["Control.Comonad"];
-  var Control_Extend = PS["Control.Extend"];
-  var Control_Lazy = PS["Control.Lazy"];
-  var Control_Monad = PS["Control.Monad"];
-  var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var Data_Bifoldable = PS["Data.Bifoldable"];
-  var Data_Bifunctor = PS["Data.Bifunctor"];
-  var Data_Bitraversable = PS["Data.Bitraversable"];
-  var Data_BooleanAlgebra = PS["Data.BooleanAlgebra"];
-  var Data_Bounded = PS["Data.Bounded"];
-  var Data_CommutativeRing = PS["Data.CommutativeRing"];
-  var Data_Distributive = PS["Data.Distributive"];
-  var Data_Eq = PS["Data.Eq"];
-  var Data_Foldable = PS["Data.Foldable"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_Functor_Invariant = PS["Data.Functor.Invariant"];
-  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Maybe_First = PS["Data.Maybe.First"];
-  var Data_Monoid = PS["Data.Monoid"];
-  var Data_Newtype = PS["Data.Newtype"];
-  var Data_Ord = PS["Data.Ord"];
-  var Data_Ordering = PS["Data.Ordering"];
-  var Data_Ring = PS["Data.Ring"];
-  var Data_Semigroup = PS["Data.Semigroup"];
-  var Data_Semiring = PS["Data.Semiring"];
-  var Data_Show = PS["Data.Show"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];
-  var Type_Equality = PS["Type.Equality"];        
-  var Tuple = (function () {
-      function Tuple(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
-      };
-      Tuple.create = function (value0) {
-          return function (value1) {
-              return new Tuple(value0, value1);
-          };
-      };
-      return Tuple;
-  })();
-  var snd = function (v) {
-      return v.value1;
-  };
-  var functorTuple = new Data_Functor.Functor(function (f) {
-      return function (v) {
-          return new Tuple(v.value0, f(v.value1));
-      };
-  });                                                                                                   
-  var fst = function (v) {
-      return v.value0;
-  };
-  exports["Tuple"] = Tuple;
-  exports["fst"] = fst;
-  exports["snd"] = snd;
-  exports["functorTuple"] = functorTuple;
-})(PS["Data.Tuple"] = PS["Data.Tuple"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Data_Tuple = PS["Data.Tuple"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];        
-  var MonadState = function (Monad0, state) {
-      this.Monad0 = Monad0;
-      this.state = state;
-  };
-  var state = function (dict) {
-      return dict.state;
-  };
-  var modify = function (dictMonadState) {
-      return function (f) {
-          return state(dictMonadState)(function (s) {
-              return new Data_Tuple.Tuple(Data_Unit.unit, f(s));
-          });
-      };
-  };
-  exports["MonadState"] = MonadState;
-  exports["modify"] = modify;
-  exports["state"] = state;
-})(PS["Control.Monad.State.Class"] = PS["Control.Monad.State.Class"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Data_Eq = PS["Data.Eq"];
-  var Data_Ord = PS["Data.Ord"];
-  var Prelude = PS["Prelude"];        
-  var OrdBox = (function () {
-      function OrdBox(value0, value1, value2) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-      };
-      OrdBox.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return new OrdBox(value0, value1, value2);
-              };
-          };
-      };
-      return OrdBox;
-  })();
-  var unOrdBox = function (v) {
-      return v.value2;
-  };
-  var mkOrdBox = function (dictOrd) {
-      return OrdBox.create(Data_Eq.eq(dictOrd.Eq0()))(Data_Ord.compare(dictOrd));
-  };
-  var eqOrdBox = new Data_Eq.Eq(function (v) {
-      return function (v1) {
-          return v.value0(v.value2)(v1.value2);
-      };
-  });
-  var ordOrdBox = new Data_Ord.Ord(function () {
-      return eqOrdBox;
-  }, function (v) {
-      return function (v1) {
-          return v.value1(v.value2)(v1.value2);
-      };
-  });
-  exports["mkOrdBox"] = mkOrdBox;
-  exports["unOrdBox"] = unOrdBox;
-  exports["eqOrdBox"] = eqOrdBox;
-  exports["ordOrdBox"] = ordOrdBox;
-})(PS["Halogen.Data.OrdBox"] = PS["Halogen.Data.OrdBox"] || {});
-(function(exports) {
-    "use strict";
-
-  exports.toForeign = function (value) {
-    return value;
-  };
-
-  exports.typeOf = function (value) {
-    return typeof value;
-  };
-})(PS["Data.Foreign"] = PS["Data.Foreign"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
   var Control_Alt = PS["Control.Alt"];
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Apply = PS["Control.Apply"];
@@ -1040,89 +1409,58 @@ var PS = {};
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
+  var $foreign = PS["Control.Monad.Eff.Exception"];
   var Control_Applicative = PS["Control.Applicative"];
-  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
   var Control_Semigroupoid = PS["Control.Semigroupoid"];
   var Data_Either = PS["Data.Either"];
-  var Data_Function = PS["Data.Function"];
   var Data_Functor = PS["Data.Functor"];
   var Data_Maybe = PS["Data.Maybe"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];        
-  var MonadThrow = function (Monad0, throwError) {
-      this.Monad0 = Monad0;
-      this.throwError = throwError;
+  var Data_Show = PS["Data.Show"];
+  var Prelude = PS["Prelude"];
+  var $$throw = function ($1) {
+      return $foreign.throwException($foreign.error($1));
   };
-  var throwError = function (dict) {
-      return dict.throwError;
-  };
-  exports["MonadThrow"] = MonadThrow;
-  exports["throwError"] = throwError;
-})(PS["Control.Monad.Error.Class"] = PS["Control.Monad.Error.Class"] || {});
+  exports["throw"] = $$throw;
+  exports["error"] = $foreign.error;
+  exports["throwException"] = $foreign.throwException;
+})(PS["Control.Monad.Eff.Exception"] = PS["Control.Monad.Eff.Exception"] || {});
 (function(exports) {
     "use strict";
 
-  exports.pureE = function (a) {
-    return function () {
-      return a;
-    };
-  };
-
-  exports.bindE = function (a) {
-    return function (f) {
-      return function () {
-        return f(a())();
+  exports.runFn4 = function (fn) {
+    return function (a) {
+      return function (b) {
+        return function (c) {
+          return function (d) {
+            return fn(a, b, c, d);
+          };
+        };
       };
     };
   };
-
-  exports.runPure = function (f) {
-    return f();
-  };
-
-  exports.foreachE = function (as) {
-    return function (f) {
-      return function () {
-        for (var i = 0, l = as.length; i < l; i++) {
-          f(as[i])();
-        }
-      };
-    };
-  };
-})(PS["Control.Monad.Eff"] = PS["Control.Monad.Eff"] || {});
+})(PS["Data.Function.Uncurried"] = PS["Data.Function.Uncurried"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
-  var $foreign = PS["Control.Monad.Eff"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Monad = PS["Control.Monad"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_Unit = PS["Data.Unit"];        
-  var monadEff = new Control_Monad.Monad(function () {
-      return applicativeEff;
-  }, function () {
-      return bindEff;
-  });
-  var bindEff = new Control_Bind.Bind(function () {
-      return applyEff;
-  }, $foreign.bindE);
-  var applyEff = new Control_Apply.Apply(function () {
-      return functorEff;
-  }, Control_Monad.ap(monadEff));
-  var applicativeEff = new Control_Applicative.Applicative(function () {
-      return applyEff;
-  }, $foreign.pureE);
-  var functorEff = new Data_Functor.Functor(Control_Applicative.liftA1(applicativeEff));
-  exports["functorEff"] = functorEff;
-  exports["applyEff"] = applyEff;
-  exports["applicativeEff"] = applicativeEff;
-  exports["bindEff"] = bindEff;
-  exports["monadEff"] = monadEff;
-  exports["foreachE"] = $foreign.foreachE;
-  exports["runPure"] = $foreign.runPure;
-})(PS["Control.Monad.Eff"] = PS["Control.Monad.Eff"] || {});
+  var $foreign = PS["Data.Function.Uncurried"];
+  var Data_Unit = PS["Data.Unit"];
+  exports["runFn4"] = $foreign.runFn4;
+})(PS["Data.Function.Uncurried"] = PS["Data.Function.Uncurried"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Control.Monad.Aff.Internal"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Data_Function_Uncurried = PS["Data.Function.Uncurried"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Prelude = PS["Prelude"];
+  exports["_killVar"] = $foreign._killVar;
+  exports["_makeVar"] = $foreign._makeVar;
+  exports["_peekVar"] = $foreign._peekVar;
+  exports["_putVar"] = $foreign._putVar;
+  exports["_takeVar"] = $foreign._takeVar;
+})(PS["Control.Monad.Aff.Internal"] = PS["Control.Monad.Aff.Internal"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -1143,6 +1481,28 @@ var PS = {};
   exports["liftEff"] = liftEff;
   exports["monadEffEff"] = monadEffEff;
 })(PS["Control.Monad.Eff.Class"] = PS["Control.Monad.Eff.Class"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];        
+  var MonadThrow = function (Monad0, throwError) {
+      this.Monad0 = Monad0;
+      this.throwError = throwError;
+  };
+  var throwError = function (dict) {
+      return dict.throwError;
+  };
+  exports["MonadThrow"] = MonadThrow;
+  exports["throwError"] = throwError;
+})(PS["Control.Monad.Error.Class"] = PS["Control.Monad.Error.Class"] || {});
 (function(exports) {
     "use strict";
 
@@ -1229,14 +1589,28 @@ var PS = {};
           return v(v1);
       };
   });
+  var bindIdentity = new Control_Bind.Bind(function () {
+      return applyIdentity;
+  }, function (v) {
+      return function (f) {
+          return f(v);
+      };
+  });
   var applicativeIdentity = new Control_Applicative.Applicative(function () {
       return applyIdentity;
   }, Identity);
+  var monadIdentity = new Control_Monad.Monad(function () {
+      return applicativeIdentity;
+  }, function () {
+      return bindIdentity;
+  });
   exports["Identity"] = Identity;
   exports["newtypeIdentity"] = newtypeIdentity;
   exports["functorIdentity"] = functorIdentity;
   exports["applyIdentity"] = applyIdentity;
   exports["applicativeIdentity"] = applicativeIdentity;
+  exports["bindIdentity"] = bindIdentity;
+  exports["monadIdentity"] = monadIdentity;
 })(PS["Data.Identity"] = PS["Data.Identity"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
@@ -1331,6 +1705,169 @@ var PS = {};
   exports["tailRecM"] = tailRecM;
   exports["monadRecEff"] = monadRecEff;
 })(PS["Control.Monad.Rec.Class"] = PS["Control.Monad.Rec.Class"] || {});
+(function(exports) {
+    "use strict";
+
+  exports.newRef = function (val) {
+    return function () {
+      return { value: val };
+    };
+  };
+
+  exports.readRef = function (ref) {
+    return function () {
+      return ref.value;
+    };
+  };
+
+  exports["modifyRef'"] = function (ref) {
+    return function (f) {
+      return function () {
+        var t = f(ref.value);
+        ref.value = t.state;
+        return t.value;
+      };
+    };
+  };
+
+  exports.writeRef = function (ref) {
+    return function (val) {
+      return function () {
+        ref.value = val;
+        return {};
+      };
+    };
+  };
+})(PS["Control.Monad.Eff.Ref"] = PS["Control.Monad.Eff.Ref"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Control.Monad.Eff.Ref"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];        
+  var modifyRef = function (ref) {
+      return function (f) {
+          return $foreign["modifyRef'"](ref)(function (s) {
+              return {
+                  state: f(s), 
+                  value: Data_Unit.unit
+              };
+          });
+      };
+  };
+  exports["modifyRef"] = modifyRef;
+  exports["modifyRef'"] = $foreign["modifyRef'"];
+  exports["newRef"] = $foreign.newRef;
+  exports["readRef"] = $foreign.readRef;
+  exports["writeRef"] = $foreign.writeRef;
+})(PS["Control.Monad.Eff.Ref"] = PS["Control.Monad.Eff.Ref"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Biapplicative = PS["Control.Biapplicative"];
+  var Control_Biapply = PS["Control.Biapply"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Comonad = PS["Control.Comonad"];
+  var Control_Extend = PS["Control.Extend"];
+  var Control_Lazy = PS["Control.Lazy"];
+  var Control_Monad = PS["Control.Monad"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Bifoldable = PS["Data.Bifoldable"];
+  var Data_Bifunctor = PS["Data.Bifunctor"];
+  var Data_Bitraversable = PS["Data.Bitraversable"];
+  var Data_BooleanAlgebra = PS["Data.BooleanAlgebra"];
+  var Data_Bounded = PS["Data.Bounded"];
+  var Data_CommutativeRing = PS["Data.CommutativeRing"];
+  var Data_Distributive = PS["Data.Distributive"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_Functor_Invariant = PS["Data.Functor.Invariant"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Maybe_First = PS["Data.Maybe.First"];
+  var Data_Monoid = PS["Data.Monoid"];
+  var Data_Newtype = PS["Data.Newtype"];
+  var Data_Ord = PS["Data.Ord"];
+  var Data_Ordering = PS["Data.Ordering"];
+  var Data_Ring = PS["Data.Ring"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Semiring = PS["Data.Semiring"];
+  var Data_Show = PS["Data.Show"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];
+  var Type_Equality = PS["Type.Equality"];        
+  var Tuple = (function () {
+      function Tuple(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      Tuple.create = function (value0) {
+          return function (value1) {
+              return new Tuple(value0, value1);
+          };
+      };
+      return Tuple;
+  })();
+  var snd = function (v) {
+      return v.value1;
+  };
+  var functorTuple = new Data_Functor.Functor(function (f) {
+      return function (v) {
+          return new Tuple(v.value0, f(v.value1));
+      };
+  });                                                                                                   
+  var fst = function (v) {
+      return v.value0;
+  };
+  exports["Tuple"] = Tuple;
+  exports["fst"] = fst;
+  exports["snd"] = snd;
+  exports["functorTuple"] = functorTuple;
+})(PS["Data.Tuple"] = PS["Data.Tuple"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Data_Tuple = PS["Data.Tuple"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];        
+  var MonadState = function (Monad0, state) {
+      this.Monad0 = Monad0;
+      this.state = state;
+  };
+  var state = function (dict) {
+      return dict.state;
+  };
+  var put = function (dictMonadState) {
+      return function (s) {
+          return state(dictMonadState)(function (v) {
+              return new Data_Tuple.Tuple(Data_Unit.unit, s);
+          });
+      };
+  };
+  var modify = function (dictMonadState) {
+      return function (f) {
+          return state(dictMonadState)(function (s) {
+              return new Data_Tuple.Tuple(Data_Unit.unit, f(s));
+          });
+      };
+  };
+  var get = function (dictMonadState) {
+      return state(dictMonadState)(function (s) {
+          return new Data_Tuple.Tuple(s, s);
+      });
+  };
+  exports["MonadState"] = MonadState;
+  exports["get"] = get;
+  exports["modify"] = modify;
+  exports["put"] = put;
+  exports["state"] = state;
+})(PS["Control.Monad.State.Class"] = PS["Control.Monad.State.Class"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -1428,6 +1965,13 @@ var PS = {};
           return ExceptT(Control_Applicative.pure(dictMonad.Applicative0())(Data_Either.Right.create($98)));
       });
   };
+  var monadThrowExceptT = function (dictMonad) {
+      return new Control_Monad_Error_Class.MonadThrow(function () {
+          return monadExceptT(dictMonad);
+      }, function ($102) {
+          return ExceptT(Control_Applicative.pure(dictMonad.Applicative0())(Data_Either.Left.create($102)));
+      });
+  };
   exports["ExceptT"] = ExceptT;
   exports["except"] = except;
   exports["mapExceptT"] = mapExceptT;
@@ -1437,7 +1981,276 @@ var PS = {};
   exports["applicativeExceptT"] = applicativeExceptT;
   exports["bindExceptT"] = bindExceptT;
   exports["monadExceptT"] = monadExceptT;
+  exports["monadThrowExceptT"] = monadThrowExceptT;
 })(PS["Control.Monad.Except.Trans"] = PS["Control.Monad.Except.Trans"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Alternative = PS["Control.Alternative"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Cont_Trans = PS["Control.Monad.Cont.Trans"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
+  var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];
+  var Control_Monad_Except_Trans = PS["Control.Monad.Except.Trans"];
+  var Control_Monad_Maybe_Trans = PS["Control.Monad.Maybe.Trans"];
+  var Control_Monad_Reader_Trans = PS["Control.Monad.Reader.Trans"];
+  var Control_Monad_Writer_Trans = PS["Control.Monad.Writer.Trans"];
+  var Control_Plus = PS["Control.Plus"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_Functor_Compose = PS["Data.Functor.Compose"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Monoid = PS["Data.Monoid"];
+  var Data_Newtype = PS["Data.Newtype"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];
+  var Parallel = function (Applicative1, Monad0, parallel, sequential) {
+      this.Applicative1 = Applicative1;
+      this.Monad0 = Monad0;
+      this.parallel = parallel;
+      this.sequential = sequential;
+  };                                                           
+  var sequential = function (dict) {
+      return dict.sequential;
+  };
+  var parallel = function (dict) {
+      return dict.parallel;
+  };
+  exports["Parallel"] = Parallel;
+  exports["parallel"] = parallel;
+  exports["sequential"] = sequential;
+})(PS["Control.Parallel.Class"] = PS["Control.Parallel.Class"] || {});
+(function(exports) {
+    "use strict";
+
+  // module Unsafe.Coerce
+
+  exports.unsafeCoerce = function (x) {
+    return x;
+  };
+})(PS["Unsafe.Coerce"] = PS["Unsafe.Coerce"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Unsafe.Coerce"];
+  exports["unsafeCoerce"] = $foreign.unsafeCoerce;
+})(PS["Unsafe.Coerce"] = PS["Unsafe.Coerce"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Control.Monad.Aff"];
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Alternative = PS["Control.Alternative"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad = PS["Control.Monad"];
+  var Control_Monad_Aff_Internal = PS["Control.Monad.Aff.Internal"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
+  var Control_Monad_Error_Class = PS["Control.Monad.Error.Class"];
+  var Control_Monad_Rec_Class = PS["Control.Monad.Rec.Class"];
+  var Control_MonadPlus = PS["Control.MonadPlus"];
+  var Control_MonadZero = PS["Control.MonadZero"];
+  var Control_Parallel = PS["Control.Parallel"];
+  var Control_Parallel_Class = PS["Control.Parallel.Class"];
+  var Control_Plus = PS["Control.Plus"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Function_Uncurried = PS["Data.Function.Uncurried"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
+  var Data_Monoid = PS["Data.Monoid"];
+  var Data_Newtype = PS["Data.Newtype"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Semiring = PS["Data.Semiring"];
+  var Data_Time_Duration = PS["Data.Time.Duration"];
+  var Data_Tuple = PS["Data.Tuple"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];        
+  var ParAff = function (x) {
+      return x;
+  };
+  var runAff = function (ex) {
+      return function (f) {
+          return function (aff) {
+              return $foreign._runAff(ex, f, aff);
+          };
+      };
+  };         
+  var makeAff$prime = function (h) {
+      return $foreign._makeAff(h);
+  };
+  var functorAff = new Data_Functor.Functor(function (f) {
+      return function (fa) {
+          return $foreign._fmap(f, fa);
+      };
+  });
+  var functorParAff = functorAff;
+  var fromAVBox = Unsafe_Coerce.unsafeCoerce;
+  var cancel = function (v) {
+      return v;
+  };   
+  var attempt = function (aff) {
+      return $foreign._attempt(Data_Either.Left.create, Data_Either.Right.create, aff);
+  };
+  var applyAff = new Control_Apply.Apply(function () {
+      return functorAff;
+  }, function (ff) {
+      return function (fa) {
+          return $foreign._bind(alwaysCanceler, ff, function (f) {
+              return Data_Functor.map(functorAff)(f)(fa);
+          });
+      };
+  });
+  var applicativeAff = new Control_Applicative.Applicative(function () {
+      return applyAff;
+  }, function (v) {
+      return $foreign._pure(nonCanceler, v);
+  });
+  var nonCanceler = Data_Function["const"](Control_Applicative.pure(applicativeAff)(false));
+  var alwaysCanceler = Data_Function["const"](Control_Applicative.pure(applicativeAff)(true));
+  var cancelWith = function (aff) {
+      return function (c) {
+          return $foreign._cancelWith(nonCanceler, aff, c);
+      };
+  };
+  var forkAff = function (aff) {
+      return $foreign._forkAff(nonCanceler, aff);
+  };
+  var forkAll = function (dictFoldable) {
+      return function (affs) {
+          return $foreign._forkAll(nonCanceler, Data_Foldable.foldl(dictFoldable), affs);
+      };
+  };
+  var killVar = function (q) {
+      return function (e) {
+          return fromAVBox(Control_Monad_Aff_Internal._killVar(nonCanceler, q, e));
+      };
+  };
+  var makeAff = function (h) {
+      return makeAff$prime(function (e) {
+          return function (a) {
+              return Data_Functor.map(Control_Monad_Eff.functorEff)(Data_Function["const"](nonCanceler))(h(e)(a));
+          };
+      });
+  };
+  var makeVar = fromAVBox(Control_Monad_Aff_Internal._makeVar(nonCanceler));
+  var putVar = function (q) {
+      return function (a) {
+          return fromAVBox(Control_Monad_Aff_Internal._putVar(nonCanceler, q, a));
+      };
+  };
+  var takeVar = function (q) {
+      return fromAVBox(Control_Monad_Aff_Internal._takeVar(nonCanceler, q));
+  };
+  var semigroupCanceler = new Data_Semigroup.Semigroup(function (v) {
+      return function (v1) {
+          return function (e) {
+              return Control_Apply.apply(applyAff)(Data_Functor.map(functorAff)(Data_HeytingAlgebra.disj(Data_HeytingAlgebra.heytingAlgebraBoolean))(v(e)))(v1(e));
+          };
+      };
+  });                                                                        
+  var bindAff = new Control_Bind.Bind(function () {
+      return applyAff;
+  }, function (fa) {
+      return function (f) {
+          return $foreign._bind(alwaysCanceler, fa, f);
+      };
+  });
+  var applyParAff = new Control_Apply.Apply(function () {
+      return functorParAff;
+  }, function (v) {
+      return function (v1) {
+          var putOrKill = function (v2) {
+              return Data_Either.either(killVar(v2))(putVar(v2));
+          };
+          return Control_Bind.bind(bindAff)(makeVar)(function (v2) {
+              return Control_Bind.bind(bindAff)(makeVar)(function (v3) {
+                  return Control_Bind.bind(bindAff)(forkAff(Control_Bind.bindFlipped(bindAff)(putOrKill(v2))(attempt(v))))(function (v4) {
+                      return Control_Bind.bind(bindAff)(forkAff(Control_Bind.bindFlipped(bindAff)(putOrKill(v3))(attempt(v1))))(function (v5) {
+                          return cancelWith(Control_Apply.apply(applyAff)(takeVar(v2))(takeVar(v3)))(Data_Semigroup.append(semigroupCanceler)(v4)(v5));
+                      });
+                  });
+              });
+          });
+      };
+  });
+  var applicativeParAff = new Control_Applicative.Applicative(function () {
+      return applyParAff;
+  }, function ($56) {
+      return ParAff(Control_Applicative.pure(applicativeAff)($56));
+  });
+  var monadAff = new Control_Monad.Monad(function () {
+      return applicativeAff;
+  }, function () {
+      return bindAff;
+  });
+  var monadEffAff = new Control_Monad_Eff_Class.MonadEff(function () {
+      return monadAff;
+  }, function (eff) {
+      return $foreign._liftEff(nonCanceler, eff);
+  });
+  var monadRecAff = new Control_Monad_Rec_Class.MonadRec(function () {
+      return monadAff;
+  }, function (f) {
+      return function (a) {
+          var isLoop = function (v) {
+              if (v instanceof Control_Monad_Rec_Class.Loop) {
+                  return true;
+              };
+              return false;
+          };
+          return $foreign._tailRecM(isLoop, f, a);
+      };
+  });
+  var monadThrowAff = new Control_Monad_Error_Class.MonadThrow(function () {
+      return monadAff;
+  }, function (e) {
+      return $foreign._throwError(nonCanceler, e);
+  });
+  var parallelParAff = new Control_Parallel_Class.Parallel(function () {
+      return applicativeParAff;
+  }, function () {
+      return monadAff;
+  }, ParAff, function (v) {
+      return v;
+  });
+  exports["ParAff"] = ParAff;
+  exports["attempt"] = attempt;
+  exports["cancel"] = cancel;
+  exports["cancelWith"] = cancelWith;
+  exports["forkAff"] = forkAff;
+  exports["forkAll"] = forkAll;
+  exports["makeAff"] = makeAff;
+  exports["nonCanceler"] = nonCanceler;
+  exports["runAff"] = runAff;
+  exports["functorAff"] = functorAff;
+  exports["applyAff"] = applyAff;
+  exports["applicativeAff"] = applicativeAff;
+  exports["bindAff"] = bindAff;
+  exports["monadAff"] = monadAff;
+  exports["monadEffAff"] = monadEffAff;
+  exports["monadThrowAff"] = monadThrowAff;
+  exports["monadRecAff"] = monadRecAff;
+  exports["semigroupCanceler"] = semigroupCanceler;
+  exports["functorParAff"] = functorParAff;
+  exports["applyParAff"] = applyParAff;
+  exports["applicativeParAff"] = applicativeParAff;
+  exports["parallelParAff"] = parallelParAff;
+})(PS["Control.Monad.Aff"] = PS["Control.Monad.Aff"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -1453,6 +2266,355 @@ var PS = {};
   };
   exports["runExcept"] = runExcept;
 })(PS["Control.Monad.Except"] = PS["Control.Monad.Except"] || {});
+(function(exports) {
+    "use strict";
+
+  exports.toForeign = function (value) {
+    return value;
+  };
+
+  exports.unsafeFromForeign = function (value) {
+    return value;
+  };
+
+  exports.typeOf = function (value) {
+    return typeof value;
+  };
+
+  exports.tagOf = function (value) {
+    return Object.prototype.toString.call(value).slice(8, -1);
+  };
+})(PS["Data.Foreign"] = PS["Data.Foreign"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Alternative = PS["Control.Alternative"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Category = PS["Control.Category"];
+  var Control_Plus = PS["Control.Plus"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
+  var Data_Ord = PS["Data.Ord"];
+  var Data_Ordering = PS["Data.Ordering"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Show = PS["Data.Show"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Prelude = PS["Prelude"];        
+  var NonEmpty = (function () {
+      function NonEmpty(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      NonEmpty.create = function (value0) {
+          return function (value1) {
+              return new NonEmpty(value0, value1);
+          };
+      };
+      return NonEmpty;
+  })();
+  var singleton = function (dictPlus) {
+      return function (a) {
+          return new NonEmpty(a, Control_Plus.empty(dictPlus));
+      };
+  };
+  var functorNonEmpty = function (dictFunctor) {
+      return new Data_Functor.Functor(function (f) {
+          return function (v) {
+              return new NonEmpty(f(v.value0), Data_Functor.map(dictFunctor)(f)(v.value1));
+          };
+      });
+  };
+  exports["NonEmpty"] = NonEmpty;
+  exports["singleton"] = singleton;
+  exports["functorNonEmpty"] = functorNonEmpty;
+})(PS["Data.NonEmpty"] = PS["Data.NonEmpty"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Alternative = PS["Control.Alternative"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Category = PS["Control.Category"];
+  var Control_Comonad = PS["Control.Comonad"];
+  var Control_Extend = PS["Control.Extend"];
+  var Control_Monad = PS["Control.Monad"];
+  var Control_MonadPlus = PS["Control.MonadPlus"];
+  var Control_MonadZero = PS["Control.MonadZero"];
+  var Control_Plus = PS["Control.Plus"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Monoid = PS["Data.Monoid"];
+  var Data_Newtype = PS["Data.Newtype"];
+  var Data_NonEmpty = PS["Data.NonEmpty"];
+  var Data_Ord = PS["Data.Ord"];
+  var Data_Ordering = PS["Data.Ordering"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Semigroup_Foldable = PS["Data.Semigroup.Foldable"];
+  var Data_Semigroup_Traversable = PS["Data.Semigroup.Traversable"];
+  var Data_Show = PS["Data.Show"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Data_Tuple = PS["Data.Tuple"];
+  var Data_Unfoldable = PS["Data.Unfoldable"];
+  var Prelude = PS["Prelude"];        
+  var Nil = (function () {
+      function Nil() {
+
+      };
+      Nil.value = new Nil();
+      return Nil;
+  })();
+  var Cons = (function () {
+      function Cons(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      Cons.create = function (value0) {
+          return function (value1) {
+              return new Cons(value0, value1);
+          };
+      };
+      return Cons;
+  })();
+  var NonEmptyList = function (x) {
+      return x;
+  };
+  var foldableList = new Data_Foldable.Foldable(function (dictMonoid) {
+      return function (f) {
+          return Data_Foldable.foldl(foldableList)(function (acc) {
+              return function ($143) {
+                  return Data_Semigroup.append(dictMonoid.Semigroup0())(acc)(f($143));
+              };
+          })(Data_Monoid.mempty(dictMonoid));
+      };
+  }, function (f) {
+      var go = function ($copy_b) {
+          return function ($copy_v) {
+              var $tco_var_b = $copy_b;
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(b, v) {
+                  if (v instanceof Nil) {
+                      $tco_done = true;
+                      return b;
+                  };
+                  if (v instanceof Cons) {
+                      $tco_var_b = f(b)(v.value0);
+                      $copy_v = v.value1;
+                      return;
+                  };
+                  throw new Error("Failed pattern match at Data.List.Types line 78, column 12 - line 80, column 30: " + [ v.constructor.name ]);
+              };
+              while (!$tco_done) {
+                  $tco_result = $tco_loop($tco_var_b, $copy_v);
+              };
+              return $tco_result;
+          };
+      };
+      return go;
+  }, function (f) {
+      return function (b) {
+          var rev = function ($copy_acc) {
+              return function ($copy_v) {
+                  var $tco_var_acc = $copy_acc;
+                  var $tco_done = false;
+                  var $tco_result;
+                  function $tco_loop(acc, v) {
+                      if (v instanceof Nil) {
+                          $tco_done = true;
+                          return acc;
+                      };
+                      if (v instanceof Cons) {
+                          $tco_var_acc = new Cons(v.value0, acc);
+                          $copy_v = v.value1;
+                          return;
+                      };
+                      throw new Error("Failed pattern match at Data.List.Types line 73, column 15 - line 75, column 33: " + [ v.constructor.name ]);
+                  };
+                  while (!$tco_done) {
+                      $tco_result = $tco_loop($tco_var_acc, $copy_v);
+                  };
+                  return $tco_result;
+              };
+          };
+          return function ($144) {
+              return Data_Foldable.foldl(foldableList)(Data_Function.flip(f))(b)(rev(Nil.value)($144));
+          };
+      };
+  });                                                                     
+  var functorList = new Data_Functor.Functor(function (f) {
+      return Data_Foldable.foldr(foldableList)(function (x) {
+          return function (acc) {
+              return new Cons(f(x), acc);
+          };
+      })(Nil.value);
+  });
+  var functorNonEmptyList = Data_NonEmpty.functorNonEmpty(functorList);
+  var semigroupList = new Data_Semigroup.Semigroup(function (xs) {
+      return function (ys) {
+          return Data_Foldable.foldr(foldableList)(Cons.create)(ys)(xs);
+      };
+  });
+  var applyList = new Control_Apply.Apply(function () {
+      return functorList;
+  }, function (v) {
+      return function (v1) {
+          if (v instanceof Nil) {
+              return Nil.value;
+          };
+          if (v instanceof Cons) {
+              return Data_Semigroup.append(semigroupList)(Data_Functor.map(functorList)(v.value0)(v1))(Control_Apply.apply(applyList)(v.value1)(v1));
+          };
+          throw new Error("Failed pattern match at Data.List.Types line 94, column 1 - line 94, column 33: " + [ v.constructor.name, v1.constructor.name ]);
+      };
+  });
+  var applyNonEmptyList = new Control_Apply.Apply(function () {
+      return functorNonEmptyList;
+  }, function (v) {
+      return function (v1) {
+          return new Data_NonEmpty.NonEmpty(v.value0(v1.value0), Data_Semigroup.append(semigroupList)(Control_Apply.apply(applyList)(v.value1)(new Cons(v1.value0, Nil.value)))(Control_Apply.apply(applyList)(new Cons(v.value0, v.value1))(v1.value1)));
+      };
+  });
+  var applicativeList = new Control_Applicative.Applicative(function () {
+      return applyList;
+  }, function (a) {
+      return new Cons(a, Nil.value);
+  });                                              
+  var altList = new Control_Alt.Alt(function () {
+      return functorList;
+  }, Data_Semigroup.append(semigroupList));
+  var plusList = new Control_Plus.Plus(function () {
+      return altList;
+  }, Nil.value);
+  var applicativeNonEmptyList = new Control_Applicative.Applicative(function () {
+      return applyNonEmptyList;
+  }, function ($149) {
+      return NonEmptyList(Data_NonEmpty.singleton(plusList)($149));
+  });
+  exports["Nil"] = Nil;
+  exports["Cons"] = Cons;
+  exports["NonEmptyList"] = NonEmptyList;
+  exports["semigroupList"] = semigroupList;
+  exports["functorList"] = functorList;
+  exports["foldableList"] = foldableList;
+  exports["applyList"] = applyList;
+  exports["applicativeList"] = applicativeList;
+  exports["altList"] = altList;
+  exports["plusList"] = plusList;
+  exports["functorNonEmptyList"] = functorNonEmptyList;
+  exports["applyNonEmptyList"] = applyNonEmptyList;
+  exports["applicativeNonEmptyList"] = applicativeNonEmptyList;
+})(PS["Data.List.Types"] = PS["Data.List.Types"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Alt = PS["Control.Alt"];
+  var Control_Alternative = PS["Control.Alternative"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Apply = PS["Control.Apply"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Category = PS["Control.Category"];
+  var Control_Lazy = PS["Control.Lazy"];
+  var Control_Monad_Rec_Class = PS["Control.Monad.Rec.Class"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Bifunctor = PS["Data.Bifunctor"];
+  var Data_Boolean = PS["Data.Boolean"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
+  var Data_List_Types = PS["Data.List.Types"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Newtype = PS["Data.Newtype"];
+  var Data_NonEmpty = PS["Data.NonEmpty"];
+  var Data_Ord = PS["Data.Ord"];
+  var Data_Ordering = PS["Data.Ordering"];
+  var Data_Ring = PS["Data.Ring"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Semiring = PS["Data.Semiring"];
+  var Data_Show = PS["Data.Show"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Data_Tuple = PS["Data.Tuple"];
+  var Data_Unfoldable = PS["Data.Unfoldable"];
+  var Data_Unit = PS["Data.Unit"];
+  var Prelude = PS["Prelude"];
+  var reverse = (function () {
+      var go = function ($copy_acc) {
+          return function ($copy_v) {
+              var $tco_var_acc = $copy_acc;
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(acc, v) {
+                  if (v instanceof Data_List_Types.Nil) {
+                      $tco_done = true;
+                      return acc;
+                  };
+                  if (v instanceof Data_List_Types.Cons) {
+                      $tco_var_acc = new Data_List_Types.Cons(v.value0, acc);
+                      $copy_v = v.value1;
+                      return;
+                  };
+                  throw new Error("Failed pattern match at Data.List line 365, column 3 - line 365, column 19: " + [ acc.constructor.name, v.constructor.name ]);
+              };
+              while (!$tco_done) {
+                  $tco_result = $tco_loop($tco_var_acc, $copy_v);
+              };
+              return $tco_result;
+          };
+      };
+      return go(Data_List_Types.Nil.value);
+  })();
+  var $$null = function (v) {
+      if (v instanceof Data_List_Types.Nil) {
+          return true;
+      };
+      return false;
+  };
+  exports["null"] = $$null;
+  exports["reverse"] = reverse;
+})(PS["Data.List"] = PS["Data.List"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Category = PS["Control.Category"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Boolean = PS["Data.Boolean"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foldable = PS["Data.Foldable"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Functor = PS["Data.Functor"];
+  var Data_List = PS["Data.List"];
+  var Data_List_Types = PS["Data.List.Types"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_NonEmpty = PS["Data.NonEmpty"];
+  var Data_Ord = PS["Data.Ord"];
+  var Data_Ring = PS["Data.Ring"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Semigroup_Foldable = PS["Data.Semigroup.Foldable"];
+  var Data_Semigroup_Traversable = PS["Data.Semigroup.Traversable"];
+  var Data_Semiring = PS["Data.Semiring"];
+  var Data_Traversable = PS["Data.Traversable"];
+  var Data_Tuple = PS["Data.Tuple"];
+  var Data_Unfoldable = PS["Data.Unfoldable"];
+  var Partial_Unsafe = PS["Partial.Unsafe"];
+  var Prelude = PS["Prelude"];
+  var singleton = function ($160) {
+      return Data_List_Types.NonEmptyList(Data_NonEmpty.singleton(Data_List_Types.plusList)($160));
+  };
+  exports["singleton"] = singleton;
+})(PS["Data.List.NonEmpty"] = PS["Data.List.NonEmpty"] || {});
 (function(exports) {
     "use strict";
 
@@ -1517,25 +2679,75 @@ var PS = {};
       };
       return TypeMismatch;
   })();
+  var fail = function ($121) {
+      return Control_Monad_Error_Class.throwError(Control_Monad_Except_Trans.monadThrowExceptT(Data_Identity.monadIdentity))(Data_List_NonEmpty.singleton($121));
+  };
+  var unsafeReadTagged = function (tag) {
+      return function (value) {
+          if ($foreign.tagOf(value) === tag) {
+              return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))($foreign.unsafeFromForeign(value));
+          };
+          if (Data_Boolean.otherwise) {
+              return fail(new TypeMismatch(tag, $foreign.tagOf(value)));
+          };
+          throw new Error("Failed pattern match at Data.Foreign line 104, column 1 - line 104, column 55: " + [ tag.constructor.name, value.constructor.name ]);
+      };
+  };
   exports["TypeMismatch"] = TypeMismatch;
+  exports["fail"] = fail;
+  exports["unsafeReadTagged"] = unsafeReadTagged;
   exports["toForeign"] = $foreign.toForeign;
   exports["typeOf"] = $foreign.typeOf;
 })(PS["Data.Foreign"] = PS["Data.Foreign"] || {});
 (function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Monad_Except = PS["Control.Monad.Except"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Foreign = PS["Data.Foreign"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Prelude = PS["Prelude"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];        
+  var fromAny = function (f) {
+      return function ($0) {
+          return Data_Either.either(Data_Function["const"](Data_Maybe.Nothing.value))(Data_Maybe.Just.create)(Control_Monad_Except.runExcept(Unsafe_Coerce.unsafeCoerce(f)($0)));
+      };
+  };
+  exports["fromAny"] = fromAny;
+})(PS["DOM.Classy.Util"] = PS["DOM.Classy.Util"] || {});
+(function(exports) {
     "use strict";
 
-  // module Unsafe.Coerce
-
-  exports.unsafeCoerce = function (x) {
-    return x;
+  exports.preventDefault = function (e) {
+    return function () {
+      return e.preventDefault();
+    };
   };
-})(PS["Unsafe.Coerce"] = PS["Unsafe.Coerce"] || {});
+})(PS["DOM.Event.Event"] = PS["DOM.Event.Event"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
-  var $foreign = PS["Unsafe.Coerce"];
-  exports["unsafeCoerce"] = $foreign.unsafeCoerce;
-})(PS["Unsafe.Coerce"] = PS["Unsafe.Coerce"] || {});
+  var $foreign = PS["DOM.Event.Types"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Monad_Except_Trans = PS["Control.Monad.Except.Trans"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var Data_Bifunctor = PS["Data.Bifunctor"];
+  var Data_Either = PS["Data.Either"];
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Foreign = PS["Data.Foreign"];
+  var Data_Identity = PS["Data.Identity"];
+  var Data_List_Types = PS["Data.List.Types"];
+  var Data_Newtype = PS["Data.Newtype"];
+  var Data_Ord = PS["Data.Ord"];
+  var Prelude = PS["Prelude"];
+  var Unsafe_Coerce = PS["Unsafe.Coerce"];                               
+  var readMouseEvent = Data_Foreign.unsafeReadTagged("MouseEvent");
+  var mouseEventToEvent = Unsafe_Coerce.unsafeCoerce;
+  exports["mouseEventToEvent"] = mouseEventToEvent;
+  exports["readMouseEvent"] = readMouseEvent;
+})(PS["DOM.Event.Types"] = PS["DOM.Event.Types"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -1550,6 +2762,97 @@ var PS = {};
   var elementToNode = Unsafe_Coerce.unsafeCoerce;
   exports["elementToNode"] = elementToNode;
 })(PS["DOM.Node.Types"] = PS["DOM.Node.Types"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["DOM.Event.Event"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var DOM = PS["DOM"];
+  var DOM_Event_EventPhase = PS["DOM.Event.EventPhase"];
+  var DOM_Event_Types = PS["DOM.Event.Types"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  var Data_Enum = PS["Data.Enum"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Prelude = PS["Prelude"];
+  exports["preventDefault"] = $foreign.preventDefault;
+})(PS["DOM.Event.Event"] = PS["DOM.Event.Event"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Control_Category = PS["Control.Category"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Semigroupoid = PS["Control.Semigroupoid"];
+  var DOM = PS["DOM"];
+  var DOM_Classy_Util = PS["DOM.Classy.Util"];
+  var DOM_Event_Event = PS["DOM.Event.Event"];
+  var DOM_Event_EventPhase = PS["DOM.Event.EventPhase"];
+  var DOM_Event_Types = PS["DOM.Event.Types"];
+  var DOM_HTML_Event_Types = PS["DOM.HTML.Event.Types"];
+  var DOM_Node_Types = PS["DOM.Node.Types"];
+  var DOM_Websocket_Event_Types = PS["DOM.Websocket.Event.Types"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Prelude = PS["Prelude"];        
+  var IsEvent = function (fromEvent, toEvent) {
+      this.fromEvent = fromEvent;
+      this.toEvent = toEvent;
+  };
+  var toEvent = function (dict) {
+      return dict.toEvent;
+  };                                                                                                                                       
+  var isEventMouseEvent = new IsEvent(DOM_Classy_Util.fromAny(DOM_Event_Types.readMouseEvent), DOM_Event_Types.mouseEventToEvent);                    
+  var fromEvent = function (dict) {
+      return dict.fromEvent;
+  };
+  exports["IsEvent"] = IsEvent;
+  exports["fromEvent"] = fromEvent;
+  exports["toEvent"] = toEvent;
+  exports["isEventMouseEvent"] = isEventMouseEvent;
+})(PS["DOM.Classy.Event"] = PS["DOM.Classy.Event"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var Data_Eq = PS["Data.Eq"];
+  var Data_Ord = PS["Data.Ord"];
+  var Prelude = PS["Prelude"];        
+  var OrdBox = (function () {
+      function OrdBox(value0, value1, value2) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+      };
+      OrdBox.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return new OrdBox(value0, value1, value2);
+              };
+          };
+      };
+      return OrdBox;
+  })();
+  var unOrdBox = function (v) {
+      return v.value2;
+  };
+  var mkOrdBox = function (dictOrd) {
+      return OrdBox.create(Data_Eq.eq(dictOrd.Eq0()))(Data_Ord.compare(dictOrd));
+  };
+  var eqOrdBox = new Data_Eq.Eq(function (v) {
+      return function (v1) {
+          return v.value0(v.value2)(v1.value2);
+      };
+  });
+  var ordOrdBox = new Data_Ord.Ord(function () {
+      return eqOrdBox;
+  }, function (v) {
+      return function (v1) {
+          return v.value1(v.value2)(v1.value2);
+      };
+  });
+  exports["mkOrdBox"] = mkOrdBox;
+  exports["unOrdBox"] = unOrdBox;
+  exports["eqOrdBox"] = eqOrdBox;
+  exports["ordOrdBox"] = ordOrdBox;
+})(PS["Halogen.Data.OrdBox"] = PS["Halogen.Data.OrdBox"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -1607,63 +2910,6 @@ var PS = {};
 (function(exports) {
     "use strict";
 
-  exports.newRef = function (val) {
-    return function () {
-      return { value: val };
-    };
-  };
-
-  exports.readRef = function (ref) {
-    return function () {
-      return ref.value;
-    };
-  };
-
-  exports["modifyRef'"] = function (ref) {
-    return function (f) {
-      return function () {
-        var t = f(ref.value);
-        ref.value = t.state;
-        return t.value;
-      };
-    };
-  };
-
-  exports.writeRef = function (ref) {
-    return function (val) {
-      return function () {
-        ref.value = val;
-        return {};
-      };
-    };
-  };
-})(PS["Control.Monad.Eff.Ref"] = PS["Control.Monad.Eff.Ref"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var $foreign = PS["Control.Monad.Eff.Ref"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];        
-  var modifyRef = function (ref) {
-      return function (f) {
-          return $foreign["modifyRef'"](ref)(function (s) {
-              return {
-                  state: f(s), 
-                  value: Data_Unit.unit
-              };
-          });
-      };
-  };
-  exports["modifyRef"] = modifyRef;
-  exports["modifyRef'"] = $foreign["modifyRef'"];
-  exports["newRef"] = $foreign.newRef;
-  exports["readRef"] = $foreign.readRef;
-  exports["writeRef"] = $foreign.writeRef;
-})(PS["Control.Monad.Eff.Ref"] = PS["Control.Monad.Eff.Ref"] || {});
-(function(exports) {
-    "use strict";
-
   exports.eventListener = function (fn) {
     return function (event) {
       return fn(event)();
@@ -1684,38 +2930,6 @@ var PS = {};
   };
 })(PS["DOM.Event.EventTarget"] = PS["DOM.Event.EventTarget"] || {});
 (function(exports) {
-    "use strict";
-
-  exports.error = function (msg) {
-    return new Error(msg);
-  };
-
-  exports.throwException = function (e) {
-    return function () {
-      throw e;
-    };
-  };
-})(PS["Control.Monad.Eff.Exception"] = PS["Control.Monad.Eff.Exception"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var $foreign = PS["Control.Monad.Eff.Exception"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Show = PS["Data.Show"];
-  var Prelude = PS["Prelude"];
-  var $$throw = function ($1) {
-      return $foreign.throwException($foreign.error($1));
-  };
-  exports["throw"] = $$throw;
-  exports["error"] = $foreign.error;
-  exports["throwException"] = $foreign.throwException;
-})(PS["Control.Monad.Eff.Exception"] = PS["Control.Monad.Eff.Exception"] || {});
-(function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
   var $foreign = PS["DOM.Event.EventTarget"];
@@ -1727,28 +2941,6 @@ var PS = {};
   exports["addEventListener"] = $foreign.addEventListener;
   exports["eventListener"] = $foreign.eventListener;
 })(PS["DOM.Event.EventTarget"] = PS["DOM.Event.EventTarget"] || {});
-(function(exports) {
-    "use strict";
-
-  exports.runFn4 = function (fn) {
-    return function (a) {
-      return function (b) {
-        return function (c) {
-          return function (d) {
-            return fn(a, b, c, d);
-          };
-        };
-      };
-    };
-  };
-})(PS["Data.Function.Uncurried"] = PS["Data.Function.Uncurried"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var $foreign = PS["Data.Function.Uncurried"];
-  var Data_Unit = PS["Data.Unit"];
-  exports["runFn4"] = $foreign.runFn4;
-})(PS["Data.Function.Uncurried"] = PS["Data.Function.Uncurried"] || {});
 (function(exports) {
     "use strict";
 
@@ -1829,53 +3021,6 @@ var PS = {};
     return xs.length;
   };
 })(PS["Data.Array"] = PS["Data.Array"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Control_Alt = PS["Control.Alt"];
-  var Control_Alternative = PS["Control.Alternative"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Category = PS["Control.Category"];
-  var Control_Plus = PS["Control.Plus"];
-  var Data_Eq = PS["Data.Eq"];
-  var Data_Foldable = PS["Data.Foldable"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
-  var Data_Ord = PS["Data.Ord"];
-  var Data_Ordering = PS["Data.Ordering"];
-  var Data_Semigroup = PS["Data.Semigroup"];
-  var Data_Show = PS["Data.Show"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var Prelude = PS["Prelude"];        
-  var NonEmpty = (function () {
-      function NonEmpty(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
-      };
-      NonEmpty.create = function (value0) {
-          return function (value1) {
-              return new NonEmpty(value0, value1);
-          };
-      };
-      return NonEmpty;
-  })();
-  var singleton = function (dictPlus) {
-      return function (a) {
-          return new NonEmpty(a, Control_Plus.empty(dictPlus));
-      };
-  };
-  var functorNonEmpty = function (dictFunctor) {
-      return new Data_Functor.Functor(function (f) {
-          return function (v) {
-              return new NonEmpty(f(v.value0), Data_Functor.map(dictFunctor)(f)(v.value1));
-          };
-      });
-  };
-  exports["NonEmpty"] = NonEmpty;
-  exports["singleton"] = singleton;
-  exports["functorNonEmpty"] = functorNonEmpty;
-})(PS["Data.NonEmpty"] = PS["Data.NonEmpty"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -2801,6 +3946,19 @@ var PS = {};
   var stringIsProp = new IsProp(Halogen_VDom_DOM_Prop.propFromString);
   var slot = function ($56) {
       return HTML(Halogen_VDom_Types.Widget.create($56));
+  }; 
+  var ref = function (f) {
+      return Halogen_VDom_DOM_Prop.Ref.create(function ($58) {
+          return f((function (v) {
+              if (v instanceof Halogen_VDom_DOM_Prop.Created) {
+                  return new Data_Maybe.Just(v.value0);
+              };
+              if (v instanceof Halogen_VDom_DOM_Prop.Removed) {
+                  return Data_Maybe.Nothing.value;
+              };
+              throw new Error("Failed pattern match at Halogen.HTML.Core line 104, column 21 - line 106, column 23: " + [ v.constructor.name ]);
+          })($58));
+      });
   };
   var prop = function (dictIsProp) {
       return function (v) {
@@ -2835,6 +3993,7 @@ var PS = {};
   exports["element"] = element;
   exports["handler"] = handler;
   exports["prop"] = prop;
+  exports["ref"] = ref;
   exports["slot"] = slot;
   exports["text"] = text;
   exports["toPropValue"] = toPropValue;
@@ -2935,674 +4094,6 @@ var PS = {};
   exports["retractFreeAp"] = retractFreeAp;
 })(PS["Control.Applicative.Free"] = PS["Control.Applicative.Free"] || {});
 (function(exports) {
-  /* globals setTimeout, clearTimeout, setImmediate, clearImmediate */
-  "use strict";
-
-  exports._cancelWith = function (nonCanceler, aff, canceler1) {
-    return function (success, error) {
-      var canceler2 = aff(success, error);
-
-      return function (e) {
-        return function (success, error) {
-          var cancellations = 0;
-          var result = false;
-          var errored = false;
-
-          var s = function (bool) {
-            cancellations = cancellations + 1;
-            result = result || bool;
-
-            if (cancellations === 2 && !errored) {
-              success(result);
-            }
-          };
-
-          var f = function (err) {
-            if (!errored) {
-              errored = true;
-              error(err);
-            }
-          };
-
-          canceler2(e)(s, f);
-          canceler1(e)(s, f);
-
-          return nonCanceler;
-        };
-      };
-    };
-  };
-
-  exports._forkAff = function (nonCanceler, aff) {
-    var voidF = function () {};
-
-    return function (success) {
-      var canceler = aff(voidF, voidF);
-      success(canceler);
-      return nonCanceler;
-    };
-  };
-
-  exports._forkAll = function (nonCanceler, foldl, affs) {
-    var voidF = function () {};
-
-    return function (success) {
-      var cancelers = foldl(function (acc) {
-        return function (aff) {
-          acc.push(aff(voidF, voidF));
-          return acc;
-        };
-      })([])(affs);
-
-      var canceler = function (e) {
-        return function (success, error) {
-          var cancellations = 0;
-          var result        = false;
-          var errored       = false;
-
-          var s = function (bool) {
-            cancellations = cancellations + 1;
-            result        = result || bool;
-
-            if (cancellations === cancelers.length && !errored) {
-              success(result);
-            }
-          };
-
-          var f = function (err) {
-            if (!errored) {
-              errored = true;
-              error(err);
-            }
-          };
-
-          for (var i = 0; i < cancelers.length; i++) {
-            cancelers[i](e)(s, f);
-          }
-
-          return nonCanceler;
-        };
-      };
-
-      success(canceler);
-      return nonCanceler;
-    };
-  };
-
-  exports._makeAff = function (cb) {
-    return function (success, error) {
-      try {
-        return cb(function (e) {
-          return function () {
-            error(e);
-          };
-        })(function (v) {
-          return function () {
-            success(v);
-          };
-        })();
-      } catch (err) {
-        error(err);
-      }
-    };
-  };
-
-  exports._pure = function (nonCanceler, v) {
-    return function (success) {
-      success(v);
-      return nonCanceler;
-    };
-  };
-
-  exports._throwError = function (nonCanceler, e) {
-    return function (success, error) {
-      error(e);
-      return nonCanceler;
-    };
-  };
-
-  exports._fmap = function (f, aff) {
-    return function (success, error) {
-      return aff(function (v) {
-        success(f(v));
-      }, error);
-    };
-  };
-
-  exports._bind = function (alwaysCanceler, aff, f) {
-    return function (success, error) {
-      var canceler1, canceler2;
-
-      var isCanceled    = false;
-      var requestCancel = false;
-
-      var onCanceler = function () {};
-
-      canceler1 = aff(function (v) {
-        if (requestCancel) {
-          isCanceled = true;
-
-          return alwaysCanceler;
-        } else {
-          canceler2 = f(v)(success, error);
-
-          onCanceler(canceler2);
-
-          return canceler2;
-        }
-      }, error);
-
-      return function (e) {
-        return function (s, f) {
-          requestCancel = true;
-
-          if (canceler2 !== undefined) {
-            return canceler2(e)(s, f);
-          } else {
-            return canceler1(e)(function (bool) {
-              if (bool || isCanceled) {
-                s(true);
-              } else {
-                onCanceler = function (canceler) {
-                  canceler(e)(s, f);
-                };
-              }
-            }, f);
-          }
-        };
-      };
-    };
-  };
-
-  exports._attempt = function (Left, Right, aff) {
-    return function (success) {
-      return aff(function (v) {
-        success(Right(v));
-      }, function (e) {
-        success(Left(e));
-      });
-    };
-  };
-
-  exports._runAff = function (errorT, successT, aff) {
-    // If errorT or successT throw, and an Aff is comprised only of synchronous
-    // effects, then it's possible for makeAff/liftEff to accidentally catch
-    // it, which may end up rerunning the Aff depending on error recovery
-    // behavior. To mitigate this, we observe synchronicity using mutation. If
-    // an Aff is observed to be synchronous, we let the stack reset and run the
-    // handlers outside of the normal callback flow.
-    return function () {
-      var status = 0;
-      var result, success;
-
-      var canceler = aff(function (v) {
-        if (status === 2) {
-          successT(v)();
-        } else {
-          status = 1;
-          result = v;
-          success = true;
-        }
-      }, function (e) {
-        if (status === 2) {
-          errorT(e)();
-        } else {
-          status = 1;
-          result = e;
-          success = false;
-        }
-      });
-
-      if (status === 1) {
-        if (success) {
-          successT(result)();
-        } else {
-          errorT(result)();
-        }
-      } else {
-        status = 2;
-      }
-
-      return canceler;
-    };
-  };
-
-  exports._liftEff = function (nonCanceler, e) {
-    return function (success, error) {
-      var result;
-      try {
-        result = e();
-      } catch (err) {
-        error(err);
-        return nonCanceler;
-      }
-
-      success(result);
-      return nonCanceler;
-    };
-  };
-
-  exports._tailRecM = function (isLeft, f, a) {
-    return function (success, error) {
-      return function go (acc) {
-        var result, status, canceler;
-
-        // Observes synchronous effects using a flag.
-        //   status = 0 (unresolved status)
-        //   status = 1 (synchronous effect)
-        //   status = 2 (asynchronous effect)
-
-        var csuccess = function (v) {
-          // If the status is still unresolved, we have observed a
-          // synchronous effect. Otherwise, the status will be `2`.
-          if (status === 0) {
-            // Store the result for further synchronous processing.
-            result = v;
-            status = 1;
-          } else {
-            // When we have observed an asynchronous effect, we use normal
-            // recursion. This is safe because we will be on a new stack.
-            if (isLeft(v)) {
-              go(v.value0);
-            } else {
-              success(v.value0);
-            }
-          }
-        };
-
-        while (true) {
-          status = 0;
-          canceler = f(acc)(csuccess, error);
-
-          // If the status has already resolved to `1` by our Aff handler, then
-          // we have observed a synchronous effect. Otherwise it will still be
-          // `0`.
-          if (status === 1) {
-            // When we have observed a synchronous effect, we merely swap out the
-            // accumulator and continue the loop, preserving stack.
-            if (isLeft(result)) {
-              acc = result.value0;
-              continue;
-            } else {
-              success(result.value0);
-            }
-          } else {
-            // If the status has not resolved yet, then we have observed an
-            // asynchronous effect.
-            status = 2;
-          }
-          return canceler;
-        }
-
-      }(a);
-    };
-  };
-})(PS["Control.Monad.Aff"] = PS["Control.Monad.Aff"] || {});
-(function(exports) {
-    "use strict";
-
-  exports._makeVar = function (nonCanceler) {
-    return function (success) {
-      success({
-        consumers: [],
-        producers: [],
-        error: undefined
-      });
-      return nonCanceler;
-    };
-  };
-
-  exports._takeVar = function (nonCanceler, avar) {
-    return function (success, error) {
-      if (avar.error !== undefined) {
-        error(avar.error);
-      } else if (avar.producers.length > 0) {
-        avar.producers.shift()(success, error);
-      } else {
-        avar.consumers.push({ peek: false, success: success, error: error });
-      }
-
-      return nonCanceler;
-    };
-  };
-
-  exports._peekVar = function (nonCanceler, avar) {
-    return function (success, error) {
-      if (avar.error !== undefined) {
-        error(avar.error);
-      } else if (avar.producers.length > 0) {
-        avar.producers[0](success, error);
-      } else {
-        avar.consumers.push({ peek: true, success: success, error: error });
-      }
-      return nonCanceler;
-    };
-  };
-
-  exports._putVar = function (nonCanceler, avar, a) {
-    return function (success, error) {
-      if (avar.error !== undefined) {
-        error(avar.error);
-      } else {
-        var shouldQueue = true;
-        var consumers = [];
-        var consumer;
-
-        while (true) {
-          consumer = avar.consumers.shift();
-          if (consumer) {
-            consumers.push(consumer);
-            if (consumer.peek) {
-              continue;
-            } else {
-              shouldQueue = false;
-            }
-          }
-          break;
-        }
-
-        if (shouldQueue) {
-          avar.producers.push(function (success) {
-            success(a);
-            return nonCanceler;
-          });
-        }
-
-        for (var i = 0; i < consumers.length; i++) {
-          consumers[i].success(a);
-        }
-
-        success({});
-      }
-
-      return nonCanceler;
-    };
-  };
-
-  exports._killVar = function (nonCanceler, avar, e) {
-    return function (success, error) {
-      if (avar.error !== undefined) {
-        error(avar.error);
-      } else {
-        avar.error = e;
-        while (avar.consumers.length) {
-          avar.consumers.shift().error(e);
-        }
-        success({});
-      }
-
-      return nonCanceler;
-    };
-  };
-})(PS["Control.Monad.Aff.Internal"] = PS["Control.Monad.Aff.Internal"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var $foreign = PS["Control.Monad.Aff.Internal"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Data_Function_Uncurried = PS["Data.Function.Uncurried"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Prelude = PS["Prelude"];
-  exports["_killVar"] = $foreign._killVar;
-  exports["_makeVar"] = $foreign._makeVar;
-  exports["_peekVar"] = $foreign._peekVar;
-  exports["_putVar"] = $foreign._putVar;
-  exports["_takeVar"] = $foreign._takeVar;
-})(PS["Control.Monad.Aff.Internal"] = PS["Control.Monad.Aff.Internal"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Control_Alt = PS["Control.Alt"];
-  var Control_Alternative = PS["Control.Alternative"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Monad_Cont_Trans = PS["Control.Monad.Cont.Trans"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
-  var Control_Monad_Eff_Ref = PS["Control.Monad.Eff.Ref"];
-  var Control_Monad_Eff_Unsafe = PS["Control.Monad.Eff.Unsafe"];
-  var Control_Monad_Except_Trans = PS["Control.Monad.Except.Trans"];
-  var Control_Monad_Maybe_Trans = PS["Control.Monad.Maybe.Trans"];
-  var Control_Monad_Reader_Trans = PS["Control.Monad.Reader.Trans"];
-  var Control_Monad_Writer_Trans = PS["Control.Monad.Writer.Trans"];
-  var Control_Plus = PS["Control.Plus"];
-  var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_Functor_Compose = PS["Data.Functor.Compose"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Monoid = PS["Data.Monoid"];
-  var Data_Newtype = PS["Data.Newtype"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];
-  var Parallel = function (Applicative1, Monad0, parallel, sequential) {
-      this.Applicative1 = Applicative1;
-      this.Monad0 = Monad0;
-      this.parallel = parallel;
-      this.sequential = sequential;
-  };                                                           
-  var sequential = function (dict) {
-      return dict.sequential;
-  };
-  var parallel = function (dict) {
-      return dict.parallel;
-  };
-  exports["Parallel"] = Parallel;
-  exports["parallel"] = parallel;
-  exports["sequential"] = sequential;
-})(PS["Control.Parallel.Class"] = PS["Control.Parallel.Class"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var $foreign = PS["Control.Monad.Aff"];
-  var Control_Alt = PS["Control.Alt"];
-  var Control_Alternative = PS["Control.Alternative"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Monad = PS["Control.Monad"];
-  var Control_Monad_Aff_Internal = PS["Control.Monad.Aff.Internal"];
-  var Control_Monad_Eff = PS["Control.Monad.Eff"];
-  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
-  var Control_Monad_Eff_Exception = PS["Control.Monad.Eff.Exception"];
-  var Control_Monad_Error_Class = PS["Control.Monad.Error.Class"];
-  var Control_Monad_Rec_Class = PS["Control.Monad.Rec.Class"];
-  var Control_MonadPlus = PS["Control.MonadPlus"];
-  var Control_MonadZero = PS["Control.MonadZero"];
-  var Control_Parallel = PS["Control.Parallel"];
-  var Control_Parallel_Class = PS["Control.Parallel.Class"];
-  var Control_Plus = PS["Control.Plus"];
-  var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var Data_Either = PS["Data.Either"];
-  var Data_Eq = PS["Data.Eq"];
-  var Data_Foldable = PS["Data.Foldable"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Function_Uncurried = PS["Data.Function.Uncurried"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
-  var Data_Monoid = PS["Data.Monoid"];
-  var Data_Newtype = PS["Data.Newtype"];
-  var Data_Semigroup = PS["Data.Semigroup"];
-  var Data_Semiring = PS["Data.Semiring"];
-  var Data_Time_Duration = PS["Data.Time.Duration"];
-  var Data_Tuple = PS["Data.Tuple"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];
-  var Unsafe_Coerce = PS["Unsafe.Coerce"];        
-  var ParAff = function (x) {
-      return x;
-  };
-  var runAff = function (ex) {
-      return function (f) {
-          return function (aff) {
-              return $foreign._runAff(ex, f, aff);
-          };
-      };
-  };         
-  var makeAff$prime = function (h) {
-      return $foreign._makeAff(h);
-  };
-  var functorAff = new Data_Functor.Functor(function (f) {
-      return function (fa) {
-          return $foreign._fmap(f, fa);
-      };
-  });
-  var functorParAff = functorAff;
-  var fromAVBox = Unsafe_Coerce.unsafeCoerce;
-  var cancel = function (v) {
-      return v;
-  };   
-  var attempt = function (aff) {
-      return $foreign._attempt(Data_Either.Left.create, Data_Either.Right.create, aff);
-  };
-  var applyAff = new Control_Apply.Apply(function () {
-      return functorAff;
-  }, function (ff) {
-      return function (fa) {
-          return $foreign._bind(alwaysCanceler, ff, function (f) {
-              return Data_Functor.map(functorAff)(f)(fa);
-          });
-      };
-  });
-  var applicativeAff = new Control_Applicative.Applicative(function () {
-      return applyAff;
-  }, function (v) {
-      return $foreign._pure(nonCanceler, v);
-  });
-  var nonCanceler = Data_Function["const"](Control_Applicative.pure(applicativeAff)(false));
-  var alwaysCanceler = Data_Function["const"](Control_Applicative.pure(applicativeAff)(true));
-  var cancelWith = function (aff) {
-      return function (c) {
-          return $foreign._cancelWith(nonCanceler, aff, c);
-      };
-  };
-  var forkAff = function (aff) {
-      return $foreign._forkAff(nonCanceler, aff);
-  };
-  var forkAll = function (dictFoldable) {
-      return function (affs) {
-          return $foreign._forkAll(nonCanceler, Data_Foldable.foldl(dictFoldable), affs);
-      };
-  };
-  var killVar = function (q) {
-      return function (e) {
-          return fromAVBox(Control_Monad_Aff_Internal._killVar(nonCanceler, q, e));
-      };
-  };
-  var makeAff = function (h) {
-      return makeAff$prime(function (e) {
-          return function (a) {
-              return Data_Functor.map(Control_Monad_Eff.functorEff)(Data_Function["const"](nonCanceler))(h(e)(a));
-          };
-      });
-  };
-  var makeVar = fromAVBox(Control_Monad_Aff_Internal._makeVar(nonCanceler));
-  var putVar = function (q) {
-      return function (a) {
-          return fromAVBox(Control_Monad_Aff_Internal._putVar(nonCanceler, q, a));
-      };
-  };
-  var takeVar = function (q) {
-      return fromAVBox(Control_Monad_Aff_Internal._takeVar(nonCanceler, q));
-  };
-  var semigroupCanceler = new Data_Semigroup.Semigroup(function (v) {
-      return function (v1) {
-          return function (e) {
-              return Control_Apply.apply(applyAff)(Data_Functor.map(functorAff)(Data_HeytingAlgebra.disj(Data_HeytingAlgebra.heytingAlgebraBoolean))(v(e)))(v1(e));
-          };
-      };
-  });                                                                        
-  var bindAff = new Control_Bind.Bind(function () {
-      return applyAff;
-  }, function (fa) {
-      return function (f) {
-          return $foreign._bind(alwaysCanceler, fa, f);
-      };
-  });
-  var applyParAff = new Control_Apply.Apply(function () {
-      return functorParAff;
-  }, function (v) {
-      return function (v1) {
-          var putOrKill = function (v2) {
-              return Data_Either.either(killVar(v2))(putVar(v2));
-          };
-          return Control_Bind.bind(bindAff)(makeVar)(function (v2) {
-              return Control_Bind.bind(bindAff)(makeVar)(function (v3) {
-                  return Control_Bind.bind(bindAff)(forkAff(Control_Bind.bindFlipped(bindAff)(putOrKill(v2))(attempt(v))))(function (v4) {
-                      return Control_Bind.bind(bindAff)(forkAff(Control_Bind.bindFlipped(bindAff)(putOrKill(v3))(attempt(v1))))(function (v5) {
-                          return cancelWith(Control_Apply.apply(applyAff)(takeVar(v2))(takeVar(v3)))(Data_Semigroup.append(semigroupCanceler)(v4)(v5));
-                      });
-                  });
-              });
-          });
-      };
-  });
-  var applicativeParAff = new Control_Applicative.Applicative(function () {
-      return applyParAff;
-  }, function ($56) {
-      return ParAff(Control_Applicative.pure(applicativeAff)($56));
-  });
-  var monadAff = new Control_Monad.Monad(function () {
-      return applicativeAff;
-  }, function () {
-      return bindAff;
-  });
-  var monadEffAff = new Control_Monad_Eff_Class.MonadEff(function () {
-      return monadAff;
-  }, function (eff) {
-      return $foreign._liftEff(nonCanceler, eff);
-  });
-  var monadRecAff = new Control_Monad_Rec_Class.MonadRec(function () {
-      return monadAff;
-  }, function (f) {
-      return function (a) {
-          var isLoop = function (v) {
-              if (v instanceof Control_Monad_Rec_Class.Loop) {
-                  return true;
-              };
-              return false;
-          };
-          return $foreign._tailRecM(isLoop, f, a);
-      };
-  });
-  var monadThrowAff = new Control_Monad_Error_Class.MonadThrow(function () {
-      return monadAff;
-  }, function (e) {
-      return $foreign._throwError(nonCanceler, e);
-  });
-  var parallelParAff = new Control_Parallel_Class.Parallel(function () {
-      return applicativeParAff;
-  }, function () {
-      return monadAff;
-  }, ParAff, function (v) {
-      return v;
-  });
-  exports["ParAff"] = ParAff;
-  exports["attempt"] = attempt;
-  exports["cancel"] = cancel;
-  exports["cancelWith"] = cancelWith;
-  exports["forkAff"] = forkAff;
-  exports["forkAll"] = forkAll;
-  exports["makeAff"] = makeAff;
-  exports["nonCanceler"] = nonCanceler;
-  exports["runAff"] = runAff;
-  exports["functorAff"] = functorAff;
-  exports["applyAff"] = applyAff;
-  exports["applicativeAff"] = applicativeAff;
-  exports["bindAff"] = bindAff;
-  exports["monadAff"] = monadAff;
-  exports["monadEffAff"] = monadEffAff;
-  exports["monadThrowAff"] = monadThrowAff;
-  exports["monadRecAff"] = monadRecAff;
-  exports["semigroupCanceler"] = semigroupCanceler;
-  exports["functorParAff"] = functorParAff;
-  exports["applyParAff"] = applyParAff;
-  exports["applicativeParAff"] = applicativeParAff;
-  exports["parallelParAff"] = parallelParAff;
-})(PS["Control.Monad.Aff"] = PS["Control.Monad.Aff"] || {});
-(function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
@@ -3628,258 +4119,6 @@ var PS = {};
   exports["fork"] = fork;
   exports["monadForkAff"] = monadForkAff;
 })(PS["Control.Monad.Fork.Class"] = PS["Control.Monad.Fork.Class"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Control_Alt = PS["Control.Alt"];
-  var Control_Alternative = PS["Control.Alternative"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Category = PS["Control.Category"];
-  var Control_Comonad = PS["Control.Comonad"];
-  var Control_Extend = PS["Control.Extend"];
-  var Control_Monad = PS["Control.Monad"];
-  var Control_MonadPlus = PS["Control.MonadPlus"];
-  var Control_MonadZero = PS["Control.MonadZero"];
-  var Control_Plus = PS["Control.Plus"];
-  var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var Data_Eq = PS["Data.Eq"];
-  var Data_Foldable = PS["Data.Foldable"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Monoid = PS["Data.Monoid"];
-  var Data_Newtype = PS["Data.Newtype"];
-  var Data_NonEmpty = PS["Data.NonEmpty"];
-  var Data_Ord = PS["Data.Ord"];
-  var Data_Ordering = PS["Data.Ordering"];
-  var Data_Semigroup = PS["Data.Semigroup"];
-  var Data_Semigroup_Foldable = PS["Data.Semigroup.Foldable"];
-  var Data_Semigroup_Traversable = PS["Data.Semigroup.Traversable"];
-  var Data_Show = PS["Data.Show"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var Data_Tuple = PS["Data.Tuple"];
-  var Data_Unfoldable = PS["Data.Unfoldable"];
-  var Prelude = PS["Prelude"];        
-  var Nil = (function () {
-      function Nil() {
-
-      };
-      Nil.value = new Nil();
-      return Nil;
-  })();
-  var Cons = (function () {
-      function Cons(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
-      };
-      Cons.create = function (value0) {
-          return function (value1) {
-              return new Cons(value0, value1);
-          };
-      };
-      return Cons;
-  })();
-  var NonEmptyList = function (x) {
-      return x;
-  };
-  var foldableList = new Data_Foldable.Foldable(function (dictMonoid) {
-      return function (f) {
-          return Data_Foldable.foldl(foldableList)(function (acc) {
-              return function ($143) {
-                  return Data_Semigroup.append(dictMonoid.Semigroup0())(acc)(f($143));
-              };
-          })(Data_Monoid.mempty(dictMonoid));
-      };
-  }, function (f) {
-      var go = function ($copy_b) {
-          return function ($copy_v) {
-              var $tco_var_b = $copy_b;
-              var $tco_done = false;
-              var $tco_result;
-              function $tco_loop(b, v) {
-                  if (v instanceof Nil) {
-                      $tco_done = true;
-                      return b;
-                  };
-                  if (v instanceof Cons) {
-                      $tco_var_b = f(b)(v.value0);
-                      $copy_v = v.value1;
-                      return;
-                  };
-                  throw new Error("Failed pattern match at Data.List.Types line 78, column 12 - line 80, column 30: " + [ v.constructor.name ]);
-              };
-              while (!$tco_done) {
-                  $tco_result = $tco_loop($tco_var_b, $copy_v);
-              };
-              return $tco_result;
-          };
-      };
-      return go;
-  }, function (f) {
-      return function (b) {
-          var rev = function ($copy_acc) {
-              return function ($copy_v) {
-                  var $tco_var_acc = $copy_acc;
-                  var $tco_done = false;
-                  var $tco_result;
-                  function $tco_loop(acc, v) {
-                      if (v instanceof Nil) {
-                          $tco_done = true;
-                          return acc;
-                      };
-                      if (v instanceof Cons) {
-                          $tco_var_acc = new Cons(v.value0, acc);
-                          $copy_v = v.value1;
-                          return;
-                      };
-                      throw new Error("Failed pattern match at Data.List.Types line 73, column 15 - line 75, column 33: " + [ v.constructor.name ]);
-                  };
-                  while (!$tco_done) {
-                      $tco_result = $tco_loop($tco_var_acc, $copy_v);
-                  };
-                  return $tco_result;
-              };
-          };
-          return function ($144) {
-              return Data_Foldable.foldl(foldableList)(Data_Function.flip(f))(b)(rev(Nil.value)($144));
-          };
-      };
-  });                                                                     
-  var functorList = new Data_Functor.Functor(function (f) {
-      return Data_Foldable.foldr(foldableList)(function (x) {
-          return function (acc) {
-              return new Cons(f(x), acc);
-          };
-      })(Nil.value);
-  });
-  var functorNonEmptyList = Data_NonEmpty.functorNonEmpty(functorList);
-  var semigroupList = new Data_Semigroup.Semigroup(function (xs) {
-      return function (ys) {
-          return Data_Foldable.foldr(foldableList)(Cons.create)(ys)(xs);
-      };
-  });
-  var applyList = new Control_Apply.Apply(function () {
-      return functorList;
-  }, function (v) {
-      return function (v1) {
-          if (v instanceof Nil) {
-              return Nil.value;
-          };
-          if (v instanceof Cons) {
-              return Data_Semigroup.append(semigroupList)(Data_Functor.map(functorList)(v.value0)(v1))(Control_Apply.apply(applyList)(v.value1)(v1));
-          };
-          throw new Error("Failed pattern match at Data.List.Types line 94, column 1 - line 94, column 33: " + [ v.constructor.name, v1.constructor.name ]);
-      };
-  });
-  var applyNonEmptyList = new Control_Apply.Apply(function () {
-      return functorNonEmptyList;
-  }, function (v) {
-      return function (v1) {
-          return new Data_NonEmpty.NonEmpty(v.value0(v1.value0), Data_Semigroup.append(semigroupList)(Control_Apply.apply(applyList)(v.value1)(new Cons(v1.value0, Nil.value)))(Control_Apply.apply(applyList)(new Cons(v.value0, v.value1))(v1.value1)));
-      };
-  });
-  var applicativeList = new Control_Applicative.Applicative(function () {
-      return applyList;
-  }, function (a) {
-      return new Cons(a, Nil.value);
-  });                                              
-  var altList = new Control_Alt.Alt(function () {
-      return functorList;
-  }, Data_Semigroup.append(semigroupList));
-  var plusList = new Control_Plus.Plus(function () {
-      return altList;
-  }, Nil.value);
-  var applicativeNonEmptyList = new Control_Applicative.Applicative(function () {
-      return applyNonEmptyList;
-  }, function ($149) {
-      return NonEmptyList(Data_NonEmpty.singleton(plusList)($149));
-  });
-  exports["Nil"] = Nil;
-  exports["Cons"] = Cons;
-  exports["NonEmptyList"] = NonEmptyList;
-  exports["semigroupList"] = semigroupList;
-  exports["functorList"] = functorList;
-  exports["foldableList"] = foldableList;
-  exports["applyList"] = applyList;
-  exports["applicativeList"] = applicativeList;
-  exports["altList"] = altList;
-  exports["plusList"] = plusList;
-  exports["functorNonEmptyList"] = functorNonEmptyList;
-  exports["applyNonEmptyList"] = applyNonEmptyList;
-  exports["applicativeNonEmptyList"] = applicativeNonEmptyList;
-})(PS["Data.List.Types"] = PS["Data.List.Types"] || {});
-(function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
-  var Control_Alt = PS["Control.Alt"];
-  var Control_Alternative = PS["Control.Alternative"];
-  var Control_Applicative = PS["Control.Applicative"];
-  var Control_Apply = PS["Control.Apply"];
-  var Control_Bind = PS["Control.Bind"];
-  var Control_Category = PS["Control.Category"];
-  var Control_Lazy = PS["Control.Lazy"];
-  var Control_Monad_Rec_Class = PS["Control.Monad.Rec.Class"];
-  var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var Data_Bifunctor = PS["Data.Bifunctor"];
-  var Data_Boolean = PS["Data.Boolean"];
-  var Data_Eq = PS["Data.Eq"];
-  var Data_Foldable = PS["Data.Foldable"];
-  var Data_Function = PS["Data.Function"];
-  var Data_Functor = PS["Data.Functor"];
-  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
-  var Data_List_Types = PS["Data.List.Types"];
-  var Data_Maybe = PS["Data.Maybe"];
-  var Data_Newtype = PS["Data.Newtype"];
-  var Data_NonEmpty = PS["Data.NonEmpty"];
-  var Data_Ord = PS["Data.Ord"];
-  var Data_Ordering = PS["Data.Ordering"];
-  var Data_Ring = PS["Data.Ring"];
-  var Data_Semigroup = PS["Data.Semigroup"];
-  var Data_Semiring = PS["Data.Semiring"];
-  var Data_Show = PS["Data.Show"];
-  var Data_Traversable = PS["Data.Traversable"];
-  var Data_Tuple = PS["Data.Tuple"];
-  var Data_Unfoldable = PS["Data.Unfoldable"];
-  var Data_Unit = PS["Data.Unit"];
-  var Prelude = PS["Prelude"];
-  var reverse = (function () {
-      var go = function ($copy_acc) {
-          return function ($copy_v) {
-              var $tco_var_acc = $copy_acc;
-              var $tco_done = false;
-              var $tco_result;
-              function $tco_loop(acc, v) {
-                  if (v instanceof Data_List_Types.Nil) {
-                      $tco_done = true;
-                      return acc;
-                  };
-                  if (v instanceof Data_List_Types.Cons) {
-                      $tco_var_acc = new Data_List_Types.Cons(v.value0, acc);
-                      $copy_v = v.value1;
-                      return;
-                  };
-                  throw new Error("Failed pattern match at Data.List line 365, column 3 - line 365, column 19: " + [ acc.constructor.name, v.constructor.name ]);
-              };
-              while (!$tco_done) {
-                  $tco_result = $tco_loop($tco_var_acc, $copy_v);
-              };
-              return $tco_result;
-          };
-      };
-      return go(Data_List_Types.Nil.value);
-  })();
-  var $$null = function (v) {
-      if (v instanceof Data_List_Types.Nil) {
-          return true;
-      };
-      return false;
-  };
-  exports["null"] = $$null;
-  exports["reverse"] = reverse;
-})(PS["Data.List"] = PS["Data.List"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
@@ -5001,6 +5240,9 @@ var PS = {};
   })();
   var raise = function (o) {
       return HalogenM(Control_Monad_Free.liftF(new Raise(o, Data_Unit.unit)));
+  };                                                                                                                
+  var getRef = function (p) {
+      return HalogenM(Control_Monad_Free.liftF(new GetRef(p, Control_Category.id(Control_Category.categoryFn))));
   };
   var functorHalogenM = new Data_Functor.Functor(function (f) {
       return function (v) {
@@ -5034,6 +5276,13 @@ var PS = {};
   }, function () {
       return bindHalogenM;
   });
+  var monadEffHalogenM = function (dictMonadEff) {
+      return new Control_Monad_Eff_Class.MonadEff(function () {
+          return monadHalogenM;
+      }, function (eff) {
+          return HalogenM(Control_Monad_Free.liftF(Lift.create(Control_Monad_Eff_Class.liftEff(dictMonadEff)(eff))));
+      });
+  };
   var monadStateHalogenM = new Control_Monad_State_Class.MonadState(function () {
       return monadHalogenM;
   }, function ($70) {
@@ -5051,12 +5300,14 @@ var PS = {};
   exports["Fork"] = Fork;
   exports["GetRef"] = GetRef;
   exports["HalogenM"] = HalogenM;
+  exports["getRef"] = getRef;
   exports["raise"] = raise;
   exports["functorHalogenM"] = functorHalogenM;
   exports["applyHalogenM"] = applyHalogenM;
   exports["applicativeHalogenM"] = applicativeHalogenM;
   exports["bindHalogenM"] = bindHalogenM;
   exports["monadHalogenM"] = monadHalogenM;
+  exports["monadEffHalogenM"] = monadEffHalogenM;
   exports["monadStateHalogenM"] = monadStateHalogenM;
 })(PS["Halogen.Query.HalogenM"] = PS["Halogen.Query.HalogenM"] || {});
 (function(exports) {
@@ -5131,20 +5382,7 @@ var PS = {};
               mkOrdBox: Halogen_Data_OrdBox.mkOrdBox(Data_Ord.ordVoid)
           });
       };
-  }; 
-  var component = function (dictBifunctor) {
-      return function (spec) {
-          return lifecycleComponent(dictBifunctor)({
-              initialState: spec.initialState, 
-              render: spec.render, 
-              "eval": spec["eval"], 
-              receiver: spec.receiver, 
-              initializer: Data_Maybe.Nothing.value, 
-              finalizer: Data_Maybe.Nothing.value
-          });
-      };
   };
-  exports["component"] = component;
   exports["lifecycleComponent"] = lifecycleComponent;
   exports["mkComponent"] = mkComponent;
   exports["mkComponentSlot"] = mkComponentSlot;
@@ -5181,6 +5419,16 @@ var PS = {};
   var Halogen_Query_InputF = PS["Halogen.Query.InputF"];
   var Prelude = PS["Prelude"];
   var Unsafe_Coerce = PS["Unsafe.Coerce"];
+  var ref = (function () {
+      var go = function (p) {
+          return function (mel) {
+              return Data_Maybe.Just.create(new Halogen_Query_InputF.RefUpdate(p, Data_Functor.map(Data_Maybe.functorMaybe)(Data_Foreign.toForeign)(mel), Data_Unit.unit));
+          };
+      };
+      return function ($6) {
+          return Unsafe_Coerce.unsafeCoerce(Halogen_HTML_Core.ref)(go($6));
+      };
+  })();
   var prop = function (dictIsProp) {
       return Unsafe_Coerce.unsafeCoerce(Halogen_HTML_Core.prop(dictIsProp));
   };                                                         
@@ -5189,6 +5437,7 @@ var PS = {};
   };
   exports["classes"] = classes;
   exports["prop"] = prop;
+  exports["ref"] = ref;
 })(PS["Halogen.HTML.Properties"] = PS["Halogen.HTML.Properties"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
@@ -6039,10 +6288,21 @@ var PS = {};
   var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
   var Halogen_Query_InputF = PS["Halogen.Query.InputF"];
   var Prelude = PS["Prelude"];
+  var getHTMLElementRef = (function () {
+      var go = function ($10) {
+          return Data_Either.either(Data_Function["const"](Data_Maybe.Nothing.value))(Data_Maybe.Just.create)(Control_Monad_Except.runExcept(DOM_HTML_Types.readHTMLElement($10)));
+      };
+      return function ($11) {
+          return Data_Functor.map(Halogen_Query_HalogenM.functorHalogenM)(function (v) {
+              return Control_Bind.bindFlipped(Data_Maybe.bindMaybe)(go)(v);
+          })(Halogen_Query_HalogenM.getRef($11));
+      };
+  })();
   var action = function (act) {
       return act(Data_Unit.unit);
   };
   exports["action"] = action;
+  exports["getHTMLElementRef"] = getHTMLElementRef;
 })(PS["Halogen.Query"] = PS["Halogen.Query"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
@@ -6069,11 +6329,6 @@ var PS = {};
   var Prelude = PS["Prelude"];
   var Unsafe_Coerce = PS["Unsafe.Coerce"];      
   var mouseHandler = Unsafe_Coerce.unsafeCoerce;
-  var input_ = function (f) {
-      return function (v) {
-          return Data_Maybe.Just.create(Halogen_Query.action(f));
-      };
-  };
   var input = function (f) {
       return function (x) {
           return Data_Maybe.Just.create(Halogen_Query.action(f(x)));
@@ -6089,40 +6344,119 @@ var PS = {};
   };
   exports["handler"] = handler;
   exports["input"] = input;
-  exports["input_"] = input_;
   exports["onClick"] = onClick;
 })(PS["Halogen.HTML.Events"] = PS["Halogen.HTML.Events"] || {});
+(function(exports) {exports.upgradeElement = function(element) {
+    return function() {
+      try {
+        componentHandler.upgradeElement(element);
+      } catch (e) {
+        console.error('Failed to upgradeElement', element, e);
+      }
+      return {};
+    };
+  };
+})(PS["Halogen.MDL"] = PS["Halogen.MDL"] || {});
+(function(exports) {
+    "use strict";
+  var $foreign = PS["Halogen.MDL"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var DOM = PS["DOM"];
+  var DOM_HTML_Types = PS["DOM.HTML.Types"];
+  var Prelude = PS["Prelude"];
+  exports["upgradeElement"] = $foreign.upgradeElement;
+})(PS["Halogen.MDL"] = PS["Halogen.MDL"] || {});
+(function(exports) {
+    "use strict";
+  var Halogen_HTML = PS["Halogen.HTML"];
+  var Halogen_HTML_Core = PS["Halogen.HTML.Core"];        
+  var classes = {
+      jsRippleEffect: "mdl-js-ripple-effect"
+  };
+  exports["classes"] = classes;
+})(PS["Halogen.MDL.RippleEffect"] = PS["Halogen.MDL.RippleEffect"] || {});
 (function(exports) {
     "use strict";
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_State_Class = PS["Control.Monad.State.Class"];
+  var DOM_Event_Types = PS["DOM.Event.Types"];
+  var Data_Eq = PS["Data.Eq"];
   var Data_Function = PS["Data.Function"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
   var Data_Maybe = PS["Data.Maybe"];
+  var Data_Ord = PS["Data.Ord"];
+  var Data_Ordering = PS["Data.Ordering"];
+  var Data_Unit = PS["Data.Unit"];
   var Halogen = PS["Halogen"];
+  var Halogen_Aff = PS["Halogen.Aff"];
   var Halogen_Component = PS["Halogen.Component"];
   var Halogen_HTML = PS["Halogen.HTML"];
   var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
   var Halogen_HTML_Elements = PS["Halogen.HTML.Elements"];
   var Halogen_HTML_Events = PS["Halogen.HTML.Events"];
   var Halogen_HTML_Properties = PS["Halogen.HTML.Properties"];
+  var Halogen_MDL = PS["Halogen.MDL"];
+  var Halogen_MDL_RippleEffect = PS["Halogen.MDL.RippleEffect"];
+  var Halogen_Query = PS["Halogen.Query"];
   var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
-  var Prelude = PS["Prelude"];        
-  var OnClick = (function () {
-      function OnClick(value0) {
+  var Halogen_Query_InputF = PS["Halogen.Query.InputF"];
+  var Prelude = PS["Prelude"];
+  var InitializeComponent = (function () {
+      function InitializeComponent(value0) {
           this.value0 = value0;
       };
+      InitializeComponent.create = function (value0) {
+          return new InitializeComponent(value0);
+      };
+      return InitializeComponent;
+  })();
+  var FinalizeComponent = (function () {
+      function FinalizeComponent(value0) {
+          this.value0 = value0;
+      };
+      FinalizeComponent.create = function (value0) {
+          return new FinalizeComponent(value0);
+      };
+      return FinalizeComponent;
+  })();
+  var UpdateState = (function () {
+      function UpdateState(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      UpdateState.create = function (value0) {
+          return function (value1) {
+              return new UpdateState(value0, value1);
+          };
+      };
+      return UpdateState;
+  })();
+  var OnClick = (function () {
+      function OnClick(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
       OnClick.create = function (value0) {
-          return new OnClick(value0);
+          return function (value1) {
+              return new OnClick(value0, value1);
+          };
       };
       return OnClick;
   })();
   var Clicked = (function () {
-      function Clicked() {
-
+      function Clicked(value0) {
+          this.value0 = value0;
       };
-      Clicked.value = new Clicked();
+      Clicked.create = function (value0) {
+          return new Clicked(value0);
+      };
       return Clicked;
   })();
+
+  // TODO: not sure if this is the right approach for Inputs
   var Initialize = (function () {
       function Initialize(value0) {
           this.value0 = value0;
@@ -6132,37 +6466,114 @@ var PS = {};
       };
       return Initialize;
   })();
+
+  // Creates a Button.Input from the raw Button.Props
+  var props = function (props1) {
+      return Initialize.create(props1);
+  };
+  var eqState = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          return x.disabled === y.disabled && x.ref === y.ref && x.text === y.text;
+      };
+  });
+
+  // MDL classes for buttons
+  var classes = {
+      button: "mdl-button", 
+      buttonRaised: "mdl-button--raised", 
+      jsButton: "mdl-js-button"
+  };
+
+  // MDL button component
+
+  // TODO: make this a lifecycleParentComponent so the content of the button can be provided as another component?
   var button = (function () {
-      var render = function (state) {
-          return Halogen_HTML_Elements.button([ Halogen_HTML_Properties.classes([ "mdl-button", "mdl-button--raised" ]), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input_(OnClick.create)) ])([ Halogen_HTML_Core.text(state.text) ]);
+    
+      // Render the button
+  var render = function (v) {
+          return Halogen_HTML_Elements.button([ Halogen_HTML_Properties.ref(v.ref), Halogen_HTML_Properties.classes([ classes.button, classes.buttonRaised, classes.jsButton, Halogen_MDL_RippleEffect.classes.jsRippleEffect ]), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input(OnClick.create)) ])([ Halogen_HTML_Core.text(v.text) ]);
       };
-      var initialState = {
-          text: "Click me", 
-          disabled: false
+    
+      // Map Inputs to Queries
+  var receiver = function (v) {
+          return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
       };
+    
+      // Get Query to initialize the component
+  var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
+    
+      // Map Input to the initial State
+  var initialState = function (v) {
+          return v.value0;
+      };
+    
+      // Get Query to finalize the component
+  var finalizer = Data_Maybe.Just.create(Halogen_Query.action(FinalizeComponent.create));
       var $$eval = function (v) {
-          return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Halogen_Query_HalogenM.raise(Clicked.value))(function () {
+          if (v instanceof InitializeComponent) {
+              return Control_Bind.bind(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.get(Halogen_Query_HalogenM.monadStateHalogenM))(function (v1) {
+                  return Control_Bind.bind(Halogen_Query_HalogenM.bindHalogenM)(Halogen_Query.getHTMLElementRef(v1.ref))(function (v2) {
+                      return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)((function () {
+                          if (v2 instanceof Data_Maybe.Just) {
+                              return Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(Control_Monad_Aff.monadEffAff))(Halogen_MDL.upgradeElement(v2.value0));
+                          };
+                          if (v2 instanceof Data_Maybe.Nothing) {
+                              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Unit.unit);
+                          };
+                          throw new Error("Failed pattern match at Halogen.MDL.Button line 111, column 7 - line 114, column 29: " + [ v2.constructor.name ]);
+                      })())(function () {
+                          return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+                      });
+                  });
+              });
+          };
+          if (v instanceof FinalizeComponent) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
-          });
+          };
+          if (v instanceof UpdateState) {
+              return Control_Bind.bind(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.get(Halogen_Query_HalogenM.monadStateHalogenM))(function (v1) {
+                  return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Applicative.when(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Eq.notEq(eqState)(v.value0)(v1))(Control_Monad_State_Class.put(Halogen_Query_HalogenM.monadStateHalogenM)(v.value0)))(function () {
+                      return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+                  });
+              });
+          };
+          if (v instanceof OnClick) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Halogen_Query_HalogenM.raise(new Clicked(v.value0)))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
+          };
+          throw new Error("Failed pattern match at Halogen.MDL.Button line 105, column 10 - line 130, column 12: " + [ v.constructor.name ]);
       };
-      return Halogen_Component.component(Halogen_HTML_Core.bifunctorHTML)({
-          initialState: Data_Function["const"](initialState), 
+      return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
+          initialState: initialState, 
+          initializer: initializer, 
+          finalizer: finalizer, 
+          receiver: receiver, 
           render: render, 
-          "eval": $$eval, 
-          receiver: Data_Function["const"](Data_Maybe.Nothing.value)
+          "eval": $$eval
       });
   })();
   exports["Initialize"] = Initialize;
   exports["Clicked"] = Clicked;
+  exports["InitializeComponent"] = InitializeComponent;
+  exports["FinalizeComponent"] = FinalizeComponent;
+  exports["UpdateState"] = UpdateState;
   exports["OnClick"] = OnClick;
   exports["button"] = button;
+  exports["classes"] = classes;
+  exports["props"] = props;
+  exports["eqState"] = eqState;
 })(PS["Halogen.MDL.Button"] = PS["Halogen.MDL.Button"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
   "use strict";
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
   var Control_Monad_State_Class = PS["Control.Monad.State.Class"];
+  var DOM_Classy_Event = PS["DOM.Classy.Event"];
+  var DOM_Event_Event = PS["DOM.Event.Event"];
   var Data_Eq = PS["Data.Eq"];
   var Data_Function = PS["Data.Function"];
   var Data_Maybe = PS["Data.Maybe"];
@@ -6172,6 +6583,7 @@ var PS = {};
   var Data_Semiring = PS["Data.Semiring"];
   var Data_Show = PS["Data.Show"];
   var Halogen = PS["Halogen"];
+  var Halogen_Aff = PS["Halogen.Aff"];
   var Halogen_Component = PS["Halogen.Component"];
   var Halogen_HTML = PS["Halogen.HTML"];
   var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
@@ -6213,33 +6625,39 @@ var PS = {};
   });
   var container = (function () {
       var render = function (state) {
-          return Halogen_HTML_Elements.div_([ Halogen_HTML.slot(ButtonSlot.value)(Halogen_MDL_Button.button)(new Halogen_MDL_Button.Initialize({
+          return Halogen_HTML_Elements.div_([ Halogen_HTML.slot(ButtonSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.props({
+              ref: "button", 
               text: "Click this", 
               disabled: false
           }))(Halogen_HTML_Events.input(HandleButton.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Button has been clicked " + (Data_Show.show(Data_Show.showInt)(state.clickCount) + " times.")) ]) ]);
       };
-      var initialState = {
-          clickCount: 0
+      var receiver = Data_Function["const"](Data_Maybe.Nothing.value);
+      var initialState = function (v) {
+          return {
+              clickCount: 0
+          };
       };
       var $$eval = function (v) {
-          return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (st) {
-              var $11 = {};
-              for (var $12 in st) {
-                  if ({}.hasOwnProperty.call(st, $12)) {
-                      $11[$12] = st[$12];
+          return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(Control_Monad_Aff.monadEffAff))(DOM_Event_Event.preventDefault(DOM_Classy_Event.toEvent(DOM_Classy_Event.isEventMouseEvent)(v.value0.value0))))(function () {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (st) {
+                  var $12 = {};
+                  for (var $13 in st) {
+                      if ({}.hasOwnProperty.call(st, $13)) {
+                          $12[$13] = st[$13];
+                      };
                   };
-              };
-              $11.clickCount = st.clickCount + 1 | 0;
-              return $11;
-          }))(function () {
-              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+                  $12.clickCount = st.clickCount + 1 | 0;
+                  return $12;
+              }))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
           });
       };
       return Halogen_Component.parentComponent(ordButtonSlot)({
-          initialState: Data_Function["const"](initialState), 
+          initialState: initialState, 
+          receiver: receiver, 
           render: render, 
-          "eval": $$eval, 
-          receiver: Data_Function["const"](Data_Maybe.Nothing.value)
+          "eval": $$eval
       });
   })();
   exports["HandleButton"] = HandleButton;
