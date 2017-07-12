@@ -14,10 +14,30 @@ import Halogen.HTML.Properties as HP
 import Halogen.MDL as MDL
 import Halogen.MDL.RippleEffect as RippleEffect
 
+data ButtonType
+  = Flat    -- <none>
+  | Raised  -- mdl-button--raised
+  | Fab     -- mdl-button--fab
+  | MiniFab -- mdl-button--mini-fab
+  | Icon    -- mdl-button--icon
+derive instance eqButtonType :: Eq ButtonType
+derive instance ordButtonType :: Ord ButtonType
+
+data ButtonColor
+  = Plain   -- <none>
+  | Colored -- mdl-button--colored
+  | Primary -- mdl-button--primary
+  | Accent  -- mdl-button--accent
+derive instance eqButtonColor :: Eq ButtonColor
+derive instance ordButtonColor :: Ord ButtonColor
+
 type Props =
   { ref :: String -- unique ref for the button (used for getting the element for the javascript MDL upgradeElement call)
-  , text :: String -- text of the button - TODO: want to allow a child component as the content of this button component
+  , type :: ButtonType
+  , color :: ButtonColor
   , disabled :: Boolean -- whether the button is disabled
+  , ripple :: Boolean
+  , text :: String -- text of the button - TODO: want to allow a child component as the content of this button component
   }
 
 newtype State = State Props
@@ -42,13 +62,25 @@ props props = Initialize $ State props
 -- MDL classes for buttons
 classes ::
   { button :: HH.ClassName
-  , buttonRaised :: HH.ClassName
   , jsButton :: HH.ClassName
+  , buttonRaised :: HH.ClassName
+  , buttonFab :: HH.ClassName
+  , buttonMiniFab :: HH.ClassName
+  , buttonIcon :: HH.ClassName
+  , buttonColored :: HH.ClassName
+  , buttonPrimary :: HH.ClassName
+  , buttonAccent :: HH.ClassName
   }
 classes =
   { button: HH.ClassName "mdl-button"
-  , buttonRaised: HH.ClassName "mdl-button--raised"
   , jsButton: HH.ClassName "mdl-js-button"
+  , buttonRaised: HH.ClassName "mdl-button--raised"
+  , buttonFab: HH.ClassName "mdl-button--fab"
+  , buttonMiniFab: HH.ClassName "mdl-button--mini-fab"
+  , buttonIcon: HH.ClassName "mdl-button--icon"
+  , buttonColored: HH.ClassName "mdl-button--colored"
+  , buttonPrimary: HH.ClassName "mdl-button--primary"
+  , buttonAccent: HH.ClassName "mdl-button--accent"
   }
 
 -- MDL button component
@@ -85,21 +117,35 @@ button =
 
   -- Render the button
   render :: State -> H.ComponentHTML Query
-  render (State state) =
+  render (State props) =
     HH.button
       -- TODO: allow additional properties to be added to the button (e.g. extra classes, etc.)
-      [ HP.ref $ H.RefLabel state.ref
-      , HP.classes
-        -- TODO: build classes based on TBD state
-        [ classes.button
-        , classes.buttonRaised
-        , classes.jsButton
-        , RippleEffect.classes.jsRippleEffect
-        ]
-      , HE.onClick (HE.input OnClick)
+      [ HP.ref $ H.RefLabel props.ref
+      , HP.classes $ getClasses props
+      , HP.disabled props.disabled
+      , HE.onClick $ HE.input OnClick
       ]
       -- TODO: I want this to be a HH.slot so the content/children of the button can be a component
-      [ HH.text state.text ]
+      [ HH.text props.text ]
+      --[ HH.slot ContentSlot
+
+  getClasses :: ∀ r i. Props -> Array HH.ClassName
+  getClasses props =
+    [classes.button, classes.jsButton] -- required classes
+      <> case props.type of
+        Flat -> []
+        Raised -> [classes.buttonRaised]
+        Fab -> [classes.buttonFab]
+        MiniFab -> [classes.buttonMiniFab]
+        Icon -> [classes.buttonIcon]
+      <> case props.color of
+        Plain -> []
+        Colored -> [classes.buttonColored]
+        Primary -> [classes.buttonPrimary]
+        Accent -> [classes.buttonAccent]
+      <> if props.ripple
+         then [RippleEffect.classes.jsRippleEffect]
+         else []
 
   eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects ()))
   eval = case _ of

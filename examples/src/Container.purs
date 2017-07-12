@@ -50,7 +50,7 @@ container =
   render :: State -> H.ParentHTML Query Button.Query Slot (Aff (HA.HalogenEffects ()))
   render state =
     HH.div_
-      [ HH.slot ButtonSlot Button.button (Button.props { ref: "button", text: "Click this", disabled: false }) (HE.input HandleButton)
+      [ HH.slot ButtonSlot Button.button (Button.props { ref: "button", type: Button.Raised, color: Button.Colored, text: "Click this", disabled: false, ripple: true }) (HE.input HandleButton)
       , HH.p_
         [ HH.text $ "Button has been clicked " <> show state.clickCount <> " times." ]
       ]
