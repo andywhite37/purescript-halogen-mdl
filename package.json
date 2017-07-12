@@ -8,9 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "build:examples": "pulp build --src-path examples/src --to examples/dist/app.js",
-    "watch:examples": "pulp --watch build --src-path examples/src --to examples/dist/app.js",
-    "server:examples": "pulp server --src-path examples/src"
+    "build:examples": "pulp build --src-path examples/src --include src --to examples/dist/app.js",
+    "watch:examples": "pulp --watch build --src-path examples/src --include src --to examples/dist/app.js"
   },
   "repository": {
     "type": "git",
