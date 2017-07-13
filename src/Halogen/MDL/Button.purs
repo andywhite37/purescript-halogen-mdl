@@ -32,8 +32,7 @@ derive instance eqButtonColor :: Eq ButtonColor
 derive instance ordButtonColor :: Ord ButtonColor
 
 type Props =
-  { ref :: String -- unique ref for the button (used for getting the element for the javascript MDL upgradeElement call)
-  , type :: ButtonType
+  { type :: ButtonType
   , color :: ButtonColor
   , disabled :: Boolean -- whether the button is disabled
   , ripple :: Boolean
@@ -51,18 +50,17 @@ data Query a
   | OnClick MouseEvent a
 
 -- TODO: not sure if this is the right approach for Inputs
-data Input = Initialize State
+data Input = InitializeState State
 
 data Message = Clicked MouseEvent
 
 -- Creates a Button.Input from the raw Button.Props
 props :: Props -> Input
-props props = Initialize $ State props
+props props = InitializeState $ State props
 
 -- MDL classes for buttons
 classes ::
   { button :: HH.ClassName
-  , jsButton :: HH.ClassName
   , buttonRaised :: HH.ClassName
   , buttonFab :: HH.ClassName
   , buttonMiniFab :: HH.ClassName
@@ -70,17 +68,18 @@ classes ::
   , buttonColored :: HH.ClassName
   , buttonPrimary :: HH.ClassName
   , buttonAccent :: HH.ClassName
+  , jsButton :: HH.ClassName
   }
 classes =
-  { button: HH.ClassName "mdl-button"
-  , jsButton: HH.ClassName "mdl-js-button"
-  , buttonRaised: HH.ClassName "mdl-button--raised"
-  , buttonFab: HH.ClassName "mdl-button--fab"
-  , buttonMiniFab: HH.ClassName "mdl-button--mini-fab"
-  , buttonIcon: HH.ClassName "mdl-button--icon"
-  , buttonColored: HH.ClassName "mdl-button--colored"
-  , buttonPrimary: HH.ClassName "mdl-button--primary"
-  , buttonAccent: HH.ClassName "mdl-button--accent"
+  { button        : HH.ClassName "mdl-button"
+  , buttonRaised  : HH.ClassName "mdl-button--raised"
+  , buttonFab     : HH.ClassName "mdl-button--fab"
+  , buttonMiniFab : HH.ClassName "mdl-button--mini-fab"
+  , buttonIcon    : HH.ClassName "mdl-button--icon"
+  , buttonColored : HH.ClassName "mdl-button--colored"
+  , buttonPrimary : HH.ClassName "mdl-button--primary"
+  , buttonAccent  : HH.ClassName "mdl-button--accent"
+  , jsButton      : HH.ClassName "mdl-js-button"
   }
 
 -- MDL button component
@@ -97,10 +96,12 @@ button =
     }
   where
 
+  buttonRef :: H.RefLabel
+  buttonRef = H.RefLabel "mdl-button"
+
   -- Map Input to the initial State
   initialState :: Input -> State
-  initialState = case _ of
-    Initialize state -> state
+  initialState (InitializeState state) = state
 
   -- Get Query to initialize the component
   initializer :: Maybe (Query Unit)
@@ -112,15 +113,14 @@ button =
 
   -- Map Inputs to Queries
   receiver :: Input -> Maybe (Query Unit)
-  receiver = case _ of
-    Initialize state -> Just $ H.action $ UpdateState state
+  receiver (InitializeState state) = Just $ H.action $ UpdateState state
 
   -- Render the button
   render :: State -> H.ComponentHTML Query
   render (State props) =
     HH.button
       -- TODO: allow additional properties to be added to the button (e.g. extra classes, etc.)
-      [ HP.ref $ H.RefLabel props.ref
+      [ HP.ref buttonRef
       , HP.classes $ getClasses props
       , HP.disabled props.disabled
       , HE.onClick $ HE.input OnClick
@@ -151,9 +151,9 @@ button =
   eval = case _ of
     -- Initialize the button (i.e. MDL upgradeElement to get javascript effects, like ripple)
     InitializeComponent next -> do
-      State state <- H.get
+      State props <- H.get
       -- TODO: is there a way to get the component's HTMLElement without using a ref or DOM query?
-      element <- H.getHTMLElementRef (H.RefLabel state.ref)
+      element <- H.getHTMLElementRef buttonRef
       case element of
         Just element -> do
           H.liftEff $ MDL.upgradeElement element

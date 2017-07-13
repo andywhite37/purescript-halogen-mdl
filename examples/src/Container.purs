@@ -12,6 +12,9 @@ import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
+
+import Halogen.MDL.Badge as Badge
 import Halogen.MDL.Button as Button
 
 type State =
@@ -25,7 +28,8 @@ type Input = Unit
 
 type Message = Void
 
-data Slot = ButtonSlot
+data Slot
+  = ButtonSlot
 derive instance eqButtonSlot :: Eq Slot
 derive instance ordButtonSlot :: Ord Slot
 
@@ -50,9 +54,18 @@ container =
   render :: State -> H.ParentHTML Query Button.Query Slot (Aff (HA.HalogenEffects ()))
   render state =
     HH.div_
-      [ HH.slot ButtonSlot Button.button (Button.props { ref: "button", type: Button.Raised, color: Button.Colored, text: "Click this", disabled: false, ripple: true }) (HE.input HandleButton)
+      [ HH.slot
+          ButtonSlot
+          Button.button
+          (Button.props { type: Button.Raised, color: Button.Colored, text: "Click this", disabled: false, ripple: true })
+          (HE.input HandleButton)
       , HH.p_
         [ HH.text $ "Button has been clicked " <> show state.clickCount <> " times." ]
+      , HH.div
+        [ HP.classes [Badge.classes.badge]
+        , HP.attr (H.AttrName "data-badge") (show state.clickCount)
+        ]
+        [ HH.text "My badge" ]
       ]
 
   eval :: Query ~> H.ParentDSL State Query Button.Query Slot Message (Aff (HA.HalogenEffects ()))
