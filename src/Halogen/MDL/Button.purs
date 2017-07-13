@@ -14,6 +14,33 @@ import Halogen.HTML.Properties as HP
 import Halogen.MDL as MDL
 import Halogen.MDL.RippleEffect as RippleEffect
 
+-- MDL classes for buttons
+
+classes ::
+  { button :: HH.ClassName
+  , buttonRaised :: HH.ClassName
+  , buttonFab :: HH.ClassName
+  , buttonMiniFab :: HH.ClassName
+  , buttonIcon :: HH.ClassName
+  , buttonColored :: HH.ClassName
+  , buttonPrimary :: HH.ClassName
+  , buttonAccent :: HH.ClassName
+  , jsButton :: HH.ClassName
+  }
+classes =
+  { button        : HH.ClassName "mdl-button"
+  , buttonRaised  : HH.ClassName "mdl-button--raised"
+  , buttonFab     : HH.ClassName "mdl-button--fab"
+  , buttonMiniFab : HH.ClassName "mdl-button--mini-fab"
+  , buttonIcon    : HH.ClassName "mdl-button--icon"
+  , buttonColored : HH.ClassName "mdl-button--colored"
+  , buttonPrimary : HH.ClassName "mdl-button--primary"
+  , buttonAccent  : HH.ClassName "mdl-button--accent"
+  , jsButton      : HH.ClassName "mdl-js-button"
+  }
+
+-- MDL Button component supporting types
+
 data ButtonType
   = Flat    -- <none>
   | Raised  -- mdl-button--raised
@@ -49,41 +76,16 @@ data Query a
   | UpdateState State a
   | OnClick MouseEvent a
 
--- TODO: not sure if this is the right approach for Inputs
-data Input = InitializeState State
+data Input = Initialize State
 
 data Message = Clicked MouseEvent
 
--- Creates a Button.Input from the raw Button.Props
-props :: Props -> Input
-props props = InitializeState $ State props
-
--- MDL classes for buttons
-classes ::
-  { button :: HH.ClassName
-  , buttonRaised :: HH.ClassName
-  , buttonFab :: HH.ClassName
-  , buttonMiniFab :: HH.ClassName
-  , buttonIcon :: HH.ClassName
-  , buttonColored :: HH.ClassName
-  , buttonPrimary :: HH.ClassName
-  , buttonAccent :: HH.ClassName
-  , jsButton :: HH.ClassName
-  }
-classes =
-  { button        : HH.ClassName "mdl-button"
-  , buttonRaised  : HH.ClassName "mdl-button--raised"
-  , buttonFab     : HH.ClassName "mdl-button--fab"
-  , buttonMiniFab : HH.ClassName "mdl-button--mini-fab"
-  , buttonIcon    : HH.ClassName "mdl-button--icon"
-  , buttonColored : HH.ClassName "mdl-button--colored"
-  , buttonPrimary : HH.ClassName "mdl-button--primary"
-  , buttonAccent  : HH.ClassName "mdl-button--accent"
-  , jsButton      : HH.ClassName "mdl-js-button"
-  }
+-- Helper to create initial Input for a Button
+init :: Props -> Input
+init props = Initialize $ State props
 
 -- MDL button component
-button :: H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects ()))
+button :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
 button =
   -- TODO: make this a lifecycleParentComponent so the content of the button can be provided as another component?
   H.lifecycleComponent
@@ -101,7 +103,7 @@ button =
 
   -- Map Input to the initial State
   initialState :: Input -> State
-  initialState (InitializeState state) = state
+  initialState (Initialize state) = state
 
   -- Get Query to initialize the component
   initializer :: Maybe (Query Unit)
@@ -113,7 +115,7 @@ button =
 
   -- Map Inputs to Queries
   receiver :: Input -> Maybe (Query Unit)
-  receiver (InitializeState state) = Just $ H.action $ UpdateState state
+  receiver (Initialize state) = Just $ H.action $ UpdateState state
 
   -- Render the button
   render :: State -> H.ComponentHTML Query
@@ -129,9 +131,11 @@ button =
       [ HH.text props.text ]
       --[ HH.slot ContentSlot
 
-  getClasses :: ∀ r i. Props -> Array HH.ClassName
+  getClasses :: Props -> Array HH.ClassName
   getClasses props =
-    [classes.button, classes.jsButton] -- required classes
+    [ classes.button
+    , classes.jsButton
+    ] -- required classes
       <> case props.type of
         Flat -> []
         Raised -> [classes.buttonRaised]
@@ -147,7 +151,7 @@ button =
          then [RippleEffect.classes.jsRippleEffect]
          else []
 
-  eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects ()))
+  eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
   eval = case _ of
     -- Initialize the button (i.e. MDL upgradeElement to get javascript effects, like ripple)
     InitializeComponent next -> do

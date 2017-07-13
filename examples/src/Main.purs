@@ -1,14 +1,16 @@
 module Main where
 
 import Prelude
+import Control.Monad.Aff (forkAff)
 import Control.Monad.Eff (Eff)
 
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
 
-import Container (container)
+import Router as Router
 
-main :: Eff (HA.HalogenEffects ()) Unit
+main :: ∀ eff. Eff (HA.HalogenEffects eff) Unit
 main = HA.runHalogenAff do
   body <- HA.awaitBody
-  runUI container unit body
+  driver <- runUI Router.component unit body
+  forkAff $ Router.routeSignal driver
