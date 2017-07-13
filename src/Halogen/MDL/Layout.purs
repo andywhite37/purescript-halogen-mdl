@@ -9,6 +9,7 @@ classes ::
   , layoutSmallScreenOnly :: HH.ClassName
   , layoutNoDrawerButton :: HH.ClassName
   , layoutNoDesktopDrawerButton :: HH.ClassName
+  , layoutContainer :: HH.ClassName
   , layoutContent :: HH.ClassName
   , layoutDrawer :: HH.ClassName
   , layoutFixedDrawer :: HH.ClassName
@@ -37,6 +38,7 @@ classes =
   , layoutSmallScreenOnly        : HH.ClassName "mdl-layout--small-screen-only"
   , layoutNoDrawerButton         : HH.ClassName "mdl-layout--no-drawer-button"
   , layoutNoDesktopDrawerButton  : HH.ClassName "mdl-layout--no-desktop-drawer-button"
+  , layoutContainer              : HH.ClassName "mdl-layout__container"
   , layoutContent                : HH.ClassName "mdl-layout__content"
   , layoutDrawer                 : HH.ClassName "mdl-layout__drawer"
   , layoutFixedDrawer            : HH.ClassName "mdl-layout__fixed-drawer"
