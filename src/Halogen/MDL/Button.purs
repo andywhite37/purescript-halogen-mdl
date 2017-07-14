@@ -99,7 +99,7 @@ button =
   where
 
   buttonRef :: H.RefLabel
-  buttonRef = H.RefLabel "mdl-button"
+  buttonRef = H.RefLabel "mdl-button-ref"
 
   -- Map Input to the initial State
   initialState :: Input -> State
@@ -155,7 +155,7 @@ button =
   eval = case _ of
     -- Initialize the button (i.e. MDL upgradeElement to get javascript effects, like ripple)
     InitializeComponent next -> do
-      State props <- H.get
+      --State props <- H.get
       -- TODO: is there a way to get the component's HTMLElement without using a ref or DOM query?
       element <- H.getHTMLElementRef buttonRef
       case element of
