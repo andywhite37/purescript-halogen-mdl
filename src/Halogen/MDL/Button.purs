@@ -1,16 +1,16 @@
 module Halogen.MDL.Button where
 
 import Prelude
-import Control.Monad.Aff (Aff)
-import Data.Maybe (Maybe(..))
 
+import Control.Monad.Aff (Aff)
 import DOM.Event.Types (MouseEvent)
+import Data.Maybe (Maybe(..))
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-
+import Halogen.MDL (upgradeElementByRef)
 import Halogen.MDL as MDL
 import Halogen.MDL.RippleEffect as RippleEffect
 
@@ -157,11 +157,7 @@ button =
     InitializeComponent next -> do
       --State props <- H.get
       -- TODO: is there a way to get the component's HTMLElement without using a ref or DOM query?
-      element <- H.getHTMLElementRef buttonRef
-      case element of
-        Just element -> do
-          H.liftEff $ MDL.upgradeElement element
-        Nothing -> pure unit
+      MDL.upgradeElementByRef buttonRef
       pure next
 
     -- Destroy the button

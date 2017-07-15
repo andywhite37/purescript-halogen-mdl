@@ -1,30 +1,31 @@
-module Container where
+module DemoContainer where
 
 import Prelude
 
 import Control.Monad.Aff (Aff)
-import DOM.Classy.Event (toEvent)
-import DOM.Event.Event (preventDefault)
 import Data.Maybe (Maybe(..))
+
+--import DOM.Classy.Event (toEvent)
+--import DOM.Event.Event (preventDefault)
+
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
---import Halogen.HTML.Events as HE
+import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
+import Halogen.MDL as MDL
 --import Halogen.MDL.Badge as Badge
-import Halogen.MDL.Button as Button
+--import Halogen.MDL.Button as Button
 import Halogen.MDL.Layout as Layout
 import Halogen.MDL.Navigation as Navigation
 
-import Halogen.MDL as MDL
-
-import Route as Route
 import Route (Route(..))
+import Route as Route
+import DemoButtons as DemoButtons
 
 type State =
   { currentRoute :: Route
-  , clickCount :: Int
   }
 
 data Query a
@@ -32,22 +33,21 @@ data Query a
   | FinalizeComponent a
   | UpdateState State a
   | UpdateRoute Route a
-  | OnButtonMessage Button.Message a
+  | OnDemoButtonsMessage DemoButtons.Message a
 
 data Input = Initialize State
 
 type Message = Void
 
-data Slot
-  = ButtonSlot
-derive instance eqButtonSlot :: Eq Slot
-derive instance ordButtonSlot :: Ord Slot
+data Slot = PageContentSlot
+derive instance eqSlot :: Eq Slot
+derive instance ordSlot :: Ord Slot
 
 init :: State -> Input
 init state = Initialize state
 
-container :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
-container =
+demoContainer :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoContainer =
   H.lifecycleParentComponent
     { initialState: initialState
     , initializer: initializer
@@ -73,7 +73,7 @@ container =
   receiver :: Input -> Maybe (Query Unit)
   receiver (Initialize state) = Just $ H.action $ UpdateState state
 
-  render :: State -> H.ParentHTML Query Button.Query Slot (Aff (HA.HalogenEffects eff))
+  render :: State -> H.ParentHTML Query DemoButtons.Query Slot (Aff (HA.HalogenEffects eff))
   render state =
     HH.div
       [ HP.classes [ Layout.classes.layout, Layout.classes.jsLayout, Layout.classes.layoutFixedHeader ]
@@ -124,52 +124,35 @@ container =
         [ HP.classes [ Layout.classes.layoutContent ] ]
         [ HH.div
           [ HP.classes [ HH.ClassName "page-content" ] ]
-          [ HH.text "Your content goes here" ]
+          [ renderContent state ]
         ]
       ]
 
-{-
-    HH.div_
-      [ HH.h1_
-        [ HH.text $ show state.currentRoute ]
-      , HH.slot
-          ButtonSlot
-          Button.button
-          (Button.init { type: Button.Raised, color: Button.Colored, text: "Click this", disabled: false, ripple: true })
-          (HE.input OnButtonMessage)
-      , HH.p_
-        [ HH.text $ "Button has been clicked " <> show state.clickCount <> " times." ]
-      , HH.div
-        [ HP.classes [Badge.classes.badge]
-        , HP.attr (H.AttrName "data-badge") (show state.clickCount)
-        ]
-        [ HH.text "My badge" ]
-      ]
-      -}
+  --renderContent :: State ->
+  renderContent state = case state.currentRoute of
+    Home ->
+      HH.div_ [ HH.text $ Route.label state.currentRoute ]
+    Badges ->
+      HH.div_ [ HH.text $ Route.label state.currentRoute ]
+    Buttons ->
+      HH.slot
+        PageContentSlot
+        DemoButtons.demoButtons
+        (DemoButtons.init { clickCount: 0 })
+        (HE.input OnDemoButtonsMessage)
 
-  eval :: Query ~> H.ParentDSL State Query Button.Query Slot Message (Aff (HA.HalogenEffects eff))
+  eval :: Query ~> H.ParentDSL State Query DemoButtons.Query Slot Message (Aff (HA.HalogenEffects eff))
   eval = case _ of
     InitializeComponent next -> do
-      element <- H.getHTMLElementRef layoutRef
-      case element of
-        Just element -> do
-          H.liftEff $ MDL.upgradeElement element
-        Nothing -> pure unit
+      MDL.upgradeElementByRef layoutRef
       pure next
-
     FinalizeComponent next -> do
       pure next
-
     UpdateState state next -> do
-      -- TODO: check for change?
       H.put state
       pure next
-
     UpdateRoute route next -> do
       H.modify (\state -> state { currentRoute = route })
       pure next
-
-    OnButtonMessage (Button.Clicked event) next -> do
-      H.liftEff $ preventDefault $ toEvent event
-      H.modify (\state -> state { clickCount = state.clickCount + 1 })
+    OnDemoButtonsMessage _ next -> do
       pure next

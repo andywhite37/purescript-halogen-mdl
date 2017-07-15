@@ -7,13 +7,13 @@ data Route
   | Badges
   | Buttons
 
-path :: Route -> String
-path Home = "home"
-path Badges = "badges"
-path Buttons = "buttons"
+urlSegment :: Route -> String
+urlSegment Home = "home"
+urlSegment Badges = "badges"
+urlSegment Buttons = "buttons"
 
 href :: Route -> String
-href route = "#/" <> path route
+href route = "#/" <> urlSegment route
 
 label :: Route -> String
 label = show

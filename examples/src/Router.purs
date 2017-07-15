@@ -16,8 +16,8 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
-import Route (Route(..))
-import Container as Container
+import Route (Route(..), urlSegment)
+import DemoContainer as DemoContainer
 
 -- Routing logic
 
@@ -32,8 +32,8 @@ matchRoute
   <|> buttons
   <|> home
   where
-    badges = Badges <$ route "badges"
-    buttons = Buttons <$ route "buttons"
+    badges = Badges <$ route (urlSegment Badges)
+    buttons = Buttons <$ route (urlSegment Buttons)
     home = Home <$ lit ""
     route str = lit "" *> lit str
 
@@ -45,21 +45,21 @@ goToRoute :: ∀ eff
 goToRoute driver _ =
   driver.query <<< H.action <<< GoTo
 
--- Halogen router component
+-- Router component
 
 type State =
   { currentRoute :: Route
   }
 
 data Query a
-  = OnContainerMessage Container.Message a
+  = OnDemoContainerMessage DemoContainer.Message a
   | GoTo Route a
 
 type Input = Unit
 
 type Message = Void
 
-data Slot = ContainerSlot
+data Slot = DemoContainerSlot
 derive instance eqSlot :: Eq Slot
 derive instance ordSlot :: Ord Slot
 
@@ -77,22 +77,22 @@ component = H.parentComponent
     receiver :: Input -> Maybe (Query Unit)
     receiver _ = Nothing
 
-    render :: State -> H.ParentHTML Query Container.Query Slot (Aff (HA.HalogenEffects eff))
+    render :: State -> H.ParentHTML Query DemoContainer.Query Slot (Aff (HA.HalogenEffects eff))
     render state =
       HH.div
         [ HP.class_ $ HH.ClassName "root" ]
         [ HH.slot
-            ContainerSlot
-            Container.container
-            (Container.init { currentRoute: state.currentRoute, clickCount: 0 })
-            (HE.input OnContainerMessage)
+            DemoContainerSlot
+            DemoContainer.demoContainer
+            (DemoContainer.init { currentRoute: state.currentRoute })
+            (HE.input OnDemoContainerMessage)
         ]
 
-    eval :: Query ~> H.ParentDSL State Query Container.Query Slot Message (Aff (HA.HalogenEffects eff))
+    eval :: Query ~> H.ParentDSL State Query DemoContainer.Query Slot Message (Aff (HA.HalogenEffects eff))
     eval = case _ of
       GoTo route next -> do
         H.modify (_ { currentRoute = route })
         pure next
 
-      OnContainerMessage message next -> do
+      OnDemoContainerMessage message next -> do
         pure next
