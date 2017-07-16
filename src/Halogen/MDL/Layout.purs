@@ -1,6 +1,12 @@
 module Halogen.MDL.Layout where
 
+import Prelude
+import Control.Monad.Eff (Eff)
+import DOM (DOM)
+
 import Halogen.HTML as HH
+
+foreign import hideLayoutDrawer :: ∀ e. Eff (dom :: DOM | e) Unit
 
 cl ::
   { layout :: HH.ClassName

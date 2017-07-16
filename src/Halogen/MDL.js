@@ -9,3 +9,10 @@ exports.upgradeElement = function(element) {
     return {};
   };
 };
+
+exports.removeClass = function(element) {
+  return function(className) {
+    element.classList.remove(className);
+    return {};
+  };
+};

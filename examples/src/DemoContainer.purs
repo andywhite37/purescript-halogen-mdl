@@ -5,9 +5,6 @@ import Prelude
 import Control.Monad.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
---import DOM.Classy.Event (toEvent)
---import DOM.Event.Event (preventDefault)
-
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
@@ -15,16 +12,12 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
 import Halogen.MDL as MDL
---import Halogen.MDL.Badge as Badge
---import Halogen.MDL.Button as Button
---import Halogen.MDL.Grid as Grid
 import Halogen.MDL.Layout as Layout
 import Halogen.MDL.MegaFooter as MegaFooter
 import Halogen.MDL.Navigation as Navigation
 
 import Route (Route(..))
 import Route as Route
---import DemoBadges as DemoBadges
 import DemoButtons as DemoButtons
 
 type State =
@@ -36,6 +29,7 @@ data Query a
   | FinalizeComponent a
   | UpdateState State a
   | UpdateRoute Route a
+  | OnNavClick a
   | OnDemoButtonsMessage DemoButtons.Message a
 
 data Input = Initialize State
@@ -63,6 +57,9 @@ demoContainer =
 
   layoutRef :: H.RefLabel
   layoutRef = H.RefLabel "mdl-layout-ref"
+
+  drawerRef :: H.RefLabel
+  drawerRef = H.RefLabel "mdl-layout-drawer"
 
   initialState :: Input -> State
   initialState (Initialize state) = state
@@ -106,20 +103,31 @@ demoContainer =
           ]
         ]
       , HH.div
-        [ HP.classes [ Layout.cl.layoutDrawer ] ]
+        [ HP.classes [ Layout.cl.layoutDrawer ]
+        , HP.ref drawerRef
+        ]
         [ HH.span
           [ HP.classes [ Layout.cl.layoutTitle ] ]
-          [ HH.text "Title" ]
+          [ HH.text "Halogen MDL" ]
         , HH.nav
           [ HP.classes [ Navigation.cl.navigation ] ]
           [ HH.a
-            [ HP.href $ Route.href Home , HP.classes [ Navigation.cl.navigationLink ] ]
+            [ HP.href $ Route.href Home
+            , HP.classes [ Navigation.cl.navigationLink ]
+            , HE.onClick $ HE.input_ OnNavClick
+            ]
             [ HH.text $ Route.label Home ]
           , HH.a
-            [ HP.href $ Route.href Badges , HP.classes [ Navigation.cl.navigationLink ] ]
+            [ HP.href $ Route.href Badges
+            , HP.classes [ Navigation.cl.navigationLink ]
+            , HE.onClick $ HE.input_ OnNavClick
+            ]
             [ HH.text $ Route.label Badges ]
           , HH.a
-            [ HP.href $ Route.href Buttons , HP.classes [ Navigation.cl.navigationLink ] ]
+            [ HP.href $ Route.href Buttons
+            , HP.classes [ Navigation.cl.navigationLink ]
+            , HE.onClick $ HE.input_ OnNavClick
+            ]
             [ HH.text $ Route.label Buttons ]
           ]
         ]
@@ -215,6 +223,12 @@ demoContainer =
       pure next
     UpdateRoute route next -> do
       H.modify (\state -> state { currentRoute = route })
+      pure next
+    OnNavClick next -> do
+      element <- H.getHTMLElementRef drawerRef
+      case element of
+        Just element -> H.liftEff $ Layout.hideLayoutDrawer
+        Nothing -> pure unit
       pure next
     OnDemoButtonsMessage _ next -> do
       pure next

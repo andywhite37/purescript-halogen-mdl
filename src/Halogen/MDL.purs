@@ -21,3 +21,6 @@ upgradeElementByRef ref = do
     Nothing -> pure unit
 
 -- upgradeElementsByRef :: Array H.RefLabel -> H.HalogenM s f g p o m Unit
+
+-- Hacky stuff
+foreign import removeClass :: ∀ e. HTMLElement -> String -> Eff (dom :: DOM | e) Unit
