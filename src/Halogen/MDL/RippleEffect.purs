@@ -2,9 +2,9 @@ module Halogen.MDL.RippleEffect where
 
 import Halogen.HTML as HH
 
-classes ::
+cl ::
   { jsRippleEffect :: HH.ClassName
   }
-classes =
+cl =
   { jsRippleEffect : HH.ClassName "mdl-js-ripple-effect"
   }

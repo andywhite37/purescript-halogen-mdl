@@ -5,18 +5,19 @@ import Prelude
 import Control.Monad.Aff (Aff)
 import DOM.Event.Types (MouseEvent)
 import Data.Maybe (Maybe(..))
+
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Halogen.MDL (upgradeElementByRef)
+
 import Halogen.MDL as MDL
 import Halogen.MDL.RippleEffect as RippleEffect
 
 -- MDL classes for buttons
 
-classes ::
+cl ::
   { button :: HH.ClassName
   , buttonRaised :: HH.ClassName
   , buttonFab :: HH.ClassName
@@ -27,7 +28,7 @@ classes ::
   , buttonAccent :: HH.ClassName
   , jsButton :: HH.ClassName
   }
-classes =
+cl =
   { button        : HH.ClassName "mdl-button"
   , buttonRaised  : HH.ClassName "mdl-button--raised"
   , buttonFab     : HH.ClassName "mdl-button--fab"
@@ -133,22 +134,22 @@ button =
 
   getClasses :: Props -> Array HH.ClassName
   getClasses props =
-    [ classes.button
-    , classes.jsButton
+    [ cl.button
+    , cl.jsButton
     ] -- required classes
       <> case props.type of
         Flat -> []
-        Raised -> [classes.buttonRaised]
-        Fab -> [classes.buttonFab]
-        MiniFab -> [classes.buttonMiniFab]
-        Icon -> [classes.buttonIcon]
+        Raised -> [cl.buttonRaised]
+        Fab -> [cl.buttonFab]
+        MiniFab -> [cl.buttonMiniFab]
+        Icon -> [cl.buttonIcon]
       <> case props.color of
         Plain -> []
-        Colored -> [classes.buttonColored]
-        Primary -> [classes.buttonPrimary]
-        Accent -> [classes.buttonAccent]
+        Colored -> [cl.buttonColored]
+        Primary -> [cl.buttonPrimary]
+        Accent -> [cl.buttonAccent]
       <> if props.ripple
-         then [RippleEffect.classes.jsRippleEffect]
+         then [RippleEffect.cl.jsRippleEffect]
          else []
 
   eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))

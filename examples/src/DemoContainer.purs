@@ -17,11 +17,14 @@ import Halogen.HTML.Properties as HP
 import Halogen.MDL as MDL
 --import Halogen.MDL.Badge as Badge
 --import Halogen.MDL.Button as Button
+--import Halogen.MDL.Grid as Grid
 import Halogen.MDL.Layout as Layout
+import Halogen.MDL.MegaFooter as MegaFooter
 import Halogen.MDL.Navigation as Navigation
 
 import Route (Route(..))
 import Route as Route
+--import DemoBadges as DemoBadges
 import DemoButtons as DemoButtons
 
 type State =
@@ -76,55 +79,114 @@ demoContainer =
   render :: State -> H.ParentHTML Query DemoButtons.Query Slot (Aff (HA.HalogenEffects eff))
   render state =
     HH.div
-      [ HP.classes [ Layout.classes.layout, Layout.classes.jsLayout, Layout.classes.layoutFixedHeader ]
+      [ HP.classes [ Layout.cl.layout, Layout.cl.jsLayout, Layout.cl.layoutFixedHeader ]
       , HP.ref layoutRef
       ]
       [ HH.header
-        [ HP.classes [ Layout.classes.layoutHeader ] ]
+        [ HP.classes [ Layout.cl.layoutHeader ] ]
         [ HH.div
-          [ HP.classes [ Layout.classes.layoutHeaderRow ] ]
-          [ HH.span [ HP.classes [ Layout.classes.layoutTitle] ] [ HH.text "Halogen MDL" ]
-          , HH.div [ HP.classes [ Layout.classes.layoutSpacer ] ] []
+          [ HP.classes [ Layout.cl.layoutHeaderRow ] ]
+          [ HH.span [ HP.classes [ Layout.cl.layoutTitle] ] [ HH.text "Halogen MDL" ]
+          , HH.div [ HP.classes [ Layout.cl.layoutSpacer ] ] []
           , HH.nav
-            [ HP.classes [ Navigation.classes.navigation, Layout.classes.layoutLargeScreenOnly ] ]
+            [ HP.classes [ Navigation.cl.navigation, Layout.cl.layoutLargeScreenOnly ] ]
             [ HH.a
-              [ HP.href "#", HP.classes [ Navigation.classes.navigationLink ] ]
+              [ HP.href "#", HP.classes [ Navigation.cl.navigationLink ] ]
               [ HH.text "Link" ]
             , HH.a
-              [ HP.href "#", HP.classes [ Navigation.classes.navigationLink ] ]
+              [ HP.href "#", HP.classes [ Navigation.cl.navigationLink ] ]
               [ HH.text "Link" ]
             , HH.a
-              [ HP.href "#", HP.classes [ Navigation.classes.navigationLink ] ]
+              [ HP.href "#", HP.classes [ Navigation.cl.navigationLink ] ]
               [ HH.text "Link" ]
             , HH.a
-              [ HP.href "#", HP.classes [ Navigation.classes.navigationLink ] ]
+              [ HP.href "#", HP.classes [ Navigation.cl.navigationLink ] ]
               [ HH.text "Link" ]
             ]
           ]
         ]
       , HH.div
-        [ HP.classes [ Layout.classes.layoutDrawer ] ]
+        [ HP.classes [ Layout.cl.layoutDrawer ] ]
         [ HH.span
-          [ HP.classes [ Layout.classes.layoutTitle ] ]
+          [ HP.classes [ Layout.cl.layoutTitle ] ]
           [ HH.text "Title" ]
         , HH.nav
-          [ HP.classes [ Navigation.classes.navigation ] ]
+          [ HP.classes [ Navigation.cl.navigation ] ]
           [ HH.a
-            [ HP.href $ Route.href Home , HP.classes [ Navigation.classes.navigationLink ] ]
+            [ HP.href $ Route.href Home , HP.classes [ Navigation.cl.navigationLink ] ]
             [ HH.text $ Route.label Home ]
           , HH.a
-            [ HP.href $ Route.href Badges , HP.classes [ Navigation.classes.navigationLink ] ]
+            [ HP.href $ Route.href Badges , HP.classes [ Navigation.cl.navigationLink ] ]
             [ HH.text $ Route.label Badges ]
           , HH.a
-            [ HP.href $ Route.href Buttons , HP.classes [ Navigation.classes.navigationLink ] ]
+            [ HP.href $ Route.href Buttons , HP.classes [ Navigation.cl.navigationLink ] ]
             [ HH.text $ Route.label Buttons ]
           ]
         ]
       , HH.div
-        [ HP.classes [ Layout.classes.layoutContent ] ]
+        [ HP.classes [ Layout.cl.layoutContent ] ]
         [ HH.div
           [ HP.classes [ HH.ClassName "page-content" ] ]
-          [ renderContent state ]
+          [ renderContent state
+          , MegaFooter.bl.megaFooter
+              {
+                middleSection:
+                  { dropDownSections:
+                      [ { title: "Drop down section 1"
+                        , linkList:
+                            { links:
+                                [ { href: "#", text: "Link 1" }
+                                , { href: "#", text: "Link 2" }
+                                , { href: "#", text: "Link 3" }
+                                , { href: "#", text: "Link 4" }
+                                ]
+                            }
+                        }
+                      , { title: "Drop down section 2"
+                        , linkList:
+                            { links:
+                                [ { href: "#", text: "Link 1" }
+                                , { href: "#", text: "Link 2" }
+                                , { href: "#", text: "Link 3" }
+                                , { href: "#", text: "Link 4" }
+                                ]
+                            }
+                        }
+                      , { title: "Drop down section 3"
+                        , linkList:
+                            { links:
+                                [ { href: "#", text: "Link 1" }
+                                , { href: "#", text: "Link 2" }
+                                , { href: "#", text: "Link 3" }
+                                , { href: "#", text: "Link 4" }
+                                ]
+                            }
+                        }
+                      , { title: "Drop down section 4"
+                        , linkList:
+                            { links:
+                                [ { href: "#", text: "Link 1" }
+                                , { href: "#", text: "Link 2" }
+                                , { href: "#", text: "Link 3" }
+                                , { href: "#", text: "Link 4" }
+                                ]
+                            }
+                        }
+                      ]
+                  }
+              , bottomSection:
+                  { title: "Bottom title"
+                  , linkList:
+                      { links:
+                          [ { href: "#", text: "Link 1" }
+                          , { href: "#", text: "Link 2" }
+                          , { href: "#", text: "Link 3" }
+                          , { href: "#", text: "Link 4" }
+                          ]
+                      }
+                  }
+              }
+          ]
         ]
       ]
 

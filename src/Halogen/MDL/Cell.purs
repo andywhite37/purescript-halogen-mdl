@@ -2,7 +2,7 @@ module Halogen.MDL.Cell where
 
 import Halogen.HTML as HH
 
-classes ::
+cl ::
   { cell :: HH.ClassName
   , cell1Col :: HH.ClassName
   , cell2Col :: HH.ClassName
@@ -156,7 +156,7 @@ classes ::
   , cellMiddle :: HH.ClassName
   , cellBottom :: HH.ClassName
   }
-classes =
+cl =
   { cell : HH.ClassName "mdl-cell"
   , cell1Col : HH.ClassName "mdl-cell--1-col"
   , cell2Col : HH.ClassName "mdl-cell--2-col"
