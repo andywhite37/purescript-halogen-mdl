@@ -61,7 +61,7 @@ demoBadges =
   render :: State -> H.ComponentHTML Query
   render state =
     HH.div_
-      [ HH.h1_ [ HH.text $ "Badges" ]
+      [ HH.h1_ [ HH.text $ "Badges !!!" ]
       ]
 
   eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
