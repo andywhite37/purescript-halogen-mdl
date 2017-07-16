@@ -1,7 +1,7 @@
 exports.upgradeElement = function(element) {
   return function() {
     try {
-      console.log("upgradeElement: " + element);
+      console.log("upgradeElement: " + element.classList);
       componentHandler.upgradeElement(element);
     } catch (e) {
       console.error('Failed to upgradeElement', element, e);
