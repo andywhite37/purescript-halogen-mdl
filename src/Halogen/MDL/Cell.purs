@@ -1,6 +1,7 @@
 module Halogen.MDL.Cell where
 
 import Halogen.HTML as HH
+import Halogen.HTML.Properties as HP
 
 cl ::
   { cell :: HH.ClassName
@@ -309,4 +310,13 @@ cl =
   , cellTop : HH.ClassName "mdl-cell--top"
   , cellMiddle : HH.ClassName "mdl-cell--middle"
   , cellBottom : HH.ClassName "mdl-cell--bottom"
+  }
+
+el ::
+  { cell4Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell12Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  }
+el =
+  { cell4Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell4Col ] ] children
+  , cell12Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell12Col ] ] children
   }

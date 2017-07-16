@@ -24,6 +24,7 @@ import Halogen.MDL.Navigation as Navigation
 
 import Route (Route(..))
 import Route as Route
+import DemoHome as DemoHome
 import DemoBadges as DemoBadges
 import DemoButtons as DemoButtons
 
@@ -37,6 +38,7 @@ data Query a
   | UpdateState State a
   | UpdateRoute Route a
   | OnNavClick a
+  | OnDemoHomeMessage DemoHome.Message a
   | OnDemoBadgesMessage DemoBadges.Message a
   | OnDemoButtonsMessage DemoButtons.Message a
 
@@ -44,24 +46,36 @@ data Input = Initialize State
 
 type Message = Void
 
-type ChildQuery = DemoBadges.Query <\/> DemoButtons.Query <\/> Const Void
+type ChildQuery
+  =    DemoHome.Query
+  <\/> DemoBadges.Query
+  <\/> DemoButtons.Query
+  <\/> Const Void
+
+type ChildSlot
+  =  DemoHomeSlot
+  \/ DemoBadgesSlot
+  \/ DemoButtonsSlot
+  \/ Void
 
 -- Slots
+data DemoHomeSlot = DemoHomeSlot
+derive instance eqDemoHomeSlot :: Eq DemoHomeSlot
+derive instance ordDemoHomeSlot :: Ord DemoHomeSlot
+cpDemoHome :: CP.ChildPath DemoHome.Query ChildQuery DemoHomeSlot ChildSlot
+cpDemoHome = CP.cp1
+
 data DemoBadgesSlot = DemoBadgesSlot
 derive instance eqDemoBadgesSlot :: Eq DemoBadgesSlot
 derive instance ordDemoBadgesSlot :: Ord DemoBadgesSlot
+cpDemoBadges :: CP.ChildPath DemoBadges.Query ChildQuery DemoBadgesSlot ChildSlot
+cpDemoBadges = CP.cp2
 
 data DemoButtonsSlot = DemoButtonsSlot
 derive instance eqDemoButtonsSlot :: Eq DemoButtonsSlot
 derive instance ordDemoButtonsSlot :: Ord DemoButtonsSlot
-
-type ChildSlot = DemoBadgesSlot \/ DemoButtonsSlot \/ Void
-
-cpDemoBadges :: CP.ChildPath DemoBadges.Query ChildQuery DemoBadgesSlot ChildSlot
-cpDemoBadges = CP.cp1
-
 cpDemoButtons :: CP.ChildPath DemoButtons.Query ChildQuery DemoButtonsSlot ChildSlot
-cpDemoButtons = CP.cp2
+cpDemoButtons = CP.cp3
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -174,9 +188,13 @@ demoContainer =
   renderPageContent :: State -> DemoContainerHTML eff
   renderPageContent state = case state.currentRoute of
     Home ->
-      HH.div_ [ HH.text $ Route.label state.currentRoute ]
+      HH.slot'
+        cpDemoHome
+        DemoHomeSlot
+        DemoHome.demoHome
+        (DemoHome.init unit)
+        (HE.input OnDemoHomeMessage)
     Badges ->
-      --HH.div_ [ HH.text $ Route.label state.currentRoute ]
       HH.slot'
         cpDemoBadges
         DemoBadgesSlot
@@ -236,6 +254,8 @@ demoContainer =
       case drawer of
         Just drawer -> H.liftEff $ Layout.hideLayoutDrawer
         Nothing -> pure unit
+      pure next
+    OnDemoHomeMessage _ next -> do
       pure next
     OnDemoBadgesMessage _ next -> do
       pure next

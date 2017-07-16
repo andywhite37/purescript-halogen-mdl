@@ -8,9 +8,11 @@ import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
---import Halogen.HTML.Properties as HP
+import Halogen.HTML.Properties as HP
 
 import Halogen.MDL.Button as Button
+import Halogen.MDL.Cell as Cell
+import Halogen.MDL.Grid as Grid
 
 type State =
   { clickCount :: Int
@@ -29,6 +31,9 @@ type Message = Void
 data Slot = ButtonSlot
 derive instance eqSlot :: Eq Slot
 derive instance ordSlot :: Ord Slot
+
+type DemoButtonsHTML eff = H.ParentHTML Query Button.Query Slot (Aff (HA.HalogenEffects eff))
+type DemoButtonsDSL eff = H.ParentDSL State Query Button.Query Slot Message (Aff (HA.HalogenEffects eff))
 
 init :: State -> Input
 init state = Initialize state
@@ -57,11 +62,21 @@ demoButtons =
   receiver :: Input -> Maybe (Query Unit)
   receiver (Initialize state) = Just $ H.action $ UpdateState state
 
-  render :: State -> H.ParentHTML Query Button.Query Slot (Aff (HA.HalogenEffects eff))
+  render :: State -> DemoButtonsHTML eff
   render state =
-    HH.div_
-      [ HH.h1_ [ HH.text $ "Buttons" ]
-      , HH.slot
+    HH.div
+      [ HP.class_ Grid.cl.grid ]
+      [ renderButtonsHeader
+      , renderButtonDemo1 state
+      ]
+
+  renderButtonsHeader :: DemoButtonsHTML eff
+  renderButtonsHeader = Cell.el.cell12Col_ [ HH.h1_ [ HH.text $ "Buttons" ] ]
+
+  renderButtonDemo1 :: State -> DemoButtonsHTML eff
+  renderButtonDemo1 state =
+    Cell.el.cell12Col_
+      [ HH.slot
           ButtonSlot
           Button.button
           (Button.init { type: Button.Raised, color: Button.Colored, text: "Click this", disabled: false, ripple: true })
@@ -69,7 +84,7 @@ demoButtons =
       , HH.p_ [ HH.text $ "Button has been clicked " <> show state.clickCount <> " times." ]
       ]
 
-  eval :: Query ~> H.ParentDSL State Query Button.Query Slot Message (Aff (HA.HalogenEffects eff))
+  eval :: Query ~> DemoButtonsDSL eff
   eval = case _ of
     InitializeComponent next -> pure next
     FinalizeComponent next -> pure next

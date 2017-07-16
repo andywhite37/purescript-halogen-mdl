@@ -16,6 +16,5 @@ el ::
   { grid_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
   }
 el =
-  { grid_: \children ->
-      HH.div [ HP.class_ cl.grid ] children
+  { grid_: \children -> HH.div [ HP.class_ cl.grid ] children
   }

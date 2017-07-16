@@ -25,12 +25,6 @@ data Input = Initialize State
 
 type Message = Void
 
-{-
-data Slot = ButtonSlot
-derive instance eqSlot :: Eq Slot
-derive instance ordSlot :: Ord Slot
--}
-
 init :: State -> Input
 init state = Initialize state
 
