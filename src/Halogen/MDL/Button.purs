@@ -13,6 +13,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
 import Halogen.MDL as MDL
+import Halogen.MDL.MaterialIcon as MI
 import Halogen.MDL.RippleEffect as RippleEffect
 
 -- MDL classes for buttons
@@ -59,12 +60,21 @@ data ButtonColor
 derive instance eqButtonColor :: Eq ButtonColor
 derive instance ordButtonColor :: Ord ButtonColor
 
+data ButtonContent
+  = Text String
+  | IconText String
+  -- | HTML (HH.HTML p i)
+  -- | HTMLs (Array (HH.HTML p i))
+  -- | Component - need slot to allow this?
+derive instance eqButtonContent :: Eq ButtonContent
+derive instance ordButtonContent :: Ord ButtonContent
+
 type Props =
   { type :: ButtonType
   , color :: ButtonColor
   , disabled :: Boolean -- whether the button is disabled
   , ripple :: Boolean
-  , text :: String -- text of the button - TODO: want to allow a child component as the content of this button component
+  , content :: ButtonContent
   }
 
 newtype State = State Props
@@ -86,7 +96,7 @@ init :: Props -> Input
 init props = Initialize $ State props
 
 -- MDL button component
-button :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+button :: ∀ i eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
 button =
   -- TODO: make this a lifecycleParentComponent so the content of the button can be provided as another component?
   H.lifecycleComponent
@@ -129,7 +139,16 @@ button =
       , HE.onClick $ HE.input OnClick
       ]
       -- TODO: I want this to be a HH.slot so the content/children of the button can be a component
-      [ HH.text props.text ]
+      case props.content of
+        Text text -> [ HH.text text ]
+        IconText text ->
+          [ HH.i
+              [ HP.class_ MI.cl.materialIcons ]
+              [ HH.text text ]
+          ]
+        --HTML html -> [ html ]
+        --HTMLs htmls -> htmls
+
       --[ HH.slot ContentSlot
 
   getClasses :: Props -> Array HH.ClassName
@@ -141,7 +160,7 @@ button =
         Flat -> []
         Raised -> [cl.buttonRaised]
         Fab -> [cl.buttonFab]
-        MiniFab -> [cl.buttonMiniFab]
+        MiniFab -> [cl.buttonFab, cl.buttonMiniFab]
         Icon -> [cl.buttonIcon]
       <> case props.color of
         Plain -> []

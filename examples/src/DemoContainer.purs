@@ -202,14 +202,14 @@ demoContainer =
         cpDemoBadges
         DemoBadgesSlot
         DemoBadges.demoBadges
-        (DemoBadges.init {})
+        (DemoBadges.init unit)
         (HE.input OnDemoBadgesMessage)
     Buttons ->
       HH.slot'
         cpDemoButtons
         DemoButtonsSlot
         DemoButtons.demoButtons
-        (DemoButtons.init { clickCount: 0 })
+        (DemoButtons.init { clickDemo: { clickCount: 0 } })
         (HE.input OnDemoButtonsMessage)
 
   renderMegaFooter :: DemoContainerHTML eff
@@ -253,8 +253,8 @@ demoContainer =
       H.modify (\state -> state { currentRoute = route })
       pure next
     OnNavClick next -> do
-      drawer <- H.getHTMLElementRef drawerRef
-      case drawer of
+      maybeDrawer <- H.getHTMLElementRef drawerRef
+      case maybeDrawer of
         Just drawer -> H.liftEff $ Layout.hideLayoutDrawer
         Nothing -> pure unit
       pure next

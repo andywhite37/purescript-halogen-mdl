@@ -59,76 +59,76 @@ demoBadges =
   render state =
     Grid.el.grid_
       [ renderBadgesHeader
-      , renderBadgesDemo1
+      , renderDemoHeader "Badges on icons (overlap)"
+      , renderDemoSection
+          [ HH.div
+              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, MI.cl.materialIcons ]
+              , HP.attr Badge.attr.dataBadge "1"
+              ]
+              [ MI.el.accountBox ]
+          ]
+      , renderDemoSection
+          [ HH.div
+              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, MI.cl.materialIcons ]
+              , HP.attr Badge.attr.dataBadge "♥"
+              ]
+              [ MI.el.accountBox ]
+          ]
+      , renderDemoHeader "Badges on icons (overlap, no background)"
+      , renderDemoSection
+          [ HH.div
+              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, Badge.cl.badgeNoBackground, MI.cl.materialIcons ]
+              , HP.attr Badge.attr.dataBadge "1"
+              ]
+              [ MI.el.accountBox ]
+          ]
+      , renderDemoSection
+          [ HH.div
+              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, Badge.cl.badgeNoBackground, MI.cl.materialIcons ]
+              , HP.attr Badge.attr.dataBadge "♥"
+              ]
+              [ MI.el.accountBox ]
+          ]
+      , renderDemoHeader "Badges on text (no overlap)"
+      , renderDemoSection
+          [ HH.span
+              [ HP.classes [ Badge.cl.badge ]
+              , HP.attr Badge.attr.dataBadge "1"
+              ]
+              [ HH.text "Inbox" ]
+          ]
+      , renderDemoSection
+          [ HH.span
+              [ HP.classes [ Badge.cl.badge ]
+              , HP.attr Badge.attr.dataBadge "♥"
+              ]
+              [ HH.text "Mood" ]
+          ]
+      , renderDemoHeader "Badges on text (no overlap, no background)"
+      , renderDemoSection
+          [ HH.span
+              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeNoBackground ]
+              , HP.attr Badge.attr.dataBadge "1"
+              ]
+              [ HH.text "Inbox" ]
+          ]
+      , renderDemoSection
+          [ HH.span
+              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeNoBackground ]
+              , HP.attr Badge.attr.dataBadge "♥"
+              ]
+              [ HH.text "Mood" ]
+          ]
       ]
 
-  renderBadgesHeader :: DemoBadgesHTML
+  renderBadgesHeader :: ∀ p i. HH.HTML p i
   renderBadgesHeader = Cell.el.cell12Col_ [ HH.h1_ [ HH.text "Badges" ] ]
 
-  renderBadgesDemo1 :: DemoBadgesHTML
-  renderBadgesDemo1 =
-    HH.div_
-      [ Cell.el.cell12Col_ [ HH.h3_ [ HH.text "Badges on icons (overlap)" ] ]
-      , Cell.el.cell6Col_
-          [ HH.div
-              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, MI.cl.materialIcons ]
-              , HP.attr Badge.attr.dataBadge "1"
-              ]
-              [ MI.el.accountBox ]
-          ]
-      , Cell.el.cell6Col_
-          [ HH.div
-              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, MI.cl.materialIcons ]
-              , HP.attr Badge.attr.dataBadge "♥"
-              ]
-              [ MI.el.accountBox ]
-          ]
-      , Cell.el.cell12Col_ [ HH.h3_ [ HH.text "Badges on icons (overlap, no background)" ] ]
-      , Cell.el.cell6Col_
-          [ HH.div
-              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, Badge.cl.badgeNoBackground, MI.cl.materialIcons ]
-              , HP.attr Badge.attr.dataBadge "1"
-              ]
-              [ MI.el.accountBox ]
-          ]
-      , Cell.el.cell6Col_
-          [ HH.div
-              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, Badge.cl.badgeNoBackground, MI.cl.materialIcons ]
-              , HP.attr Badge.attr.dataBadge "♥"
-              ]
-              [ MI.el.accountBox ]
-          ]
-      , Cell.el.cell12Col_ [ HH.h3_ [ HH.text "Badges on text (no overlap)" ] ]
-      , Cell.el.cell6Col_
-          [ HH.span
-              [ HP.classes [ Badge.cl.badge ]
-              , HP.attr Badge.attr.dataBadge "1"
-              ]
-              [ HH.text "Inbox" ]
-          ]
-      , Cell.el.cell6Col_
-          [ HH.span
-              [ HP.classes [ Badge.cl.badge ]
-              , HP.attr Badge.attr.dataBadge "♥"
-              ]
-              [ HH.text "Mood" ]
-          ]
-      , Cell.el.cell12Col_ [ HH.h3_ [ HH.text "Badges on text (no overlap, no background)" ] ]
-      , Cell.el.cell6Col_
-          [ HH.span
-              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeNoBackground ]
-              , HP.attr Badge.attr.dataBadge "1"
-              ]
-              [ HH.text "Inbox" ]
-          ]
-      , Cell.el.cell6Col_
-          [ HH.span
-              [ HP.classes [ Badge.cl.badge, Badge.cl.badgeNoBackground ]
-              , HP.attr Badge.attr.dataBadge "♥"
-              ]
-              [ HH.text "Mood" ]
-          ]
-      ]
+  renderDemoHeader :: ∀ p i. String -> HH.HTML p i
+  renderDemoHeader name = Cell.el.cell12Col_ [ HH.h3_ [ HH.text name ] ]
+
+  renderDemoSection :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  renderDemoSection body = Cell.el.cell3Col_ body
 
   eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
   eval = case _ of

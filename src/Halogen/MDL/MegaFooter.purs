@@ -105,7 +105,6 @@ bl =
         , bl.linkList block.linkList
         ]
 
-
   , dropDownSection: \block ->
       el.dropDownSection_
         [ HH.input [ HP.class_ cl.megaFooterHeadingCheckbox, HP.type_ HP.InputCheckbox, HP.checked true ]

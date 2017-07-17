@@ -7738,6 +7738,7 @@ var PS = {};
   var h3 = element("h3");
   var h3_ = h3([  ]);    
   var header = element("header");
+  var i = element("i");
   var input = function (props) {
       return element("input")(props)([  ]);
   };                         
@@ -7749,13 +7750,11 @@ var PS = {};
   var span = element("span");
   var ul = element("ul");
   var div = element("div");
-  var div_ = div([  ]);
   var button = element("button");
   var a = element("a");
   exports["a"] = a;
   exports["button"] = button;
   exports["div"] = div;
-  exports["div_"] = div_;
   exports["element"] = element;
   exports["footer"] = footer;
   exports["h1"] = h1;
@@ -7763,6 +7762,7 @@ var PS = {};
   exports["h3"] = h3;
   exports["h3_"] = h3_;
   exports["header"] = header;
+  exports["i"] = i;
   exports["input"] = input;
   exports["li"] = li;
   exports["li_"] = li_;
@@ -8185,10 +8185,15 @@ var PS = {};
       return new Initialize(state);
   };
   var demoBadges = (function () {
+      var renderDemoSection = function (body) {
+          return Halogen_MDL_Cell.el.cell3Col_(body);
+      };
+      var renderDemoHeader = function (name) {
+          return Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text(name) ]) ]);
+      };
       var renderBadgesHeader = Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h1_([ Halogen_HTML_Core.text("Badges") ]) ]);
-      var renderBadgesDemo1 = Halogen_HTML_Elements.div_([ Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Badges on icons (overlap)") ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Badges on icons (overlap, no background)") ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_Badge.cl.badgeNoBackground, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_Badge.cl.badgeNoBackground, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Badges on text (no overlap)") ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_HTML_Core.text("Inbox") ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_HTML_Core.text("Mood") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Badges on text (no overlap, no background)") ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeNoBackground ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_HTML_Core.text("Inbox") ]) ]), Halogen_MDL_Cell.el.cell6Col_([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeNoBackground ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_HTML_Core.text("Mood") ]) ]) ]);
       var render = function (state) {
-          return Halogen_MDL_Grid.el.grid_([ renderBadgesHeader, renderBadgesDemo1 ]);
+          return Halogen_MDL_Grid.el.grid_([ renderBadgesHeader, renderDemoHeader("Badges on icons (overlap)"), renderDemoSection([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), renderDemoSection([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), renderDemoHeader("Badges on icons (overlap, no background)"), renderDemoSection([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_Badge.cl.badgeNoBackground, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), renderDemoSection([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeOverlap, Halogen_MDL_Badge.cl.badgeNoBackground, Halogen_MDL_MaterialIcon.cl.materialIcons ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_MDL_MaterialIcon.el.accountBox ]) ]), renderDemoHeader("Badges on text (no overlap)"), renderDemoSection([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_HTML_Core.text("Inbox") ]) ]), renderDemoSection([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_HTML_Core.text("Mood") ]) ]), renderDemoHeader("Badges on text (no overlap, no background)"), renderDemoSection([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeNoBackground ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("1") ])([ Halogen_HTML_Core.text("Inbox") ]) ]), renderDemoSection([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Badge.cl.badge, Halogen_MDL_Badge.cl.badgeNoBackground ]), Halogen_HTML_Properties.attr(Halogen_MDL_Badge.attr.dataBadge)("\u2665") ])([ Halogen_HTML_Core.text("Mood") ]) ]) ]);
       };
       var receiver = function (v) {
           return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
@@ -8210,7 +8215,7 @@ var PS = {};
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
           };
-          throw new Error("Failed pattern match at DemoBadges line 137, column 10 - line 142, column 12: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at DemoBadges line 134, column 10 - line 139, column 12: " + [ v.constructor.name ]);
       };
       return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
           initialState: initialState, 
@@ -8330,8 +8335,7 @@ var PS = {};
   exports["cl"] = cl;
 })(PS["Halogen.MDL.RippleEffect"] = PS["Halogen.MDL.RippleEffect"] || {});
 (function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
+    "use strict";
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Bind = PS["Control.Bind"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
@@ -8353,6 +8357,7 @@ var PS = {};
   var Halogen_HTML_Events = PS["Halogen.HTML.Events"];
   var Halogen_HTML_Properties = PS["Halogen.HTML.Properties"];
   var Halogen_MDL = PS["Halogen.MDL"];
+  var Halogen_MDL_MaterialIcon = PS["Halogen.MDL.MaterialIcon"];
   var Halogen_MDL_RippleEffect = PS["Halogen.MDL.RippleEffect"];
   var Halogen_Query = PS["Halogen.Query"];
   var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
@@ -8367,6 +8372,8 @@ var PS = {};
       };
       return Clicked;
   })();
+
+  // MDL Button component supporting types
   var Flat = (function () {
       function Flat() {
 
@@ -8374,6 +8381,8 @@ var PS = {};
       Flat.value = new Flat();
       return Flat;
   })();
+
+  // MDL Button component supporting types
   var Raised = (function () {
       function Raised() {
 
@@ -8381,6 +8390,8 @@ var PS = {};
       Raised.value = new Raised();
       return Raised;
   })();
+
+  // MDL Button component supporting types
   var Fab = (function () {
       function Fab() {
 
@@ -8388,6 +8399,8 @@ var PS = {};
       Fab.value = new Fab();
       return Fab;
   })();
+
+  // MDL Button component supporting types
   var MiniFab = (function () {
       function MiniFab() {
 
@@ -8395,12 +8408,32 @@ var PS = {};
       MiniFab.value = new MiniFab();
       return MiniFab;
   })();
+
+  // MDL Button component supporting types
   var Icon = (function () {
       function Icon() {
 
       };
       Icon.value = new Icon();
       return Icon;
+  })();
+  var Text = (function () {
+      function Text(value0) {
+          this.value0 = value0;
+      };
+      Text.create = function (value0) {
+          return new Text(value0);
+      };
+      return Text;
+  })();
+  var IconText = (function () {
+      function IconText(value0) {
+          this.value0 = value0;
+      };
+      IconText.create = function (value0) {
+          return new IconText(value0);
+      };
+      return IconText;
   })();
   var Plain = (function () {
       function Plain() {
@@ -8481,6 +8514,8 @@ var PS = {};
       };
       return OnClick;
   })();
+
+  // Helper to create initial Input for a Button
   var init = function (props) {
       return Initialize.create(props);
   };
@@ -8504,6 +8539,17 @@ var PS = {};
           return false;
       };
   });
+  var eqButtonContent = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          if (x instanceof Text && y instanceof Text) {
+              return x.value0 === y.value0;
+          };
+          if (x instanceof IconText && y instanceof IconText) {
+              return x.value0 === y.value0;
+          };
+          return false;
+      };
+  });
   var eqButtonColor = new Data_Eq.Eq(function (x) {
       return function (y) {
           if (x instanceof Plain && y instanceof Plain) {
@@ -8523,9 +8569,11 @@ var PS = {};
   });
   var eqState = new Data_Eq.Eq(function (x) {
       return function (y) {
-          return Data_Eq.eq(eqButtonColor)(x.color)(y.color) && x.disabled === y.disabled && x.ripple === y.ripple && x.text === y.text && Data_Eq.eq(eqButtonType)(x.type)(y.type);
+          return Data_Eq.eq(eqButtonColor)(x.color)(y.color) && Data_Eq.eq(eqButtonContent)(x.content)(y.content) && x.disabled === y.disabled && x.ripple === y.ripple && Data_Eq.eq(eqButtonType)(x.type)(y.type);
       };
   });
+
+  // MDL classes for buttons
   var cl = {
       button: "mdl-button", 
       buttonRaised: "mdl-button--raised", 
@@ -8537,15 +8585,31 @@ var PS = {};
       buttonAccent: "mdl-button--accent", 
       jsButton: "mdl-js-button"
   };
+
+  // MDL button component
+
+  // TODO: make this a lifecycleParentComponent so the content of the button can be provided as another component?
   var button = (function () {
-      var receiver = function (v) {
+    
+      // Map Inputs to Queries
+  var receiver = function (v) {
           return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
       };
-      var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
-      var initialState = function (v) {
+    
+      // Get Query to initialize the component
+  var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
+    
+      // Map Input to the initial State
+  var initialState = function (v) {
           return v.value0;
       };
-      var getClasses = function (props) {
+    
+      //HTML html -> [ html ]
+
+      //HTMLs htmls -> htmls
+
+      //[ HH.slot ContentSlot
+  var getClasses = function (props) {
           return Data_Semigroup.append(Data_Semigroup.semigroupArray)([ cl.button, cl.jsButton ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)((function () {
               if (props.type instanceof Flat) {
                   return [  ];
@@ -8557,12 +8621,12 @@ var PS = {};
                   return [ cl.buttonFab ];
               };
               if (props.type instanceof MiniFab) {
-                  return [ cl.buttonMiniFab ];
+                  return [ cl.buttonFab, cl.buttonMiniFab ];
               };
               if (props.type instanceof Icon) {
                   return [ cl.buttonIcon ];
               };
-              throw new Error("Failed pattern match at Halogen.MDL.Button line 140, column 10 - line 145, column 32: " + [ props.type.constructor.name ]);
+              throw new Error("Failed pattern match at Halogen.MDL.Button line 159, column 10 - line 164, column 32: " + [ props.type.constructor.name ]);
           })())(Data_Semigroup.append(Data_Semigroup.semigroupArray)((function () {
               if (props.color instanceof Plain) {
                   return [  ];
@@ -8576,7 +8640,7 @@ var PS = {};
               if (props.color instanceof Accent) {
                   return [ cl.buttonAccent ];
               };
-              throw new Error("Failed pattern match at Halogen.MDL.Button line 146, column 10 - line 150, column 36: " + [ props.color.constructor.name ]);
+              throw new Error("Failed pattern match at Halogen.MDL.Button line 165, column 10 - line 169, column 36: " + [ props.color.constructor.name ]);
           })())((function () {
               if (props.ripple) {
                   return [ Halogen_MDL_RippleEffect.cl.jsRippleEffect ];
@@ -8584,7 +8648,9 @@ var PS = {};
               return [  ];
           })())));
       };
-      var finalizer = Data_Maybe.Just.create(Halogen_Query.action(FinalizeComponent.create));
+    
+      // Get Query to finalize the component
+  var finalizer = Data_Maybe.Just.create(Halogen_Query.action(FinalizeComponent.create));
       var $$eval = function (v) {
           if (v instanceof InitializeComponent) {
               return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Halogen_MDL.upgradeElementByRef(Control_Monad_Aff.monadEffAff)("mdl-button-ref"))(function () {
@@ -8606,10 +8672,20 @@ var PS = {};
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
           };
-          throw new Error("Failed pattern match at Halogen.MDL.Button line 156, column 10 - line 177, column 12: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Halogen.MDL.Button line 175, column 10 - line 196, column 12: " + [ v.constructor.name ]);
       };
-      var render = function (v) {
-          return Halogen_HTML_Elements.button([ Halogen_HTML_Properties.ref("mdl-button-ref"), Halogen_HTML_Properties.classes(getClasses(v)), Halogen_HTML_Properties.disabled(v.disabled), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input(OnClick.create)) ])([ Halogen_HTML_Core.text(v.text) ]);
+    
+      // Render the button
+  var render = function (v) {
+          return Halogen_HTML_Elements.button([ Halogen_HTML_Properties.ref("mdl-button-ref"), Halogen_HTML_Properties.classes(getClasses(v)), Halogen_HTML_Properties.disabled(v.disabled), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input(OnClick.create)) ])((function () {
+              if (v.content instanceof Text) {
+                  return [ Halogen_HTML_Core.text(v.content.value0) ];
+              };
+              if (v.content instanceof IconText) {
+                  return [ Halogen_HTML_Elements.i([ Halogen_HTML_Properties.class_(Halogen_MDL_MaterialIcon.cl.materialIcons) ])([ Halogen_HTML_Core.text(v.content.value0) ]) ];
+              };
+              throw new Error("Failed pattern match at Halogen.MDL.Button line 142, column 7 - line 148, column 12: " + [ v.content.constructor.name ]);
+          })());
       };
       return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
           initialState: initialState, 
@@ -8624,6 +8700,8 @@ var PS = {};
   exports["Colored"] = Colored;
   exports["Primary"] = Primary;
   exports["Accent"] = Accent;
+  exports["Text"] = Text;
+  exports["IconText"] = IconText;
   exports["Flat"] = Flat;
   exports["Raised"] = Raised;
   exports["Fab"] = Fab;
@@ -8640,6 +8718,7 @@ var PS = {};
   exports["init"] = init;
   exports["eqButtonType"] = eqButtonType;
   exports["eqButtonColor"] = eqButtonColor;
+  exports["eqButtonContent"] = eqButtonContent;
   exports["eqState"] = eqState;
 })(PS["Halogen.MDL.Button"] = PS["Halogen.MDL.Button"] || {});
 (function(exports) {
@@ -8671,13 +8750,6 @@ var PS = {};
   var Halogen_Query = PS["Halogen.Query"];
   var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
   var Prelude = PS["Prelude"];        
-  var ButtonSlot = (function () {
-      function ButtonSlot() {
-
-      };
-      ButtonSlot.value = new ButtonSlot();
-      return ButtonSlot;
-  })();
   var InitializeComponent = (function () {
       function InitializeComponent(value0) {
           this.value0 = value0;
@@ -8708,17 +8780,29 @@ var PS = {};
       };
       return UpdateState;
   })();
-  var OnButtonMessage = (function () {
-      function OnButtonMessage(value0, value1) {
+  var OnClickDemoButtonMessage = (function () {
+      function OnClickDemoButtonMessage(value0, value1) {
           this.value0 = value0;
           this.value1 = value1;
       };
-      OnButtonMessage.create = function (value0) {
+      OnClickDemoButtonMessage.create = function (value0) {
           return function (value1) {
-              return new OnButtonMessage(value0, value1);
+              return new OnClickDemoButtonMessage(value0, value1);
           };
       };
-      return OnButtonMessage;
+      return OnClickDemoButtonMessage;
+  })();
+  var OnIgnoredButtonMessage = (function () {
+      function OnIgnoredButtonMessage(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      OnIgnoredButtonMessage.create = function (value0) {
+          return function (value1) {
+              return new OnIgnoredButtonMessage(value0, value1);
+          };
+      };
+      return OnIgnoredButtonMessage;
   })();
   var Initialize = (function () {
       function Initialize(value0) {
@@ -8729,34 +8813,803 @@ var PS = {};
       };
       return Initialize;
   })();
+  var ClickDemoSlot = (function () {
+      function ClickDemoSlot() {
+
+      };
+      ClickDemoSlot.value = new ClickDemoSlot();
+      return ClickDemoSlot;
+  })();
+  var ColoredFabSlot = (function () {
+      function ColoredFabSlot() {
+
+      };
+      ColoredFabSlot.value = new ColoredFabSlot();
+      return ColoredFabSlot;
+  })();
+  var ColoredFabRippleSlot = (function () {
+      function ColoredFabRippleSlot() {
+
+      };
+      ColoredFabRippleSlot.value = new ColoredFabRippleSlot();
+      return ColoredFabRippleSlot;
+  })();
+  var ColoredFabDisabledSlot = (function () {
+      function ColoredFabDisabledSlot() {
+
+      };
+      ColoredFabDisabledSlot.value = new ColoredFabDisabledSlot();
+      return ColoredFabDisabledSlot;
+  })();
+  var PlainFabSlot = (function () {
+      function PlainFabSlot() {
+
+      };
+      PlainFabSlot.value = new PlainFabSlot();
+      return PlainFabSlot;
+  })();
+  var PlainFabRippleSlot = (function () {
+      function PlainFabRippleSlot() {
+
+      };
+      PlainFabRippleSlot.value = new PlainFabRippleSlot();
+      return PlainFabRippleSlot;
+  })();
+  var PlainFabDisabledSlot = (function () {
+      function PlainFabDisabledSlot() {
+
+      };
+      PlainFabDisabledSlot.value = new PlainFabDisabledSlot();
+      return PlainFabDisabledSlot;
+  })();
+  var ColoredRaisedSlot = (function () {
+      function ColoredRaisedSlot() {
+
+      };
+      ColoredRaisedSlot.value = new ColoredRaisedSlot();
+      return ColoredRaisedSlot;
+  })();
+  var ColoredRaisedRippleSlot = (function () {
+      function ColoredRaisedRippleSlot() {
+
+      };
+      ColoredRaisedRippleSlot.value = new ColoredRaisedRippleSlot();
+      return ColoredRaisedRippleSlot;
+  })();
+  var ColoredRaisedDisabledSlot = (function () {
+      function ColoredRaisedDisabledSlot() {
+
+      };
+      ColoredRaisedDisabledSlot.value = new ColoredRaisedDisabledSlot();
+      return ColoredRaisedDisabledSlot;
+  })();
+  var ColoredAccentRaisedSlot = (function () {
+      function ColoredAccentRaisedSlot() {
+
+      };
+      ColoredAccentRaisedSlot.value = new ColoredAccentRaisedSlot();
+      return ColoredAccentRaisedSlot;
+  })();
+  var ColoredAccentRaisedRippleSlot = (function () {
+      function ColoredAccentRaisedRippleSlot() {
+
+      };
+      ColoredAccentRaisedRippleSlot.value = new ColoredAccentRaisedRippleSlot();
+      return ColoredAccentRaisedRippleSlot;
+  })();
+  var ColoredAccentRaisedDisabledSlot = (function () {
+      function ColoredAccentRaisedDisabledSlot() {
+
+      };
+      ColoredAccentRaisedDisabledSlot.value = new ColoredAccentRaisedDisabledSlot();
+      return ColoredAccentRaisedDisabledSlot;
+  })();
+  var PlainRaisedSlot = (function () {
+      function PlainRaisedSlot() {
+
+      };
+      PlainRaisedSlot.value = new PlainRaisedSlot();
+      return PlainRaisedSlot;
+  })();
+  var PlainRaisedRippleSlot = (function () {
+      function PlainRaisedRippleSlot() {
+
+      };
+      PlainRaisedRippleSlot.value = new PlainRaisedRippleSlot();
+      return PlainRaisedRippleSlot;
+  })();
+  var PlainRaisedDisabledSlot = (function () {
+      function PlainRaisedDisabledSlot() {
+
+      };
+      PlainRaisedDisabledSlot.value = new PlainRaisedDisabledSlot();
+      return PlainRaisedDisabledSlot;
+  })();
+  var ColoredFlatSlot = (function () {
+      function ColoredFlatSlot() {
+
+      };
+      ColoredFlatSlot.value = new ColoredFlatSlot();
+      return ColoredFlatSlot;
+  })();
+  var ColoredFlatRippleSlot = (function () {
+      function ColoredFlatRippleSlot() {
+
+      };
+      ColoredFlatRippleSlot.value = new ColoredFlatRippleSlot();
+      return ColoredFlatRippleSlot;
+  })();
+  var ColoredFlatDisabledSlot = (function () {
+      function ColoredFlatDisabledSlot() {
+
+      };
+      ColoredFlatDisabledSlot.value = new ColoredFlatDisabledSlot();
+      return ColoredFlatDisabledSlot;
+  })();
+  var ColoredAccentFlatSlot = (function () {
+      function ColoredAccentFlatSlot() {
+
+      };
+      ColoredAccentFlatSlot.value = new ColoredAccentFlatSlot();
+      return ColoredAccentFlatSlot;
+  })();
+  var ColoredAccentFlatRippleSlot = (function () {
+      function ColoredAccentFlatRippleSlot() {
+
+      };
+      ColoredAccentFlatRippleSlot.value = new ColoredAccentFlatRippleSlot();
+      return ColoredAccentFlatRippleSlot;
+  })();
+  var ColoredAccentFlatDisabledSlot = (function () {
+      function ColoredAccentFlatDisabledSlot() {
+
+      };
+      ColoredAccentFlatDisabledSlot.value = new ColoredAccentFlatDisabledSlot();
+      return ColoredAccentFlatDisabledSlot;
+  })();
+  var PlainFlatSlot = (function () {
+      function PlainFlatSlot() {
+
+      };
+      PlainFlatSlot.value = new PlainFlatSlot();
+      return PlainFlatSlot;
+  })();
+  var PlainFlatRippleSlot = (function () {
+      function PlainFlatRippleSlot() {
+
+      };
+      PlainFlatRippleSlot.value = new PlainFlatRippleSlot();
+      return PlainFlatRippleSlot;
+  })();
+  var PlainFlatDisabledSlot = (function () {
+      function PlainFlatDisabledSlot() {
+
+      };
+      PlainFlatDisabledSlot.value = new PlainFlatDisabledSlot();
+      return PlainFlatDisabledSlot;
+  })();
+  var ColoredIconSlot = (function () {
+      function ColoredIconSlot() {
+
+      };
+      ColoredIconSlot.value = new ColoredIconSlot();
+      return ColoredIconSlot;
+  })();
+  var ColoredIconRippleSlot = (function () {
+      function ColoredIconRippleSlot() {
+
+      };
+      ColoredIconRippleSlot.value = new ColoredIconRippleSlot();
+      return ColoredIconRippleSlot;
+  })();
+  var ColoredIconDisabledSlot = (function () {
+      function ColoredIconDisabledSlot() {
+
+      };
+      ColoredIconDisabledSlot.value = new ColoredIconDisabledSlot();
+      return ColoredIconDisabledSlot;
+  })();
+  var ColoredMiniFabSlot = (function () {
+      function ColoredMiniFabSlot() {
+
+      };
+      ColoredMiniFabSlot.value = new ColoredMiniFabSlot();
+      return ColoredMiniFabSlot;
+  })();
+  var ColoredMiniFabRippleSlot = (function () {
+      function ColoredMiniFabRippleSlot() {
+
+      };
+      ColoredMiniFabRippleSlot.value = new ColoredMiniFabRippleSlot();
+      return ColoredMiniFabRippleSlot;
+  })();
+  var ColoredMiniFabDisabledSlot = (function () {
+      function ColoredMiniFabDisabledSlot() {
+
+      };
+      ColoredMiniFabDisabledSlot.value = new ColoredMiniFabDisabledSlot();
+      return ColoredMiniFabDisabledSlot;
+  })();
   var init = function (state) {
       return new Initialize(state);
   };
-  var eqSlot = new Data_Eq.Eq(function (x) {
+  var eqChildSlot = new Data_Eq.Eq(function (x) {
       return function (y) {
-          return true;
+          if (x instanceof ClickDemoSlot && y instanceof ClickDemoSlot) {
+              return true;
+          };
+          if (x instanceof ColoredFabSlot && y instanceof ColoredFabSlot) {
+              return true;
+          };
+          if (x instanceof ColoredFabRippleSlot && y instanceof ColoredFabRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredFabDisabledSlot && y instanceof ColoredFabDisabledSlot) {
+              return true;
+          };
+          if (x instanceof PlainFabSlot && y instanceof PlainFabSlot) {
+              return true;
+          };
+          if (x instanceof PlainFabRippleSlot && y instanceof PlainFabRippleSlot) {
+              return true;
+          };
+          if (x instanceof PlainFabDisabledSlot && y instanceof PlainFabDisabledSlot) {
+              return true;
+          };
+          if (x instanceof ColoredRaisedSlot && y instanceof ColoredRaisedSlot) {
+              return true;
+          };
+          if (x instanceof ColoredRaisedRippleSlot && y instanceof ColoredRaisedRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredRaisedDisabledSlot && y instanceof ColoredRaisedDisabledSlot) {
+              return true;
+          };
+          if (x instanceof ColoredAccentRaisedSlot && y instanceof ColoredAccentRaisedSlot) {
+              return true;
+          };
+          if (x instanceof ColoredAccentRaisedRippleSlot && y instanceof ColoredAccentRaisedRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredAccentRaisedDisabledSlot && y instanceof ColoredAccentRaisedDisabledSlot) {
+              return true;
+          };
+          if (x instanceof PlainRaisedSlot && y instanceof PlainRaisedSlot) {
+              return true;
+          };
+          if (x instanceof PlainRaisedRippleSlot && y instanceof PlainRaisedRippleSlot) {
+              return true;
+          };
+          if (x instanceof PlainRaisedDisabledSlot && y instanceof PlainRaisedDisabledSlot) {
+              return true;
+          };
+          if (x instanceof ColoredFlatSlot && y instanceof ColoredFlatSlot) {
+              return true;
+          };
+          if (x instanceof ColoredFlatRippleSlot && y instanceof ColoredFlatRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredFlatDisabledSlot && y instanceof ColoredFlatDisabledSlot) {
+              return true;
+          };
+          if (x instanceof ColoredAccentFlatSlot && y instanceof ColoredAccentFlatSlot) {
+              return true;
+          };
+          if (x instanceof ColoredAccentFlatRippleSlot && y instanceof ColoredAccentFlatRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredAccentFlatDisabledSlot && y instanceof ColoredAccentFlatDisabledSlot) {
+              return true;
+          };
+          if (x instanceof PlainFlatSlot && y instanceof PlainFlatSlot) {
+              return true;
+          };
+          if (x instanceof PlainFlatRippleSlot && y instanceof PlainFlatRippleSlot) {
+              return true;
+          };
+          if (x instanceof PlainFlatDisabledSlot && y instanceof PlainFlatDisabledSlot) {
+              return true;
+          };
+          if (x instanceof ColoredIconSlot && y instanceof ColoredIconSlot) {
+              return true;
+          };
+          if (x instanceof ColoredIconRippleSlot && y instanceof ColoredIconRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredIconDisabledSlot && y instanceof ColoredIconDisabledSlot) {
+              return true;
+          };
+          if (x instanceof ColoredMiniFabSlot && y instanceof ColoredMiniFabSlot) {
+              return true;
+          };
+          if (x instanceof ColoredMiniFabRippleSlot && y instanceof ColoredMiniFabRippleSlot) {
+              return true;
+          };
+          if (x instanceof ColoredMiniFabDisabledSlot && y instanceof ColoredMiniFabDisabledSlot) {
+              return true;
+          };
+          return false;
       };
   });
-  var ordSlot = new Data_Ord.Ord(function () {
-      return eqSlot;
+  var ordChildSlot = new Data_Ord.Ord(function () {
+      return eqChildSlot;
   }, function (x) {
       return function (y) {
-          return Data_Ordering.EQ.value;
+          if (x instanceof ClickDemoSlot && y instanceof ClickDemoSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ClickDemoSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ClickDemoSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredFabSlot && y instanceof ColoredFabSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredFabSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredFabSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredFabRippleSlot && y instanceof ColoredFabRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredFabRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredFabRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredFabDisabledSlot && y instanceof ColoredFabDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredFabDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredFabDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainFabSlot && y instanceof PlainFabSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainFabSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainFabSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainFabRippleSlot && y instanceof PlainFabRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainFabRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainFabRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainFabDisabledSlot && y instanceof PlainFabDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainFabDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainFabDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredRaisedSlot && y instanceof ColoredRaisedSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredRaisedSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredRaisedSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredRaisedRippleSlot && y instanceof ColoredRaisedRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredRaisedRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredRaisedRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredRaisedDisabledSlot && y instanceof ColoredRaisedDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredRaisedDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredRaisedDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredAccentRaisedSlot && y instanceof ColoredAccentRaisedSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredAccentRaisedSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredAccentRaisedSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredAccentRaisedRippleSlot && y instanceof ColoredAccentRaisedRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredAccentRaisedRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredAccentRaisedRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredAccentRaisedDisabledSlot && y instanceof ColoredAccentRaisedDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredAccentRaisedDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredAccentRaisedDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainRaisedSlot && y instanceof PlainRaisedSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainRaisedSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainRaisedSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainRaisedRippleSlot && y instanceof PlainRaisedRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainRaisedRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainRaisedRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainRaisedDisabledSlot && y instanceof PlainRaisedDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainRaisedDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainRaisedDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredFlatSlot && y instanceof ColoredFlatSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredFlatSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredFlatSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredFlatRippleSlot && y instanceof ColoredFlatRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredFlatRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredFlatRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredFlatDisabledSlot && y instanceof ColoredFlatDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredFlatDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredFlatDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredAccentFlatSlot && y instanceof ColoredAccentFlatSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredAccentFlatSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredAccentFlatSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredAccentFlatRippleSlot && y instanceof ColoredAccentFlatRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredAccentFlatRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredAccentFlatRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredAccentFlatDisabledSlot && y instanceof ColoredAccentFlatDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredAccentFlatDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredAccentFlatDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainFlatSlot && y instanceof PlainFlatSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainFlatSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainFlatSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainFlatRippleSlot && y instanceof PlainFlatRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainFlatRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainFlatRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof PlainFlatDisabledSlot && y instanceof PlainFlatDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof PlainFlatDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof PlainFlatDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredIconSlot && y instanceof ColoredIconSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredIconSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredIconSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredIconRippleSlot && y instanceof ColoredIconRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredIconRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredIconRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredIconDisabledSlot && y instanceof ColoredIconDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredIconDisabledSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredIconDisabledSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredMiniFabSlot && y instanceof ColoredMiniFabSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredMiniFabSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredMiniFabSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredMiniFabRippleSlot && y instanceof ColoredMiniFabRippleSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ColoredMiniFabRippleSlot) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ColoredMiniFabRippleSlot) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ColoredMiniFabDisabledSlot && y instanceof ColoredMiniFabDisabledSlot) {
+              return Data_Ordering.EQ.value;
+          };
+          throw new Error("Failed pattern match at DemoButtons line 65, column 8 - line 65, column 46: " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var demoButtons = (function () {
-      var renderButtonsHeader = Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h1_([ Halogen_HTML_Core.text("Buttons") ]) ]);
-      var renderButtonDemo1 = function (state) {
-          return Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML.slot(ButtonSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+      var renderMainHeader = Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h1_([ Halogen_HTML_Core.text("Buttons") ]) ]);
+      var renderDemoSection = function (body) {
+          return Halogen_MDL_Cell.el.cell4Col_(body);
+      };
+      var renderDemoHeader = function (name) {
+          return Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text(name) ]) ]);
+      };
+      var renderClickDemo = function (state) {
+          return renderDemoSection([ Halogen_HTML.slot(ClickDemoSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
               type: Halogen_MDL_Button.Raised.value, 
               color: Halogen_MDL_Button.Colored.value, 
-              text: "Click this", 
+              content: new Halogen_MDL_Button.Text("Click this"), 
               disabled: false, 
               ripple: true
-          }))(Halogen_HTML_Events.input(OnButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Button has been clicked " + (Data_Show.show(Data_Show.showInt)(state.clickCount) + " times.")) ]) ]);
+          }))(Halogen_HTML_Events.input(OnClickDemoButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Button has been clicked " + (Data_Show.show(Data_Show.showInt)(state.clickDemo.clickCount) + " times.")) ]) ]);
       };
       var render = function (state) {
-          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Grid.cl.grid) ])([ renderButtonsHeader, renderButtonDemo1(state) ]);
+          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Grid.cl.grid) ])([ renderMainHeader, renderDemoHeader("Click demo"), renderClickDemo(state), renderDemoHeader("Colored fab buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredFabSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Fab.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredFabRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Fab.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredFabDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Fab.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Plain fab buttons"), renderDemoSection([ Halogen_HTML.slot(PlainFabSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Fab.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(PlainFabRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Fab.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(PlainFabDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Fab.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Colored raised buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredRaisedSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredRaisedRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredRaisedDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Colored accent raised buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredAccentRaisedSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Accent.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredAccentRaisedRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Accent.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredAccentRaisedDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Accent.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Plain raised buttons"), renderDemoSection([ Halogen_HTML.slot(PlainRaisedSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(PlainRaisedRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(PlainRaisedDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Raised.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Colored flat buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredFlatSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredFlatRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredFlatDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Colored accent flat buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredAccentFlatSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Accent.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredAccentFlatRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Accent.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredAccentFlatDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Accent.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Plain flat buttons"), renderDemoSection([ Halogen_HTML.slot(PlainFlatSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(PlainFlatRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(PlainFlatDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Flat.value, 
+              color: Halogen_MDL_Button.Plain.value, 
+              content: new Halogen_MDL_Button.Text("Click me"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Colored icon buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredIconSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Icon.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("mood"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredIconRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Icon.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("mood"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredIconDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.Icon.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("mood"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]), renderDemoHeader("Colored mini-fab buttons"), renderDemoSection([ Halogen_HTML.slot(ColoredMiniFabSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.MiniFab.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: false, 
+              ripple: false
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Normal") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredMiniFabRippleSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.MiniFab.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: false, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Ripple") ]) ]), renderDemoSection([ Halogen_HTML.slot(ColoredMiniFabDisabledSlot.value)(Halogen_MDL_Button.button)(Halogen_MDL_Button.init({
+              type: Halogen_MDL_Button.MiniFab.value, 
+              color: Halogen_MDL_Button.Colored.value, 
+              content: new Halogen_MDL_Button.IconText("add"), 
+              disabled: true, 
+              ripple: true
+          }))(Halogen_HTML_Events.input(OnIgnoredButtonMessage.create)), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Disabled") ]) ]) ]);
       };
       var receiver = function (v) {
           return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
@@ -8778,25 +9631,37 @@ var PS = {};
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
           };
-          if (v instanceof OnButtonMessage) {
+          if (v instanceof OnClickDemoButtonMessage) {
               return Control_Bind.bind(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.get(Halogen_Query_HalogenM.monadStateHalogenM))(function (v1) {
                   return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state1) {
-                      var $23 = {};
-                      for (var $24 in state1) {
-                          if ({}.hasOwnProperty.call(state1, $24)) {
-                              $23[$24] = state1[$24];
+                      var $26 = {};
+                      for (var $27 in state1) {
+                          if ({}.hasOwnProperty.call(state1, $27)) {
+                              $26[$27] = state1[$27];
                           };
                       };
-                      $23.clickCount = state1.clickCount + 1 | 0;
-                      return $23;
+                      $26.clickDemo = (function () {
+                          var $23 = {};
+                          for (var $24 in state1.clickDemo) {
+                              if ({}.hasOwnProperty.call(state1.clickDemo, $24)) {
+                                  $23[$24] = state1["clickDemo"][$24];
+                              };
+                          };
+                          $23.clickCount = state1.clickDemo.clickCount + 1 | 0;
+                          return $23;
+                      })();
+                      return $26;
                   }))(function () {
                       return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
                   });
               });
           };
-          throw new Error("Failed pattern match at DemoButtons line 88, column 10 - line 97, column 12: " + [ v.constructor.name ]);
+          if (v instanceof OnIgnoredButtonMessage) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+          };
+          throw new Error("Failed pattern match at DemoButtons line 388, column 10 - line 399, column 12: " + [ v.constructor.name ]);
       };
-      return Halogen_Component.lifecycleParentComponent(ordSlot)({
+      return Halogen_Component.lifecycleParentComponent(ordChildSlot)({
           initialState: initialState, 
           initializer: initializer, 
           finalizer: finalizer, 
@@ -8805,16 +9670,47 @@ var PS = {};
           "eval": $$eval
       });
   })();
+  exports["ClickDemoSlot"] = ClickDemoSlot;
+  exports["ColoredFabSlot"] = ColoredFabSlot;
+  exports["ColoredFabRippleSlot"] = ColoredFabRippleSlot;
+  exports["ColoredFabDisabledSlot"] = ColoredFabDisabledSlot;
+  exports["PlainFabSlot"] = PlainFabSlot;
+  exports["PlainFabRippleSlot"] = PlainFabRippleSlot;
+  exports["PlainFabDisabledSlot"] = PlainFabDisabledSlot;
+  exports["ColoredRaisedSlot"] = ColoredRaisedSlot;
+  exports["ColoredRaisedRippleSlot"] = ColoredRaisedRippleSlot;
+  exports["ColoredRaisedDisabledSlot"] = ColoredRaisedDisabledSlot;
+  exports["ColoredAccentRaisedSlot"] = ColoredAccentRaisedSlot;
+  exports["ColoredAccentRaisedRippleSlot"] = ColoredAccentRaisedRippleSlot;
+  exports["ColoredAccentRaisedDisabledSlot"] = ColoredAccentRaisedDisabledSlot;
+  exports["PlainRaisedSlot"] = PlainRaisedSlot;
+  exports["PlainRaisedRippleSlot"] = PlainRaisedRippleSlot;
+  exports["PlainRaisedDisabledSlot"] = PlainRaisedDisabledSlot;
+  exports["ColoredFlatSlot"] = ColoredFlatSlot;
+  exports["ColoredFlatRippleSlot"] = ColoredFlatRippleSlot;
+  exports["ColoredFlatDisabledSlot"] = ColoredFlatDisabledSlot;
+  exports["ColoredAccentFlatSlot"] = ColoredAccentFlatSlot;
+  exports["ColoredAccentFlatRippleSlot"] = ColoredAccentFlatRippleSlot;
+  exports["ColoredAccentFlatDisabledSlot"] = ColoredAccentFlatDisabledSlot;
+  exports["PlainFlatSlot"] = PlainFlatSlot;
+  exports["PlainFlatRippleSlot"] = PlainFlatRippleSlot;
+  exports["PlainFlatDisabledSlot"] = PlainFlatDisabledSlot;
+  exports["ColoredIconSlot"] = ColoredIconSlot;
+  exports["ColoredIconRippleSlot"] = ColoredIconRippleSlot;
+  exports["ColoredIconDisabledSlot"] = ColoredIconDisabledSlot;
+  exports["ColoredMiniFabSlot"] = ColoredMiniFabSlot;
+  exports["ColoredMiniFabRippleSlot"] = ColoredMiniFabRippleSlot;
+  exports["ColoredMiniFabDisabledSlot"] = ColoredMiniFabDisabledSlot;
   exports["Initialize"] = Initialize;
   exports["InitializeComponent"] = InitializeComponent;
   exports["FinalizeComponent"] = FinalizeComponent;
   exports["UpdateState"] = UpdateState;
-  exports["OnButtonMessage"] = OnButtonMessage;
-  exports["ButtonSlot"] = ButtonSlot;
+  exports["OnClickDemoButtonMessage"] = OnClickDemoButtonMessage;
+  exports["OnIgnoredButtonMessage"] = OnIgnoredButtonMessage;
   exports["demoButtons"] = demoButtons;
   exports["init"] = init;
-  exports["eqSlot"] = eqSlot;
-  exports["ordSlot"] = ordSlot;
+  exports["eqChildSlot"] = eqChildSlot;
+  exports["ordChildSlot"] = ordChildSlot;
 })(PS["DemoButtons"] = PS["DemoButtons"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
@@ -9313,11 +10209,13 @@ var PS = {};
               return Halogen_HTML["slot'"](cpDemoHome)(DemoHomeSlot.value)(DemoHome.demoHome)(DemoHome.init(Data_Unit.unit))(Halogen_HTML_Events.input(OnDemoHomeMessage.create));
           };
           if (state.currentRoute instanceof Route.Badges) {
-              return Halogen_HTML["slot'"](cpDemoBadges)(DemoBadgesSlot.value)(DemoBadges.demoBadges)(DemoBadges.init({}))(Halogen_HTML_Events.input(OnDemoBadgesMessage.create));
+              return Halogen_HTML["slot'"](cpDemoBadges)(DemoBadgesSlot.value)(DemoBadges.demoBadges)(DemoBadges.init(Data_Unit.unit))(Halogen_HTML_Events.input(OnDemoBadgesMessage.create));
           };
           if (state.currentRoute instanceof Route.Buttons) {
               return Halogen_HTML["slot'"](cpDemoButtons)(DemoButtonsSlot.value)(DemoButtons.demoButtons)(DemoButtons.init({
-                  clickCount: 0
+                  clickDemo: {
+                      clickCount: 0
+                  }
               }))(Halogen_HTML_Events.input(OnDemoButtonsMessage.create));
           };
           throw new Error("Failed pattern match at DemoContainer line 192, column 29 - line 213, column 40: " + [ state.currentRoute.constructor.name ]);
