@@ -313,10 +313,30 @@ cl =
   }
 
 el ::
-  { cell4Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  { cell1Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell2Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell3Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell4Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell5Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell6Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell7Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell8Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell9Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell10Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
+  , cell11Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
   , cell12Col_ :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
   }
 el =
-  { cell4Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell4Col ] ] children
+  { cell1Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell1Col ] ] children
+  , cell2Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell2Col ] ] children
+  , cell3Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell3Col ] ] children
+  , cell4Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell4Col ] ] children
+  , cell5Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell5Col ] ] children
+  , cell6Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell6Col ] ] children
+  , cell7Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell7Col ] ] children
+  , cell8Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell8Col ] ] children
+  , cell9Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell9Col ] ] children
+  , cell10Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell10Col ] ] children
+  , cell11Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell11Col ] ] children
   , cell12Col_: \children -> HH.div [ HP.classes [ cl.cell, cl.cell12Col ] ] children
   }

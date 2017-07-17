@@ -116,12 +116,15 @@ demoContainer =
   render :: State -> DemoContainerHTML eff
   render state =
     HH.div
-      [ HP.classes [ Layout.cl.layout, Layout.cl.jsLayout, Layout.cl.layoutFixedHeader ]
-      , HP.ref layoutRef
-      ]
-      [ renderLayoutHeader
-      , renderLayoutDrawer
-      , renderLayoutContent state
+      [ HP.class_ Layout.cl.layoutContainer ]
+      [ HH.div
+          [ HP.classes [ Layout.cl.layout, Layout.cl.jsLayout, Layout.cl.layoutFixedHeader ]
+          , HP.ref layoutRef
+          ]
+          [ renderLayoutHeader
+          , renderLayoutDrawer
+          , renderLayoutContent state
+          ]
       ]
 
   renderLayoutHeader :: DemoContainerHTML eff

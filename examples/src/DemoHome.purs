@@ -41,13 +41,11 @@ demoHome = H.component
   render :: State -> DemoHomeHTML
   render state =
     Grid.el.grid_
-      [ renderDemoHomeHeader
+      [ renderHomeHeader
       ]
 
-  renderDemoHomeHeader :: DemoHomeHTML
-  renderDemoHomeHeader =
-    Cell.el.cell12Col_ [ HH.h1_ [ HH.text "Halogen MDL" ] ]
-
+  renderHomeHeader :: DemoHomeHTML
+  renderHomeHeader = Cell.el.cell12Col_ [ HH.h1_ [ HH.text "Halogen MDL" ] ]
 
   eval :: Query ~> DemoHomeDSL eff
   eval = case _ of
