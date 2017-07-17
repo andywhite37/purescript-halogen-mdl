@@ -1,5 +1,7 @@
 # Purescript Halogen MDL (Material Design Lite)
 
+[Live demo](https://rawgit.com/andywhite37/purescript-halogen-mdl/master/examples/dist/index.html)
+
 ## Setup
 
 ```
