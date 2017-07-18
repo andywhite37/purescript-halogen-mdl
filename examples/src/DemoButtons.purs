@@ -1,21 +1,27 @@
 module DemoButtons where
 
 import Prelude
-import Control.Monad.Aff (Aff)
-import Data.Maybe (Maybe(..))
 
+import Control.Monad.Aff (Aff, delay)
+import Data.Maybe (Maybe(..))
+import Data.Time.Duration (Milliseconds(..))
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties (disabled)
 import Halogen.HTML.Properties as HP
 
+import Halogen.MDL as MDL
 import Halogen.MDL.Button as Button
 import Halogen.MDL.Cell as Cell
 import Halogen.MDL.Grid as Grid
+import Halogen.MDL.RippleEffect as RippleEffect
+import Halogen.MDL.Spinner as Spinner
 
 type State =
   { clickDemo :: { clickCount :: Int }
+  , nonComponentDemo :: { isLoading :: Boolean }
   }
 
 data Query a
@@ -24,6 +30,7 @@ data Query a
   | UpdateState State a
   | OnClickDemoButtonMessage Button.Message a
   | OnIgnoredButtonMessage Button.Message a
+  | OnNonComponentButtonClick a
 
 data Input = Initialize State
 
@@ -101,7 +108,14 @@ demoButtons =
       [ renderMainHeader
 
       , renderDemoHeader "Click demo"
-      , renderClickDemo state
+      , renderDemoSection
+          [ HH.slot
+              ClickDemoSlot
+              Button.button
+              (Button.init { type: Button.Raised, color: Button.Colored, content: Button.Text "Click this", disabled: false, ripple: true })
+              (HE.input OnClickDemoButtonMessage)
+          , HH.p_ [ HH.text $ "Button has been clicked " <> show state.clickDemo.clickCount <> " times." ]
+          ]
 
       , renderDemoHeader "Colored fab buttons"
       , renderDemoSection
@@ -362,6 +376,31 @@ demoButtons =
               (HE.input OnIgnoredButtonMessage)
           , HH.p_ [ HH.text "Disabled" ]
           ]
+
+      -- Demo of a custom button that does not use the Halogen.MDL.Button.button component
+      , renderDemoHeader "DIY (non-component) button"
+      , renderDemoSection
+          [ HH.button
+              [ HP.classes
+                  [ Button.cl.button
+                  , Button.cl.jsButton
+                  , Button.cl.buttonRaised
+                  , Button.cl.buttonColored
+                  , RippleEffect.cl.jsRippleEffect
+                  ]
+              , HP.type_ HP.ButtonButton
+              , HP.ref $ H.RefLabel "non-component-button"
+              , HE.onClick $ HE.input_ OnNonComponentButtonClick
+              , HP.disabled state.nonComponentDemo.isLoading
+              ]
+              if state.nonComponentDemo.isLoading
+              then
+                [ Spinner.el.spinner_ $ H.RefLabel "non-component-spinner"
+                , HH.text "Loading"
+                ]
+              else
+                [ HH.text "Click me" ]
+          ]
       ]
 
   renderMainHeader :: ∀ p i. HH.HTML p i
@@ -374,26 +413,33 @@ demoButtons =
   renderDemoSection body =
     Cell.el.cell4Col_ body
 
-  renderClickDemo :: State -> DemoButtonsHTML eff
-  renderClickDemo state = renderDemoSection
-    [ HH.slot
-        ClickDemoSlot
-        Button.button
-        (Button.init { type: Button.Raised, color: Button.Colored, content: Button.Text "Click this", disabled: false, ripple: true })
-        (HE.input OnClickDemoButtonMessage)
-    , HH.p_ [ HH.text $ "Button has been clicked " <> show state.clickDemo.clickCount <> " times." ]
-    ]
-
   eval :: Query ~> DemoButtonsDSL eff
   eval = case _ of
-    InitializeComponent next -> pure next
+    InitializeComponent next -> do
+      MDL.upgradeElementByRef (H.RefLabel "non-component-button")
+      pure next
+
     FinalizeComponent next -> pure next
+
     UpdateState state next -> do
       H.put state
       pure next
+
     OnClickDemoButtonMessage (Button.Clicked _) next -> do
       state <- H.get
       H.modify (\state -> state { clickDemo { clickCount = state.clickDemo.clickCount + 1 } })
       pure next
-    OnIgnoredButtonMessage _ next -> do
+
+    OnIgnoredButtonMessage _ next ->
+      pure next
+
+    OnNonComponentButtonClick next -> do
+      state <- H.get
+      H.modify (\state -> state { nonComponentDemo { isLoading = true } })
+      -- Make the spinner spin
+      -- Another way to do this would be to always put the spinner in the HTML, activate it in InitializeComponent
+      -- and just display: none it until it needs to be shown
+      MDL.upgradeElementByRef $ H.RefLabel "non-component-spinner"
+      H.liftAff $ delay $ Milliseconds 2000.0
+      H.modify (\state -> state { nonComponentDemo { isLoading = false } })
       pure next

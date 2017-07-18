@@ -30,10 +30,12 @@ matchRoute :: Match Route
 matchRoute
   =   badges
   <|> buttons
+  <|> cards
   <|> home
   where
     badges = Badges <$ route (urlSegment Badges)
     buttons = Buttons <$ route (urlSegment Buttons)
+    cards = Cards <$ route (urlSegment Cards)
     home = Home <$ lit ""
     route str = lit "" *> lit str
 

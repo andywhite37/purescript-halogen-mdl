@@ -27,6 +27,7 @@ import Route as Route
 import DemoHome as DemoHome
 import DemoBadges as DemoBadges
 import DemoButtons as DemoButtons
+import DemoCards as DemoCards
 
 type State =
   { currentRoute :: Route
@@ -41,6 +42,7 @@ data Query a
   | OnDemoHomeMessage DemoHome.Message a
   | OnDemoBadgesMessage DemoBadges.Message a
   | OnDemoButtonsMessage DemoButtons.Message a
+  | OnDemoCardsMessage DemoButtons.Message a
 
 data Input = Initialize State
 
@@ -50,12 +52,14 @@ type ChildQuery
   =    DemoHome.Query
   <\/> DemoBadges.Query
   <\/> DemoButtons.Query
+  <\/> DemoCards.Query
   <\/> Const Void
 
 type ChildSlot
   =  DemoHomeSlot
   \/ DemoBadgesSlot
   \/ DemoButtonsSlot
+  \/ DemoCardsSlot
   \/ Void
 
 -- Slots
@@ -76,6 +80,12 @@ derive instance eqDemoButtonsSlot :: Eq DemoButtonsSlot
 derive instance ordDemoButtonsSlot :: Ord DemoButtonsSlot
 cpDemoButtons :: CP.ChildPath DemoButtons.Query ChildQuery DemoButtonsSlot ChildSlot
 cpDemoButtons = CP.cp3
+
+data DemoCardsSlot = DemoCardsSlot
+derive instance eqDemoCardsSlot :: Eq DemoCardsSlot
+derive instance ordDemoCardsSlot :: Ord DemoCardsSlot
+cpDemoCards :: CP.ChildPath DemoCards.Query ChildQuery DemoCardsSlot ChildSlot
+cpDemoCards = CP.cp4
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -165,6 +175,7 @@ demoContainer =
         [ renderLayoutDrawerLink Home
         , renderLayoutDrawerLink Badges
         , renderLayoutDrawerLink Buttons
+        , renderLayoutDrawerLink Cards
         ]
       ]
 
@@ -209,8 +220,15 @@ demoContainer =
         cpDemoButtons
         DemoButtonsSlot
         DemoButtons.demoButtons
-        (DemoButtons.init { clickDemo: { clickCount: 0 } })
+        (DemoButtons.init { clickDemo: { clickCount: 0 }, nonComponentDemo: { isLoading: false } })
         (HE.input OnDemoButtonsMessage)
+    Cards ->
+      HH.slot'
+        cpDemoCards
+        DemoCardsSlot
+        DemoCards.demoCards
+        (DemoCards.init unit)
+        (HE.input OnDemoCardsMessage)
 
   renderMegaFooter :: DemoContainerHTML eff
   renderMegaFooter =
@@ -255,7 +273,7 @@ demoContainer =
     OnNavClick next -> do
       maybeDrawer <- H.getHTMLElementRef drawerRef
       case maybeDrawer of
-        Just drawer -> H.liftEff $ Layout.hideLayoutDrawer
+        Just drawer -> H.liftEff $ Layout.toggleDrawer
         Nothing -> pure unit
       pure next
     OnDemoHomeMessage _ next -> do
@@ -263,4 +281,6 @@ demoContainer =
     OnDemoBadgesMessage _ next -> do
       pure next
     OnDemoButtonsMessage _ next -> do
+      pure next
+    OnDemoCardsMessage _ next -> do
       pure next

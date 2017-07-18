@@ -65,14 +65,14 @@ demoBadges =
               [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, MI.cl.materialIcons ]
               , HP.attr Badge.attr.dataBadge "1"
               ]
-              [ MI.el.accountBox ]
+              [ HH.text MI.str.accountBox ]
           ]
       , renderDemoSection
           [ HH.div
               [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, MI.cl.materialIcons ]
               , HP.attr Badge.attr.dataBadge "♥"
               ]
-              [ MI.el.accountBox ]
+              [ HH.text MI.str.accountBox ]
           ]
       , renderDemoHeader "Badges on icons (overlap, no background)"
       , renderDemoSection
@@ -80,14 +80,14 @@ demoBadges =
               [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, Badge.cl.badgeNoBackground, MI.cl.materialIcons ]
               , HP.attr Badge.attr.dataBadge "1"
               ]
-              [ MI.el.accountBox ]
+              [ HH.text MI.str.accountBox ]
           ]
       , renderDemoSection
           [ HH.div
               [ HP.classes [ Badge.cl.badge, Badge.cl.badgeOverlap, Badge.cl.badgeNoBackground, MI.cl.materialIcons ]
               , HP.attr Badge.attr.dataBadge "♥"
               ]
-              [ MI.el.accountBox ]
+              [ HH.text MI.str.accountBox ]
           ]
       , renderDemoHeader "Badges on text (no overlap)"
       , renderDemoSection

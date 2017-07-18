@@ -9,25 +9,27 @@ cl =
   { materialIcons: HH.ClassName "material-icons"
   }
 
-el ::
-  { _3dRotation :: ∀ p i. HH.HTML p i
-  , accessibility :: ∀ p i. HH.HTML p i
-  , accessibile :: ∀ p i. HH.HTML p i
-  , accountBalance :: ∀ p i. HH.HTML p i
-  , accountBalanceWallet :: ∀ p i. HH.HTML p i
-  , accountBox :: ∀ p i. HH.HTML p i
-  , accountCircle :: ∀ p i. HH.HTML p i
-  , addShoppingCart :: ∀ p i. HH.HTML p i
-  , alarm :: ∀ p i. HH.HTML p i
+str ::
+  { _3dRotation :: String
+  , accessibility :: String
+  , accessibile :: String
+  , accountBalance :: String
+  , accountBalanceWallet :: String
+  , accountBox :: String
+  , accountCircle :: String
+  , addShoppingCart :: String
+  , alarm :: String
+  , share :: String
   }
-el =
-  { _3dRotation : HH.text "3d_rotation"
-  , accessibility : HH.text "accessibility"
-  , accessibile : HH.text "accessibile"
-  , accountBalance : HH.text "accoun_balance"
-  , accountBalanceWallet : HH.text "accoun_balance_wallet"
-  , accountBox : HH.text "account_box"
-  , accountCircle : HH.text "account_circle"
-  , addShoppingCart : HH.text "add_shopping_cart"
-  , alarm : HH.text "alarm"
+str =
+  { _3dRotation          : "3d_rotation"
+  , accessibility        : "accessibility"
+  , accessibile          : "accessibile"
+  , accountBalance       : "accoun_balance"
+  , accountBalanceWallet : "accoun_balance_wallet"
+  , accountBox           : "account_box"
+  , accountCircle        : "account_circle"
+  , addShoppingCart      : "add_shopping_cart"
+  , alarm                : "alarm"
+  , share                : "share"
   }

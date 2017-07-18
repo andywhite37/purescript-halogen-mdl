@@ -6,7 +6,7 @@ import DOM (DOM)
 
 import Halogen.HTML as HH
 
-foreign import hideLayoutDrawer :: ∀ e. Eff (dom :: DOM | e) Unit
+foreign import toggleDrawer :: ∀ e. Eff (dom :: DOM | e) Unit
 
 cl ::
   { layout :: HH.ClassName
