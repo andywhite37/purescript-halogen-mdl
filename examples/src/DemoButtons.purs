@@ -5,11 +5,14 @@ import Prelude
 import Control.Monad.Aff (Aff, delay)
 import Data.Maybe (Maybe(..))
 import Data.Time.Duration (Milliseconds(..))
+
+import CSS as C
+
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
+import Halogen.HTML.CSS as HC
 import Halogen.HTML.Events as HE
-import Halogen.HTML.Properties (disabled)
 import Halogen.HTML.Properties as HP
 
 import Halogen.MDL as MDL
@@ -379,15 +382,9 @@ demoButtons =
 
       -- Demo of a custom button that does not use the Halogen.MDL.Button.button component
       , renderDemoHeader "DIY (non-component) button"
-      , renderDemoSection
+      , renderDemoSection $
           [ HH.button
-              [ HP.classes
-                  [ Button.cl.button
-                  , Button.cl.jsButton
-                  , Button.cl.buttonRaised
-                  , Button.cl.buttonColored
-                  , RippleEffect.cl.jsRippleEffect
-                  ]
+              [ HP.classes [ Button.cl.button , Button.cl.jsButton , Button.cl.buttonRaised , Button.cl.buttonColored , RippleEffect.cl.jsRippleEffect ]
               , HP.type_ HP.ButtonButton
               , HP.ref $ H.RefLabel "non-component-button"
               , HE.onClick $ HE.input_ OnNonComponentButtonClick
@@ -395,12 +392,23 @@ demoButtons =
               ]
               if state.nonComponentDemo.isLoading
               then
-                [ Spinner.el.spinner_ $ H.RefLabel "non-component-spinner"
-                , HH.text "Loading"
-                ]
+                [ HH.text "Loading" ]
               else
-                [ HH.text "Click me" ]
+                [ HH.text "Click for async action" ]
           ]
+          <>
+          if state.nonComponentDemo.isLoading
+          then
+            [ HH.div
+                [ HC.style do
+                    C.display C.inlineBlock
+                    C.position C.relative
+                    C.left $ C.px 10.0
+                    C.top $ C.px 8.0
+                ]
+                [ Spinner.el.spinner_ ]
+            ]
+          else []
       ]
 
   renderMainHeader :: ∀ p i. HH.HTML p i
@@ -439,7 +447,7 @@ demoButtons =
       -- Make the spinner spin
       -- Another way to do this would be to always put the spinner in the HTML, activate it in InitializeComponent
       -- and just display: none it until it needs to be shown
-      MDL.upgradeElementByRef $ H.RefLabel "non-component-spinner"
+      H.liftEff $ MDL.upgradeElementsByClassName Spinner.cl.jsSpinner
       H.liftAff $ delay $ Milliseconds 2000.0
       H.modify (\state -> state { nonComponentDemo { isLoading = false } })
       pure next

@@ -19,12 +19,9 @@ cl =
   , isActive           : HH.ClassName "is-active"
   }
 
-ref :: H.RefLabel
-ref = H.RefLabel "mdl-spinner"
-
 el ::
-  { spinner_ :: ∀ p i. H.RefLabel -> HH.HTML p i
+  { spinner_ :: ∀ p i. HH.HTML p i
   }
 el =
-  { spinner_ : \ref -> HH.div [ HP.ref ref, HP.classes [ cl.spinner, cl.jsSpinner, cl.isActive ] ] []
+  { spinner_ : HH.div [ HP.classes [ cl.spinner, cl.jsSpinner, cl.isActive ] ] []
   }
