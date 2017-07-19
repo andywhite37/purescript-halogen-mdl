@@ -31,11 +31,15 @@ matchRoute
   =   badges
   <|> buttons
   <|> cards
+  <|> chips
+  <|> dialogs
   <|> home
   where
     badges = Badges <$ route (urlSegment Badges)
     buttons = Buttons <$ route (urlSegment Buttons)
     cards = Cards <$ route (urlSegment Cards)
+    chips = Chips <$ route (urlSegment Chips)
+    dialogs = Dialogs <$ route (urlSegment Dialogs)
     home = Home <$ lit ""
     route str = lit "" *> lit str
 

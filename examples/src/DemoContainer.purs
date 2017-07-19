@@ -28,6 +28,8 @@ import DemoHome as DemoHome
 import DemoBadges as DemoBadges
 import DemoButtons as DemoButtons
 import DemoCards as DemoCards
+import DemoChips as DemoChips
+import DemoDialogs as DemoDialogs
 
 type State =
   { currentRoute :: Route
@@ -42,7 +44,9 @@ data Query a
   | OnDemoHomeMessage DemoHome.Message a
   | OnDemoBadgesMessage DemoBadges.Message a
   | OnDemoButtonsMessage DemoButtons.Message a
-  | OnDemoCardsMessage DemoButtons.Message a
+  | OnDemoCardsMessage DemoCards.Message a
+  | OnDemoChipsMessage DemoChips.Message a
+  | OnDemoDialogsMessage DemoDialogs.Message a
 
 data Input = Initialize State
 
@@ -53,6 +57,8 @@ type ChildQuery
   <\/> DemoBadges.Query
   <\/> DemoButtons.Query
   <\/> DemoCards.Query
+  <\/> DemoChips.Query
+  <\/> DemoDialogs.Query
   <\/> Const Void
 
 type ChildSlot
@@ -60,6 +66,8 @@ type ChildSlot
   \/ DemoBadgesSlot
   \/ DemoButtonsSlot
   \/ DemoCardsSlot
+  \/ DemoChipsSlot
+  \/ DemoDialogsSlot
   \/ Void
 
 -- Slots
@@ -86,6 +94,18 @@ derive instance eqDemoCardsSlot :: Eq DemoCardsSlot
 derive instance ordDemoCardsSlot :: Ord DemoCardsSlot
 cpDemoCards :: CP.ChildPath DemoCards.Query ChildQuery DemoCardsSlot ChildSlot
 cpDemoCards = CP.cp4
+
+data DemoChipsSlot = DemoChipsSlot
+derive instance eqDemoChipsSlot :: Eq DemoChipsSlot
+derive instance ordDemoChipsSlot :: Ord DemoChipsSlot
+cpDemoChips :: CP.ChildPath DemoChips.Query ChildQuery DemoChipsSlot ChildSlot
+cpDemoChips = CP.cp5
+
+data DemoDialogsSlot = DemoDialogsSlot
+derive instance eqDemoDialogsSlot :: Eq DemoDialogsSlot
+derive instance ordDemoDialogsSlot :: Ord DemoDialogsSlot
+cpDemoDialogs :: CP.ChildPath DemoDialogs.Query ChildQuery DemoDialogsSlot ChildSlot
+cpDemoDialogs = CP.cp6
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -176,6 +196,8 @@ demoContainer =
         , renderLayoutDrawerLink Badges
         , renderLayoutDrawerLink Buttons
         , renderLayoutDrawerLink Cards
+        , renderLayoutDrawerLink Chips
+        , renderLayoutDrawerLink Dialogs
         ]
       ]
 
@@ -229,6 +251,20 @@ demoContainer =
         DemoCards.demoCards
         (DemoCards.init unit)
         (HE.input OnDemoCardsMessage)
+    Chips ->
+      HH.slot'
+        cpDemoChips
+        DemoChipsSlot
+        DemoChips.demoChips
+        (DemoChips.init unit)
+        (HE.input OnDemoChipsMessage)
+    Dialogs ->
+      HH.slot'
+        cpDemoDialogs
+        DemoDialogsSlot
+        DemoDialogs.demoDialogs
+        (DemoDialogs.init unit)
+        (HE.input OnDemoDialogsMessage)
 
   renderMegaFooter :: DemoContainerHTML eff
   renderMegaFooter =
@@ -283,4 +319,8 @@ demoContainer =
     OnDemoButtonsMessage _ next -> do
       pure next
     OnDemoCardsMessage _ next -> do
+      pure next
+    OnDemoChipsMessage _ next -> do
+      pure next
+    OnDemoDialogsMessage _ next -> do
       pure next

@@ -19,6 +19,7 @@ str ::
   , accountCircle :: String
   , addShoppingCart :: String
   , alarm :: String
+  , cancel :: String
   , share :: String
   }
 str =
@@ -31,5 +32,6 @@ str =
   , accountCircle        : "account_circle"
   , addShoppingCart      : "add_shopping_cart"
   , alarm                : "alarm"
+  , cancel               : "cancel"
   , share                : "share"
   }
