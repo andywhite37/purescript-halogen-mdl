@@ -33,6 +33,7 @@ matchRoute
   <|> cards
   <|> chips
   <|> dialogs
+  <|> tabs
   <|> home
   where
     badges = Badges <$ route (urlSegment Badges)
@@ -40,6 +41,7 @@ matchRoute
     cards = Cards <$ route (urlSegment Cards)
     chips = Chips <$ route (urlSegment Chips)
     dialogs = Dialogs <$ route (urlSegment Dialogs)
+    tabs = Tabs <$ route (urlSegment Tabs)
     home = Home <$ lit ""
     route str = lit "" *> lit str
 

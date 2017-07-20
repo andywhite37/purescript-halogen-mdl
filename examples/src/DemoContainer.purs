@@ -30,6 +30,7 @@ import DemoButtons as DemoButtons
 import DemoCards as DemoCards
 import DemoChips as DemoChips
 import DemoDialogs as DemoDialogs
+import DemoTabs as DemoTabs
 
 type State =
   { currentRoute :: Route
@@ -47,6 +48,7 @@ data Query a
   | OnDemoCardsMessage DemoCards.Message a
   | OnDemoChipsMessage DemoChips.Message a
   | OnDemoDialogsMessage DemoDialogs.Message a
+  | OnDemoTabsMessage DemoTabs.Message a
 
 data Input = Initialize State
 
@@ -59,6 +61,7 @@ type ChildQuery
   <\/> DemoCards.Query
   <\/> DemoChips.Query
   <\/> DemoDialogs.Query
+  <\/> DemoTabs.Query
   <\/> Const Void
 
 type ChildSlot
@@ -68,6 +71,7 @@ type ChildSlot
   \/ DemoCardsSlot
   \/ DemoChipsSlot
   \/ DemoDialogsSlot
+  \/ DemoTabsSlot
   \/ Void
 
 -- Slots
@@ -106,6 +110,12 @@ derive instance eqDemoDialogsSlot :: Eq DemoDialogsSlot
 derive instance ordDemoDialogsSlot :: Ord DemoDialogsSlot
 cpDemoDialogs :: CP.ChildPath DemoDialogs.Query ChildQuery DemoDialogsSlot ChildSlot
 cpDemoDialogs = CP.cp6
+
+data DemoTabsSlot = DemoTabsSlot
+derive instance eqDemoTabsSlot :: Eq DemoTabsSlot
+derive instance ordDemoTabsSlot :: Ord DemoTabsSlot
+cpDemoTabs :: CP.ChildPath DemoTabs.Query ChildQuery DemoTabsSlot ChildSlot
+cpDemoTabs = CP.cp7
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -198,6 +208,7 @@ demoContainer =
         , renderLayoutDrawerLink Cards
         , renderLayoutDrawerLink Chips
         , renderLayoutDrawerLink Dialogs
+        , renderLayoutDrawerLink Tabs
         ]
       ]
 
@@ -265,6 +276,13 @@ demoContainer =
         DemoDialogs.demoDialogs
         (DemoDialogs.init unit)
         (HE.input OnDemoDialogsMessage)
+    Tabs ->
+      HH.slot'
+        cpDemoTabs
+        DemoTabsSlot
+        DemoTabs.demoTabs
+        (DemoTabs.init unit)
+        (HE.input OnDemoTabsMessage)
 
   renderMegaFooter :: DemoContainerHTML eff
   renderMegaFooter =
@@ -323,4 +341,6 @@ demoContainer =
     OnDemoChipsMessage _ next -> do
       pure next
     OnDemoDialogsMessage _ next -> do
+      pure next
+    OnDemoTabsMessage _ next -> do
       pure next

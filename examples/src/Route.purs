@@ -9,6 +9,7 @@ data Route
   | Cards
   | Chips
   | Dialogs
+  | Tabs
 
 urlSegment :: Route -> String
 urlSegment Home = "home"
@@ -17,6 +18,7 @@ urlSegment Buttons = "buttons"
 urlSegment Cards = "cards"
 urlSegment Chips = "chips"
 urlSegment Dialogs = "dialogs"
+urlSegment Tabs = "tabs"
 
 href :: Route -> String
 href route = "#/" <> urlSegment route
@@ -31,3 +33,4 @@ show Buttons = "Buttons"
 show Cards = "Cards"
 show Chips = "Chips"
 show Dialogs = "Dialogs"
+show Tabs = "Tabs"
