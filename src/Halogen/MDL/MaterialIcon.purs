@@ -1,6 +1,5 @@
 module Halogen.MDL.MaterialIcon where
 
-import CSS (star)
 import Halogen.HTML as HH
 
 cl ::

@@ -1,7 +1,5 @@
 module Halogen.MDL.Card where
 
---import Prelude
-
 import Halogen.HTML as HH
 
 cl ::
