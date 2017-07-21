@@ -31,6 +31,7 @@ import DemoCards as DemoCards
 import DemoChips as DemoChips
 import DemoDialogs as DemoDialogs
 import DemoLists as DemoLists
+import DemoProgress as DemoProgress
 import DemoTabs as DemoTabs
 
 type State =
@@ -50,6 +51,7 @@ data Query a
   | OnDemoChipsMessage DemoChips.Message a
   | OnDemoDialogsMessage DemoDialogs.Message a
   | OnDemoListsMessage DemoLists.Message a
+  | OnDemoProgressMessage DemoProgress.Message a
   | OnDemoTabsMessage DemoTabs.Message a
 
 data Input = Initialize State
@@ -64,6 +66,7 @@ type ChildQuery
   <\/> DemoChips.Query
   <\/> DemoDialogs.Query
   <\/> DemoLists.Query
+  <\/> DemoProgress.Query
   <\/> DemoTabs.Query
   <\/> Const Void
 
@@ -75,6 +78,7 @@ type ChildSlot
   \/ DemoChipsSlot
   \/ DemoDialogsSlot
   \/ DemoListsSlot
+  \/ DemoProgressSlot
   \/ DemoTabsSlot
   \/ Void
 
@@ -121,11 +125,17 @@ derive instance ordDemoListsSlot :: Ord DemoListsSlot
 cpDemoLists :: CP.ChildPath DemoLists.Query ChildQuery DemoListsSlot ChildSlot
 cpDemoLists = CP.cp7
 
+data DemoProgressSlot = DemoProgressSlot
+derive instance eqDemoProgressSlot :: Eq DemoProgressSlot
+derive instance ordDemoProgressSlot :: Ord DemoProgressSlot
+cpDemoProgress :: CP.ChildPath DemoProgress.Query ChildQuery DemoProgressSlot ChildSlot
+cpDemoProgress = CP.cp8
+
 data DemoTabsSlot = DemoTabsSlot
 derive instance eqDemoTabsSlot :: Eq DemoTabsSlot
 derive instance ordDemoTabsSlot :: Ord DemoTabsSlot
 cpDemoTabs :: CP.ChildPath DemoTabs.Query ChildQuery DemoTabsSlot ChildSlot
-cpDemoTabs = CP.cp8
+cpDemoTabs = CP.cp9
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -219,6 +229,7 @@ demoContainer =
         , renderLayoutDrawerLink Chips
         , renderLayoutDrawerLink Dialogs
         , renderLayoutDrawerLink Lists
+        , renderLayoutDrawerLink Progress
         , renderLayoutDrawerLink Tabs
         ]
       ]
@@ -294,6 +305,13 @@ demoContainer =
         DemoLists.demoLists
         (DemoLists.init unit)
         (HE.input OnDemoListsMessage)
+    Progress ->
+      HH.slot'
+        cpDemoProgress
+        DemoProgressSlot
+        DemoProgress.demoProgress
+        (DemoProgress.init { progress: 0 })
+        (HE.input OnDemoProgressMessage)
     Tabs ->
       HH.slot'
         cpDemoTabs
@@ -361,6 +379,8 @@ demoContainer =
     OnDemoDialogsMessage _ next -> do
       pure next
     OnDemoListsMessage _ next -> do
+      pure next
+    OnDemoProgressMessage _ next -> do
       pure next
     OnDemoTabsMessage _ next -> do
       pure next

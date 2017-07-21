@@ -10,6 +10,7 @@ data Route
   | Chips
   | Dialogs
   | Lists
+  | Progress
   | Tabs
 
 urlSegment :: Route -> String
@@ -20,6 +21,7 @@ urlSegment Cards = "cards"
 urlSegment Chips = "chips"
 urlSegment Dialogs = "dialogs"
 urlSegment Lists = "lists"
+urlSegment Progress = "progress"
 urlSegment Tabs = "tabs"
 
 href :: Route -> String
@@ -36,4 +38,5 @@ show Cards = "Cards"
 show Chips = "Chips"
 show Dialogs = "Dialogs"
 show Lists = "Lists"
+show Progress = "Progress"
 show Tabs = "Tabs"

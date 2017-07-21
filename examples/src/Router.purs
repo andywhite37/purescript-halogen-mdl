@@ -34,6 +34,7 @@ matchRoute
   <|> chips
   <|> dialogs
   <|> lists
+  <|> progress
   <|> tabs
   <|> home
   where
@@ -43,6 +44,7 @@ matchRoute
     chips = Chips <$ route (urlSegment Chips)
     dialogs = Dialogs <$ route (urlSegment Dialogs)
     lists = Lists <$ route (urlSegment Lists)
+    progress = Progress <$ route (urlSegment Progress)
     tabs = Tabs <$ route (urlSegment Tabs)
     home = Home <$ lit ""
     route str = lit "" *> lit str

@@ -11,7 +11,8 @@
     "purescript-console": "^3.0.0",
     "purescript-halogen": "^2.1.0",
     "purescript-dom-classy": "^2.1.0",
-    "purescript-halogen-css": "^6.0.0"
+    "purescript-halogen-css": "^6.0.0",
+    "purescript-js-timers": "^3.0.0"
   },
   "devDependencies": {
     "material-design-lite": "mdl#^1.3.0",
