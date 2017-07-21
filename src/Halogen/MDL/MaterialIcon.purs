@@ -1,5 +1,6 @@
 module Halogen.MDL.MaterialIcon where
 
+import CSS (star)
 import Halogen.HTML as HH
 
 cl ::
@@ -20,7 +21,9 @@ str ::
   , addShoppingCart :: String
   , alarm :: String
   , cancel :: String
+  , person :: String
   , share :: String
+  , star :: String
   }
 str =
   { _3dRotation          : "3d_rotation"
@@ -33,5 +36,7 @@ str =
   , addShoppingCart      : "add_shopping_cart"
   , alarm                : "alarm"
   , cancel               : "cancel"
+  , person               : "person"
   , share                : "share"
+  , star                 : "star"
   }

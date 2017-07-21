@@ -8,6 +8,7 @@ import Data.Maybe (Maybe(..))
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 
 import Halogen.MDL as MDL
@@ -16,12 +17,28 @@ import Halogen.MDL.Grid as Grid
 import Halogen.MDL.Tabs as Tabs
 import Halogen.MDL.RippleEffect as RE
 
-type State = Unit
+data Tab
+  = About
+  | Members
+  | Albums
+
+derive instance eqTab :: Eq Tab
+
+instance showTab :: Show Tab where
+show About = "About"
+show Members = "Members"
+show Albums = "Albums"
+
+type State = { currentTab :: Tab }
+
+isCurrentTab :: State -> Tab -> Boolean
+isCurrentTab state tab = state.currentTab == tab
 
 data Query a
   = InitializeComponent a
   | FinalizeComponent a
   | UpdateState State a
+  | UpdateCurrentTab Tab a
 
 data Input = Initialize State
 
@@ -62,7 +79,7 @@ demoTabs =
     Grid.el.grid_
       [ renderTabsHeader
       , renderDemoHeader "Example with ripple effect"
-      , renderDemoSection renderExampleWithRipple
+      , renderDemoSection $ renderExampleWithRipple state
       ]
 
   renderTabsHeader :: ∀ p i. HH.HTML p i
@@ -74,30 +91,37 @@ demoTabs =
   renderDemoSection :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
   renderDemoSection body = Cell.el.cell6Col_ body
 
-  renderExampleWithRipple :: ∀ p i. Array (HH.HTML p i)
-  renderExampleWithRipple =
+  renderExampleWithRipple :: State -> Array (DemoTabsHTML)
+  renderExampleWithRipple state =
     [ HH.div
         [ HP.classes [ Tabs.cl.tabs, Tabs.cl.jsTabs, RE.cl.jsRippleEffect ] ]
         [ HH.div
             [ HP.class_ Tabs.cl.tabsTabBar ]
             [ HH.a
                 [ HP.href "#about-panel"
-                , HP.classes [ Tabs.cl.tabsTab, Tabs.cl.isActive ]
+                --, HP.classes [ Tabs.cl.tabsTab, Tabs.cl.isActive ]
+                , HP.classes ([ Tabs.cl.tabsTab ] <> getActiveClass state About)
+                , HE.onClick $ HE.input_ (UpdateCurrentTab About)
                 ]
-                [ HH.text "About the Beatles" ]
+                [ HH.text "Beatles" ]
             , HH.a
                 [ HP.href "#members-panel"
-                , HP.classes [ Tabs.cl.tabsTab ]
+                --, HP.classes [ Tabs.cl.tabsTab ]
+                , HP.classes ([ Tabs.cl.tabsTab ] <> getActiveClass state Members)
+                , HE.onClick $ HE.input_ (UpdateCurrentTab Members)
                 ]
                 [ HH.text "Members" ]
             , HH.a
                 [ HP.href "#albums-panel"
-                , HP.classes [ Tabs.cl.tabsTab ]
+                --, HP.classes [ Tabs.cl.tabsTab ]
+                , HP.classes ([ Tabs.cl.tabsTab ] <> getActiveClass state Albums)
+                , HE.onClick $ HE.input_ (UpdateCurrentTab Albums)
                 ]
                 [ HH.text "Discography" ]
             ]
         , HH.div
-            [ HP.classes [ Tabs.cl.tabsPanel, Tabs.cl.isActive ]
+            --[ HP.classes [ Tabs.cl.tabsPanel ]
+            [ HP.classes ([ Tabs.cl.tabsPanel] <> getActiveClass state About)
             , HP.id_ "about-panel"
             ]
             [ HH.p_
@@ -108,7 +132,8 @@ demoTabs =
                 [ HH.text "Their songs were among the best-loved music of all time. ..." ]
             ]
         , HH.div
-            [ HP.classes [ Tabs.cl.tabsPanel ]
+            --[ HP.classes [ Tabs.cl.tabsPanel ]
+            [ HP.classes ([ Tabs.cl.tabsPanel] <> getActiveClass state Members)
             , HP.id_ "members-panel"
             ]
             [ HH.p_ [ HH.text "The Beatles' members were:" ]
@@ -131,7 +156,12 @@ demoTabs =
                 ]
             ]
         ]
+    , HH.em_
+        [ HH.text $ "Current tab: " <> show state.currentTab ]
     ]
+
+  getActiveClass :: State -> Tab -> Array HH.ClassName
+  getActiveClass state tab = if isCurrentTab state tab then [Tabs.cl.isActive] else []
 
   eval :: Query ~> DemoTabsDSL eff
   eval = case _ of
@@ -142,4 +172,7 @@ demoTabs =
       pure next
     UpdateState state next -> do
       H.put state
+      pure next
+    UpdateCurrentTab tab next -> do
+      H.modify (_ { currentTab = tab })
       pure next

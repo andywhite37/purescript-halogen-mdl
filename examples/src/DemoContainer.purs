@@ -30,6 +30,7 @@ import DemoButtons as DemoButtons
 import DemoCards as DemoCards
 import DemoChips as DemoChips
 import DemoDialogs as DemoDialogs
+import DemoLists as DemoLists
 import DemoTabs as DemoTabs
 
 type State =
@@ -48,6 +49,7 @@ data Query a
   | OnDemoCardsMessage DemoCards.Message a
   | OnDemoChipsMessage DemoChips.Message a
   | OnDemoDialogsMessage DemoDialogs.Message a
+  | OnDemoListsMessage DemoLists.Message a
   | OnDemoTabsMessage DemoTabs.Message a
 
 data Input = Initialize State
@@ -61,6 +63,7 @@ type ChildQuery
   <\/> DemoCards.Query
   <\/> DemoChips.Query
   <\/> DemoDialogs.Query
+  <\/> DemoLists.Query
   <\/> DemoTabs.Query
   <\/> Const Void
 
@@ -71,6 +74,7 @@ type ChildSlot
   \/ DemoCardsSlot
   \/ DemoChipsSlot
   \/ DemoDialogsSlot
+  \/ DemoListsSlot
   \/ DemoTabsSlot
   \/ Void
 
@@ -111,11 +115,17 @@ derive instance ordDemoDialogsSlot :: Ord DemoDialogsSlot
 cpDemoDialogs :: CP.ChildPath DemoDialogs.Query ChildQuery DemoDialogsSlot ChildSlot
 cpDemoDialogs = CP.cp6
 
+data DemoListsSlot = DemoListsSlot
+derive instance eqDemoListsSlot :: Eq DemoListsSlot
+derive instance ordDemoListsSlot :: Ord DemoListsSlot
+cpDemoLists :: CP.ChildPath DemoLists.Query ChildQuery DemoListsSlot ChildSlot
+cpDemoLists = CP.cp7
+
 data DemoTabsSlot = DemoTabsSlot
 derive instance eqDemoTabsSlot :: Eq DemoTabsSlot
 derive instance ordDemoTabsSlot :: Ord DemoTabsSlot
 cpDemoTabs :: CP.ChildPath DemoTabs.Query ChildQuery DemoTabsSlot ChildSlot
-cpDemoTabs = CP.cp7
+cpDemoTabs = CP.cp8
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -208,6 +218,7 @@ demoContainer =
         , renderLayoutDrawerLink Cards
         , renderLayoutDrawerLink Chips
         , renderLayoutDrawerLink Dialogs
+        , renderLayoutDrawerLink Lists
         , renderLayoutDrawerLink Tabs
         ]
       ]
@@ -276,12 +287,19 @@ demoContainer =
         DemoDialogs.demoDialogs
         (DemoDialogs.init unit)
         (HE.input OnDemoDialogsMessage)
+    Lists ->
+      HH.slot'
+        cpDemoLists
+        DemoListsSlot
+        DemoLists.demoLists
+        (DemoLists.init unit)
+        (HE.input OnDemoListsMessage)
     Tabs ->
       HH.slot'
         cpDemoTabs
         DemoTabsSlot
         DemoTabs.demoTabs
-        (DemoTabs.init unit)
+        (DemoTabs.init { currentTab: DemoTabs.About })
         (HE.input OnDemoTabsMessage)
 
   renderMegaFooter :: DemoContainerHTML eff
@@ -341,6 +359,8 @@ demoContainer =
     OnDemoChipsMessage _ next -> do
       pure next
     OnDemoDialogsMessage _ next -> do
+      pure next
+    OnDemoListsMessage _ next -> do
       pure next
     OnDemoTabsMessage _ next -> do
       pure next
