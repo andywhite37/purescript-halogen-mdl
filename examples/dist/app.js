@@ -13696,6 +13696,7 @@ var PS = {};
   var Control_Monad_State_Class = PS["Control.Monad.State.Class"];
   var Data_Function = PS["Data.Function"];
   var Data_Maybe = PS["Data.Maybe"];
+  var Data_Time_Duration = PS["Data.Time.Duration"];
   var Halogen = PS["Halogen"];
   var Halogen_Aff = PS["Halogen.Aff"];
   var Halogen_Component = PS["Halogen.Component"];
@@ -13710,6 +13711,7 @@ var PS = {};
   var Halogen_MDL_Progress = PS["Halogen.MDL.Progress"];
   var Halogen_Query = PS["Halogen.Query"];
   var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
+  var Halogen_Query_InputF = PS["Halogen.Query.InputF"];
   var Prelude = PS["Prelude"];        
   var InitializeComponent = (function () {
       function InitializeComponent(value0) {
@@ -13752,11 +13754,11 @@ var PS = {};
   })();
   var init = Initialize.create;
   var demoProgress = (function () {
-      var render = function (state) {
-          return Halogen_MDL_Grid.el.grid_([ Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Determinate progress bar") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_CSS.style(CSS_Geometry.width(CSS_Size.px(250.0))), Halogen_HTML_Properties.classes([ Halogen_MDL_Progress.cl.progress, Halogen_MDL_Progress.cl.jsProgress ]) ])([  ]) ]) ]);
-      };
       var receiver = function (v) {
           return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
+      };
+      var render = function (state) {
+          return Halogen_MDL_Grid.el.grid_([ Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Determinate progress bar") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_CSS.style(CSS_Geometry.width(CSS_Size.px(250.0))), Halogen_HTML_Properties.classes([ Halogen_MDL_Progress.cl.progress, Halogen_MDL_Progress.cl.jsProgress ]), Halogen_HTML_Properties.ref("progress-ref") ])([  ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Indeterminate progress bar") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_CSS.style(CSS_Geometry.width(CSS_Size.px(250.0))), Halogen_HTML_Properties.classes([ Halogen_MDL_Progress.cl.progress, Halogen_MDL_Progress.cl.jsProgress, Halogen_MDL_Progress.cl.progressIndeterminate ]) ])([  ]) ]) ]);
       };
       var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
       var initialState = function (v) {
@@ -13777,7 +13779,7 @@ var PS = {};
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
           };
-          throw new Error("Failed pattern match at DemoProgress line 76, column 10 - line 84, column 12: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at DemoProgress line 91, column 10 - line 115, column 12: " + [ v.constructor.name ]);
       };
       return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
           initialState: initialState, 

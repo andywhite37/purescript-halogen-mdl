@@ -2,8 +2,10 @@ module DemoProgress where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Control.Monad.Aff (Aff, delay)
+--import Control.Monad.Eff.Timer (setInterval)
 import Data.Maybe (Maybe(..))
+import Data.Time.Duration (Milliseconds(..))
 
 import CSS as C
 import Halogen as H
@@ -58,6 +60,9 @@ demoProgress = H.lifecycleComponent
   receiver :: Input -> Maybe (Query Unit)
   receiver (Initialize state) = Just $ H.action $ UpdateState state
 
+  progressRef :: H.RefLabel
+  progressRef = H.RefLabel "progress-ref"
+
   render :: State -> DemoProgressHTML
   render state =
     Grid.el.grid_
@@ -67,6 +72,16 @@ demoProgress = H.lifecycleComponent
           [ HH.div
               [ HC.style $ C.width $ C.px 250.0
               , HP.classes [ Progress.cl.progress, Progress.cl.jsProgress ]
+              , HP.ref progressRef
+              ]
+              []
+          ]
+      , Cell.el.cell12Col_
+          [ HH.h3_ [ HH.text "Indeterminate progress bar" ] ]
+      , Cell.el.cell12Col_
+          [ HH.div
+              [ HC.style $ C.width $ C.px 250.0
+              , HP.classes [ Progress.cl.progress, Progress.cl.jsProgress, Progress.cl.progressIndeterminate ]
               ]
               []
           ]
@@ -76,6 +91,22 @@ demoProgress = H.lifecycleComponent
   eval = case _ of
     InitializeComponent next -> do
       H.liftEff $ MDL.upgradeElementsByClassName Progress.cl.jsProgress
+      {-
+      state <- H.modify (_ { progress = 10 })
+      Progress.setProgressByRef progressRef 10
+      H.liftAff $ delay $ Milliseconds 100.0
+      state <- H.modify (_ { progress = 20 })
+      Progress.setProgressByRef progressRef 20
+      H.liftAff $ delay $ Milliseconds 100.0
+      state <- H.modify (_ { progress = 30 })
+      Progress.setProgressByRef progressRef 30
+      -}
+      {-
+      cancelTimer <- H.liftAff $ setInterval 200 updateProgress
+        where
+          updateProgress :: Eff (timer :: TIMER) Unit
+          updateProgress = ?undefined
+          -}
       pure next
     FinalizeComponent next -> do
       pure next
