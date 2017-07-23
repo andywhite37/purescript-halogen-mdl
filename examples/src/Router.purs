@@ -35,6 +35,7 @@ matchRoute
   <|> dialogs
   <|> lists
   <|> progress
+  <|> spinners
   <|> tabs
   <|> home
   where
@@ -45,6 +46,7 @@ matchRoute
     dialogs = Dialogs <$ route (urlSegment Dialogs)
     lists = Lists <$ route (urlSegment Lists)
     progress = Progress <$ route (urlSegment Progress)
+    spinners = Spinners <$ route (urlSegment Spinners)
     tabs = Tabs <$ route (urlSegment Tabs)
     home = Home <$ lit ""
     route str = lit "" *> lit str

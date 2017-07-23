@@ -7512,6 +7512,9 @@ var PS = {};
   var in2 = function (v) {
       return new Data_Either.Right(new Data_Either.Left(v));
   };
+  var in10 = function (v) {
+      return new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Right(new Data_Either.Left(v))))))))));
+  };
   var in1 = Data_Either.Left.create;
   var at9 = function (b) {
       return function (f) {
@@ -7593,6 +7596,16 @@ var PS = {};
           };
       };
   };
+  var at10 = function (b) {
+      return function (f) {
+          return function (y) {
+              if (y instanceof Data_Either.Right && (y.value0 instanceof Data_Either.Right && (y.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Right && y.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Left))))))))) {
+                  return f(y.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0);
+              };
+              return b;
+          };
+      };
+  };
   var at1 = function (b) {
       return function (f) {
           return function (y) {
@@ -7604,6 +7617,7 @@ var PS = {};
       };
   };
   exports["at1"] = at1;
+  exports["at10"] = at10;
   exports["at2"] = at2;
   exports["at3"] = at3;
   exports["at4"] = at4;
@@ -7613,6 +7627,7 @@ var PS = {};
   exports["at8"] = at8;
   exports["at9"] = at9;
   exports["in1"] = in1;
+  exports["in10"] = in10;
   exports["in2"] = in2;
   exports["in3"] = in3;
   exports["in4"] = in4;
@@ -7681,6 +7696,9 @@ var PS = {};
   };
   var in2 = function (v) {
       return Data_Functor_Coproduct.right(Data_Functor_Coproduct.left(v));
+  };
+  var in10 = function (v) {
+      return Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.right(Data_Functor_Coproduct.left(v))))))))));
   };
   var in1 = Data_Functor_Coproduct.left;
   var at9 = function (b) {
@@ -7763,6 +7781,16 @@ var PS = {};
           };
       };
   };
+  var at10 = function (b) {
+      return function (f) {
+          return function (y) {
+              if (y instanceof Data_Either.Right && (y.value0 instanceof Data_Either.Right && (y.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Right && (y.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Right && y.value0.value0.value0.value0.value0.value0.value0.value0.value0 instanceof Data_Either.Left))))))))) {
+                  return f(y.value0.value0.value0.value0.value0.value0.value0.value0.value0.value0);
+              };
+              return b;
+          };
+      };
+  };
   var at1 = function (b) {
       return function (f) {
           return function (y) {
@@ -7774,6 +7802,7 @@ var PS = {};
       };
   };
   exports["at1"] = at1;
+  exports["at10"] = at10;
   exports["at2"] = at2;
   exports["at3"] = at3;
   exports["at4"] = at4;
@@ -7783,6 +7812,7 @@ var PS = {};
   exports["at8"] = at8;
   exports["at9"] = at9;
   exports["in1"] = in1;
+  exports["in10"] = in10;
   exports["in2"] = in2;
   exports["in3"] = in3;
   exports["in4"] = in4;
@@ -10480,6 +10510,9 @@ var PS = {};
   var _Either2 = function (dictChoice) {
       return Data_Lens_Prism["prism'"](Data_Either_Nested.in2)(Data_Either_Nested.at2(Data_Maybe.Nothing.value)(Data_Maybe.Just.create))(dictChoice);
   };
+  var _Either10 = function (dictChoice) {
+      return Data_Lens_Prism["prism'"](Data_Either_Nested.in10)(Data_Either_Nested.at10(Data_Maybe.Nothing.value)(Data_Maybe.Just.create))(dictChoice);
+  };
   var _Either1 = function (dictChoice) {
       return Data_Lens_Prism["prism'"](Data_Either_Nested.in1)(Data_Either_Nested.at1(Data_Maybe.Nothing.value)(Data_Maybe.Just.create))(dictChoice);
   };
@@ -10507,10 +10540,14 @@ var PS = {};
   var _Coproduct2 = function (dictChoice) {
       return Data_Lens_Prism["prism'"](Data_Functor_Coproduct_Nested.in2)(Data_Functor_Coproduct_Nested.at2(Data_Maybe.Nothing.value)(Data_Maybe.Just.create))(dictChoice);
   };
+  var _Coproduct10 = function (dictChoice) {
+      return Data_Lens_Prism["prism'"](Data_Functor_Coproduct_Nested.in10)(Data_Functor_Coproduct_Nested.at10(Data_Maybe.Nothing.value)(Data_Maybe.Just.create))(dictChoice);
+  };
   var _Coproduct1 = function (dictChoice) {
       return Data_Lens_Prism["prism'"](Data_Functor_Coproduct_Nested.in1)(Data_Functor_Coproduct_Nested.at1(Data_Maybe.Nothing.value)(Data_Maybe.Just.create))(dictChoice);
   };
   exports["_Coproduct1"] = _Coproduct1;
+  exports["_Coproduct10"] = _Coproduct10;
   exports["_Coproduct2"] = _Coproduct2;
   exports["_Coproduct3"] = _Coproduct3;
   exports["_Coproduct4"] = _Coproduct4;
@@ -10520,6 +10557,7 @@ var PS = {};
   exports["_Coproduct8"] = _Coproduct8;
   exports["_Coproduct9"] = _Coproduct9;
   exports["_Either1"] = _Either1;
+  exports["_Either10"] = _Either10;
   exports["_Either2"] = _Either2;
   exports["_Either3"] = _Either3;
   exports["_Either4"] = _Either4;
@@ -10606,6 +10644,11 @@ var PS = {};
   }, function (dictChoice) {
       return Halogen_Data_Prism._Either2(dictChoice);
   });
+  var cp10 = new ChildPath(function (dictChoice) {
+      return Halogen_Data_Prism._Coproduct10(dictChoice);
+  }, function (dictChoice) {
+      return Halogen_Data_Prism._Either10(dictChoice);
+  });
   var cp1 = new ChildPath(function (dictChoice) {
       return Halogen_Data_Prism._Coproduct1(dictChoice);
   }, function (dictChoice) {
@@ -10613,6 +10656,7 @@ var PS = {};
   });
   exports["ChildPath"] = ChildPath;
   exports["cp1"] = cp1;
+  exports["cp10"] = cp10;
   exports["cp2"] = cp2;
   exports["cp3"] = cp3;
   exports["cp4"] = cp4;
@@ -13799,6 +13843,116 @@ var PS = {};
 })(PS["DemoProgress"] = PS["DemoProgress"] || {});
 (function(exports) {
     "use strict";
+  var CSS = PS["CSS"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_State_Class = PS["Control.Monad.State.Class"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Time_Duration = PS["Data.Time.Duration"];
+  var Halogen = PS["Halogen"];
+  var Halogen_Aff = PS["Halogen.Aff"];
+  var Halogen_Component = PS["Halogen.Component"];
+  var Halogen_HTML = PS["Halogen.HTML"];
+  var Halogen_HTML_CSS = PS["Halogen.HTML.CSS"];
+  var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
+  var Halogen_HTML_Elements = PS["Halogen.HTML.Elements"];
+  var Halogen_HTML_Properties = PS["Halogen.HTML.Properties"];
+  var Halogen_MDL = PS["Halogen.MDL"];
+  var Halogen_MDL_Cell = PS["Halogen.MDL.Cell"];
+  var Halogen_MDL_Grid = PS["Halogen.MDL.Grid"];
+  var Halogen_MDL_Spinner = PS["Halogen.MDL.Spinner"];
+  var Halogen_Query = PS["Halogen.Query"];
+  var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
+  var Prelude = PS["Prelude"];        
+  var InitializeComponent = (function () {
+      function InitializeComponent(value0) {
+          this.value0 = value0;
+      };
+      InitializeComponent.create = function (value0) {
+          return new InitializeComponent(value0);
+      };
+      return InitializeComponent;
+  })();
+  var FinalizeComponent = (function () {
+      function FinalizeComponent(value0) {
+          this.value0 = value0;
+      };
+      FinalizeComponent.create = function (value0) {
+          return new FinalizeComponent(value0);
+      };
+      return FinalizeComponent;
+  })();
+  var UpdateState = (function () {
+      function UpdateState(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      UpdateState.create = function (value0) {
+          return function (value1) {
+              return new UpdateState(value0, value1);
+          };
+      };
+      return UpdateState;
+  })();
+  var Initialize = (function () {
+      function Initialize(value0) {
+          this.value0 = value0;
+      };
+      Initialize.create = function (value0) {
+          return new Initialize(value0);
+      };
+      return Initialize;
+  })();
+  var init = Initialize.create;
+  var demoSpinners = (function () {
+      var render = function (state) {
+          return Halogen_MDL_Grid.el.grid_([ Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Spinners") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Spinner.cl.spinner, Halogen_MDL_Spinner.cl.jsSpinner, Halogen_MDL_Spinner.cl.isActive ]) ])([  ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Spinner.cl.spinner, Halogen_MDL_Spinner.cl.jsSpinner, Halogen_MDL_Spinner.cl.spinnerSingleColor, Halogen_MDL_Spinner.cl.isActive ]) ])([  ]) ]) ]);
+      };
+      var receiver = function (v) {
+          return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
+      };
+      var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
+      var initialState = function (v) {
+          return v.value0;
+      };
+      var finalizer = Data_Maybe.Just.create(Halogen_Query.action(FinalizeComponent.create));
+      var $$eval = function (v) {
+          if (v instanceof InitializeComponent) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(Control_Monad_Aff.monadEffAff))(Halogen_MDL.upgradeElementsByClassName(Halogen_MDL_Spinner.cl.jsSpinner)))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+              });
+          };
+          if (v instanceof FinalizeComponent) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+          };
+          if (v instanceof UpdateState) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.put(Halogen_Query_HalogenM.monadStateHalogenM)(v.value0))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
+          };
+          throw new Error("Failed pattern match at DemoSpinners line 81, column 10 - line 89, column 12: " + [ v.constructor.name ]);
+      };
+      return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
+          initialState: initialState, 
+          initializer: initializer, 
+          finalizer: finalizer, 
+          receiver: receiver, 
+          render: render, 
+          "eval": $$eval
+      });
+  })();
+  exports["Initialize"] = Initialize;
+  exports["InitializeComponent"] = InitializeComponent;
+  exports["FinalizeComponent"] = FinalizeComponent;
+  exports["UpdateState"] = UpdateState;
+  exports["demoSpinners"] = demoSpinners;
+  exports["init"] = init;
+})(PS["DemoSpinners"] = PS["DemoSpinners"] || {});
+(function(exports) {
+    "use strict";
   var Halogen_HTML = PS["Halogen.HTML"];
   var Halogen_HTML_Core = PS["Halogen.HTML.Core"];        
   var cl = {
@@ -14260,6 +14414,13 @@ var PS = {};
       Progress.value = new Progress();
       return Progress;
   })();
+  var Spinners = (function () {
+      function Spinners() {
+
+      };
+      Spinners.value = new Spinners();
+      return Spinners;
+  })();
   var Tabs = (function () {
       function Tabs() {
 
@@ -14292,10 +14453,13 @@ var PS = {};
       if (v instanceof Progress) {
           return "progress";
       };
+      if (v instanceof Spinners) {
+          return "spinners";
+      };
       if (v instanceof Tabs) {
           return "tabs";
       };
-      throw new Error("Failed pattern match at Route line 16, column 1 - line 16, column 30: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Route line 17, column 1 - line 17, column 30: " + [ v.constructor.name ]);
   };
   var showRoute = new Data_Show.Show(function (v) {
       if (v instanceof Home) {
@@ -14322,10 +14486,13 @@ var PS = {};
       if (v instanceof Progress) {
           return "Progress";
       };
+      if (v instanceof Spinners) {
+          return "Spinners";
+      };
       if (v instanceof Tabs) {
           return "Tabs";
       };
-      throw new Error("Failed pattern match at Route line 33, column 1 - line 33, column 33: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Route line 35, column 1 - line 35, column 33: " + [ v.constructor.name ]);
   });
   var label = Data_Show.show(showRoute);
   var href = function (route) {
@@ -14339,6 +14506,7 @@ var PS = {};
   exports["Dialogs"] = Dialogs;
   exports["Lists"] = Lists;
   exports["Progress"] = Progress;
+  exports["Spinners"] = Spinners;
   exports["Tabs"] = Tabs;
   exports["href"] = href;
   exports["label"] = label;
@@ -14346,8 +14514,7 @@ var PS = {};
   exports["showRoute"] = showRoute;
 })(PS["Route"] = PS["Route"] || {});
 (function(exports) {
-  // Generated by purs version 0.11.6
-  "use strict";
+    "use strict";
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Bind = PS["Control.Bind"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
@@ -14374,6 +14541,7 @@ var PS = {};
   var DemoHome = PS["DemoHome"];
   var DemoLists = PS["DemoLists"];
   var DemoProgress = PS["DemoProgress"];
+  var DemoSpinners = PS["DemoSpinners"];
   var DemoTabs = PS["DemoTabs"];
   var Halogen = PS["Halogen"];
   var Halogen_Aff = PS["Halogen.Aff"];
@@ -14542,6 +14710,18 @@ var PS = {};
       };
       return OnDemoProgressMessage;
   })();
+  var OnDemoSpinnersMessage = (function () {
+      function OnDemoSpinnersMessage(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      OnDemoSpinnersMessage.create = function (value0) {
+          return function (value1) {
+              return new OnDemoSpinnersMessage(value0, value1);
+          };
+      };
+      return OnDemoSpinnersMessage;
+  })();
   var OnDemoTabsMessage = (function () {
       function OnDemoTabsMessage(value0, value1) {
           this.value0 = value0;
@@ -14570,6 +14750,13 @@ var PS = {};
       DemoTabsSlot.value = new DemoTabsSlot();
       return DemoTabsSlot;
   })();
+  var DemoSpinnersSlot = (function () {
+      function DemoSpinnersSlot() {
+
+      };
+      DemoSpinnersSlot.value = new DemoSpinnersSlot();
+      return DemoSpinnersSlot;
+  })();
   var DemoProgressSlot = (function () {
       function DemoProgressSlot() {
 
@@ -14584,6 +14771,8 @@ var PS = {};
       DemoListsSlot.value = new DemoListsSlot();
       return DemoListsSlot;
   })();
+
+  // Slots
   var DemoHomeSlot = (function () {
       function DemoHomeSlot() {
 
@@ -14636,6 +14825,18 @@ var PS = {};
   });
   var ordDemoTabsSlot = new Data_Ord.Ord(function () {
       return eqDemoTabsSlot;
+  }, function (x) {
+      return function (y) {
+          return Data_Ordering.EQ.value;
+      };
+  });
+  var eqDemoSpinnersSlot = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          return true;
+      };
+  });
+  var ordDemoSpinnersSlot = new Data_Ord.Ord(function () {
+      return eqDemoSpinnersSlot;
   }, function (x) {
       return function (y) {
           return Data_Ordering.EQ.value;
@@ -14737,7 +14938,8 @@ var PS = {};
           return Data_Ordering.EQ.value;
       };
   });
-  var cpDemoTabs = Halogen_Component_ChildPath.cp9;
+  var cpDemoTabs = Halogen_Component_ChildPath.cp10;
+  var cpDemoSpinners = Halogen_Component_ChildPath.cp9;
   var cpDemoProgress = Halogen_Component_ChildPath.cp8;
   var cpDemoLists = Halogen_Component_ChildPath.cp7;
   var cpDemoHome = Halogen_Component_ChildPath.cp1;
@@ -14747,6 +14949,7 @@ var PS = {};
   var cpDemoButtons = Halogen_Component_ChildPath.cp3;
   var cpDemoBadges = Halogen_Component_ChildPath.cp2;
   var demoContainer = (function () {
+      var renderSpacer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Layout.cl.layoutSpacer) ])([  ]);
       var renderPageContent = function (state) {
           if (state.currentRoute instanceof Route.Home) {
               return Halogen_HTML["slot'"](cpDemoHome)(DemoHomeSlot.value)(DemoHome.demoHome)(DemoHome.init(Data_Unit.unit))(Halogen_HTML_Events.input(OnDemoHomeMessage.create));
@@ -14781,12 +14984,15 @@ var PS = {};
                   progress: 0
               }))(Halogen_HTML_Events.input(OnDemoProgressMessage.create));
           };
+          if (state.currentRoute instanceof Route.Spinners) {
+              return Halogen_HTML["slot'"](cpDemoSpinners)(DemoSpinnersSlot.value)(DemoSpinners.demoSpinners)(DemoSpinners.init(Data_Unit.unit))(Halogen_HTML_Events.input(OnDemoSpinnersMessage.create));
+          };
           if (state.currentRoute instanceof Route.Tabs) {
               return Halogen_HTML["slot'"](cpDemoTabs)(DemoTabsSlot.value)(DemoTabs.demoTabs)(DemoTabs.init({
                   currentTab: DemoTabs.About.value
               }))(Halogen_HTML_Events.input(OnDemoTabsMessage.create));
           };
-          throw new Error("Failed pattern match at DemoContainer line 258, column 29 - line 321, column 37: " + [ state.currentRoute.constructor.name ]);
+          throw new Error("Failed pattern match at DemoContainer line 272, column 29 - line 342, column 37: " + [ state.currentRoute.constructor.name ]);
       };
       var renderLayoutHeaderLink = function (link) {
           return Halogen_HTML_Elements.a([ Halogen_HTML_Properties.href(link.href), Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigationLink ]) ])([ Halogen_HTML_Core.text(link.text) ]);
@@ -14806,6 +15012,9 @@ var PS = {};
       }) ]) ]) ]);
       var renderLayoutDrawerLink = function (route) {
           return Halogen_HTML_Elements.a([ Halogen_HTML_Properties.href(Route.href(route)), Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigationLink ]), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input_(OnNavClick.create)) ])([ Halogen_HTML_Core.text(Route.label(route)) ]);
+      };
+      var renderLayoutContent = function (state) {
+          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutContent ]) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ "page-content" ]) ])([ renderPageContent(state) ]) ]);
       };
       var receiver = function (v) {
           return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
@@ -14845,9 +15054,6 @@ var PS = {};
               linkList: dummyLinkList
           }
       });
-      var renderLayoutContent = function (state) {
-          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutContent ]) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ "page-content" ]) ])([ renderPageContent(state), renderMegaFooter ]) ]);
-      };
       var $$eval = function (v) {
           if (v instanceof InitializeComponent) {
               return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Halogen_MDL.upgradeElementByRef(Control_Monad_Aff.monadEffAff)("mdl-layout-ref"))(function () {
@@ -14864,14 +15070,14 @@ var PS = {};
           };
           if (v instanceof UpdateRoute) {
               return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  var $87 = {};
-                  for (var $88 in state) {
-                      if ({}.hasOwnProperty.call(state, $88)) {
-                          $87[$88] = state[$88];
+                  var $95 = {};
+                  for (var $96 in state) {
+                      if ({}.hasOwnProperty.call(state, $96)) {
+                          $95[$96] = state[$96];
                       };
                   };
-                  $87.currentRoute = v.value0;
-                  return $87;
+                  $95.currentRoute = v.value0;
+                  return $95;
               }))(function () {
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
@@ -14885,7 +15091,7 @@ var PS = {};
                       if (v1 instanceof Data_Maybe.Nothing) {
                           return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at DemoContainer line 365, column 7 - line 367, column 29: " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at DemoContainer line 392, column 7 - line 394, column 29: " + [ v1.constructor.name ]);
                   })())(function () {
                       return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
                   });
@@ -14915,16 +15121,19 @@ var PS = {};
           if (v instanceof OnDemoProgressMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
+          if (v instanceof OnDemoSpinnersMessage) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+          };
           if (v instanceof OnDemoTabsMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
-          throw new Error("Failed pattern match at DemoContainer line 351, column 10 - line 386, column 12: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at DemoContainer line 378, column 10 - line 415, column 12: " + [ v.constructor.name ]);
       };
-      var renderLayoutDrawer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutDrawer ]), Halogen_HTML_Properties.ref("mdl-layout-drawer") ])([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutTitle ]) ])([ Halogen_HTML_Core.text("Halogen MDL") ]), Halogen_HTML_Elements.nav([ Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigation ]) ])([ renderLayoutDrawerLink(Route.Home.value), renderLayoutDrawerLink(Route.Badges.value), renderLayoutDrawerLink(Route.Buttons.value), renderLayoutDrawerLink(Route.Cards.value), renderLayoutDrawerLink(Route.Chips.value), renderLayoutDrawerLink(Route.Dialogs.value), renderLayoutDrawerLink(Route.Lists.value), renderLayoutDrawerLink(Route.Progress.value), renderLayoutDrawerLink(Route.Tabs.value) ]) ]);
+      var renderLayoutDrawer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutDrawer ]), Halogen_HTML_Properties.ref("mdl-layout-drawer") ])([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutTitle ]) ])([ Halogen_HTML_Core.text("Halogen MDL") ]), Halogen_HTML_Elements.nav([ Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigation ]) ])([ renderLayoutDrawerLink(Route.Home.value), renderLayoutDrawerLink(Route.Badges.value), renderLayoutDrawerLink(Route.Buttons.value), renderLayoutDrawerLink(Route.Cards.value), renderLayoutDrawerLink(Route.Chips.value), renderLayoutDrawerLink(Route.Dialogs.value), renderLayoutDrawerLink(Route.Lists.value), renderLayoutDrawerLink(Route.Progress.value), renderLayoutDrawerLink(Route.Spinners.value), renderLayoutDrawerLink(Route.Tabs.value) ]) ]);
       var render = function (state) {
-          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Layout.cl.layoutContainer) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layout, Halogen_MDL_Layout.cl.jsLayout, Halogen_MDL_Layout.cl.layoutFixedHeader ]), Halogen_HTML_Properties.ref("mdl-layout-ref") ])([ renderLayoutHeader, renderLayoutDrawer, renderLayoutContent(state) ]) ]);
+          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Layout.cl.layoutContainer) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layout, Halogen_MDL_Layout.cl.jsLayout, Halogen_MDL_Layout.cl.layoutFixedHeader ]), Halogen_HTML_Properties.ref("mdl-layout-ref") ])([ renderLayoutHeader, renderLayoutDrawer, renderLayoutContent(state), renderSpacer, renderMegaFooter ]) ]);
       };
-      return Halogen_Component.lifecycleParentComponent(Data_Either.ordEither(ordDemoHomeSlot)(Data_Either.ordEither(ordDemoBadgesSlot)(Data_Either.ordEither(ordDemoButtonsSlot)(Data_Either.ordEither(ordDemoCardsSlot)(Data_Either.ordEither(ordDemoChipsSlot)(Data_Either.ordEither(ordDemoDialogsSlot)(Data_Either.ordEither(ordDemoListsSlot)(Data_Either.ordEither(ordDemoProgressSlot)(Data_Either.ordEither(ordDemoTabsSlot)(Data_Ord.ordVoid))))))))))({
+      return Halogen_Component.lifecycleParentComponent(Data_Either.ordEither(ordDemoHomeSlot)(Data_Either.ordEither(ordDemoBadgesSlot)(Data_Either.ordEither(ordDemoButtonsSlot)(Data_Either.ordEither(ordDemoCardsSlot)(Data_Either.ordEither(ordDemoChipsSlot)(Data_Either.ordEither(ordDemoDialogsSlot)(Data_Either.ordEither(ordDemoListsSlot)(Data_Either.ordEither(ordDemoProgressSlot)(Data_Either.ordEither(ordDemoSpinnersSlot)(Data_Either.ordEither(ordDemoTabsSlot)(Data_Ord.ordVoid)))))))))))({
           initialState: initialState, 
           initializer: initializer, 
           finalizer: finalizer, 
@@ -14941,6 +15150,7 @@ var PS = {};
   exports["DemoHomeSlot"] = DemoHomeSlot;
   exports["DemoListsSlot"] = DemoListsSlot;
   exports["DemoProgressSlot"] = DemoProgressSlot;
+  exports["DemoSpinnersSlot"] = DemoSpinnersSlot;
   exports["DemoTabsSlot"] = DemoTabsSlot;
   exports["Initialize"] = Initialize;
   exports["InitializeComponent"] = InitializeComponent;
@@ -14956,6 +15166,7 @@ var PS = {};
   exports["OnDemoDialogsMessage"] = OnDemoDialogsMessage;
   exports["OnDemoListsMessage"] = OnDemoListsMessage;
   exports["OnDemoProgressMessage"] = OnDemoProgressMessage;
+  exports["OnDemoSpinnersMessage"] = OnDemoSpinnersMessage;
   exports["OnDemoTabsMessage"] = OnDemoTabsMessage;
   exports["cpDemoBadges"] = cpDemoBadges;
   exports["cpDemoButtons"] = cpDemoButtons;
@@ -14965,6 +15176,7 @@ var PS = {};
   exports["cpDemoHome"] = cpDemoHome;
   exports["cpDemoLists"] = cpDemoLists;
   exports["cpDemoProgress"] = cpDemoProgress;
+  exports["cpDemoSpinners"] = cpDemoSpinners;
   exports["cpDemoTabs"] = cpDemoTabs;
   exports["demoContainer"] = demoContainer;
   exports["init"] = init;
@@ -14984,6 +15196,8 @@ var PS = {};
   exports["ordDemoListsSlot"] = ordDemoListsSlot;
   exports["eqDemoProgressSlot"] = eqDemoProgressSlot;
   exports["ordDemoProgressSlot"] = ordDemoProgressSlot;
+  exports["eqDemoSpinnersSlot"] = eqDemoSpinnersSlot;
+  exports["ordDemoSpinnersSlot"] = ordDemoSpinnersSlot;
   exports["eqDemoTabsSlot"] = eqDemoTabsSlot;
   exports["ordDemoTabsSlot"] = ordDemoTabsSlot;
 })(PS["DemoContainer"] = PS["DemoContainer"] || {});
@@ -16807,6 +17021,7 @@ var PS = {};
       var route = function (str) {
           return Control_Apply.applySecond(Routing_Match.matchApply)(Routing_Match_Class.lit(Routing_Match.matchMatchClass)(""))(Routing_Match_Class.lit(Routing_Match.matchMatchClass)(str));
       };
+      var spinners = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Spinners.value)(route(Route.urlSegment(Route.Spinners.value)));
       var tabs = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Tabs.value)(route(Route.urlSegment(Route.Tabs.value)));
       var progress = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Progress.value)(route(Route.urlSegment(Route.Progress.value)));
       var lists = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Lists.value)(route(Route.urlSegment(Route.Lists.value)));
@@ -16816,7 +17031,7 @@ var PS = {};
       var cards = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Cards.value)(route(Route.urlSegment(Route.Cards.value)));
       var buttons = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Buttons.value)(route(Route.urlSegment(Route.Buttons.value)));
       var badges = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Badges.value)(route(Route.urlSegment(Route.Badges.value)));
-      return Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(badges)(buttons))(cards))(chips))(dialogs))(lists))(progress))(tabs))(home);
+      return Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(badges)(buttons))(cards))(chips))(dialogs))(lists))(progress))(spinners))(tabs))(home);
   })();
   var goToRoute = function (driver) {
       return function (v) {
@@ -16874,7 +17089,7 @@ var PS = {};
           if (v instanceof OnDemoContainerMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
-          throw new Error("Failed pattern match at Router line 104, column 12 - line 110, column 14: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Router line 106, column 12 - line 112, column 14: " + [ v.constructor.name ]);
       };
       return Halogen_Component.parentComponent(ordSlot)({
           initialState: initialState, 

@@ -32,6 +32,7 @@ import DemoChips as DemoChips
 import DemoDialogs as DemoDialogs
 import DemoLists as DemoLists
 import DemoProgress as DemoProgress
+import DemoSpinners as DemoSpinners
 import DemoTabs as DemoTabs
 
 type State =
@@ -52,6 +53,7 @@ data Query a
   | OnDemoDialogsMessage DemoDialogs.Message a
   | OnDemoListsMessage DemoLists.Message a
   | OnDemoProgressMessage DemoProgress.Message a
+  | OnDemoSpinnersMessage DemoSpinners.Message a
   | OnDemoTabsMessage DemoTabs.Message a
 
 data Input = Initialize State
@@ -67,6 +69,7 @@ type ChildQuery
   <\/> DemoDialogs.Query
   <\/> DemoLists.Query
   <\/> DemoProgress.Query
+  <\/> DemoSpinners.Query
   <\/> DemoTabs.Query
   <\/> Const Void
 
@@ -79,6 +82,7 @@ type ChildSlot
   \/ DemoDialogsSlot
   \/ DemoListsSlot
   \/ DemoProgressSlot
+  \/ DemoSpinnersSlot
   \/ DemoTabsSlot
   \/ Void
 
@@ -131,11 +135,17 @@ derive instance ordDemoProgressSlot :: Ord DemoProgressSlot
 cpDemoProgress :: CP.ChildPath DemoProgress.Query ChildQuery DemoProgressSlot ChildSlot
 cpDemoProgress = CP.cp8
 
+data DemoSpinnersSlot = DemoSpinnersSlot
+derive instance eqDemoSpinnersSlot :: Eq DemoSpinnersSlot
+derive instance ordDemoSpinnersSlot :: Ord DemoSpinnersSlot
+cpDemoSpinners :: CP.ChildPath DemoSpinners.Query ChildQuery DemoSpinnersSlot ChildSlot
+cpDemoSpinners = CP.cp9
+
 data DemoTabsSlot = DemoTabsSlot
 derive instance eqDemoTabsSlot :: Eq DemoTabsSlot
 derive instance ordDemoTabsSlot :: Ord DemoTabsSlot
 cpDemoTabs :: CP.ChildPath DemoTabs.Query ChildQuery DemoTabsSlot ChildSlot
-cpDemoTabs = CP.cp9
+cpDemoTabs = CP.cp10
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -184,6 +194,8 @@ demoContainer =
           [ renderLayoutHeader
           , renderLayoutDrawer
           , renderLayoutContent state
+          , renderSpacer
+          , renderMegaFooter
           ]
       ]
 
@@ -230,6 +242,7 @@ demoContainer =
         , renderLayoutDrawerLink Dialogs
         , renderLayoutDrawerLink Lists
         , renderLayoutDrawerLink Progress
+        , renderLayoutDrawerLink Spinners
         , renderLayoutDrawerLink Tabs
         ]
       ]
@@ -250,7 +263,8 @@ demoContainer =
       [ HH.div
         [ HP.classes [ HH.ClassName "page-content" ] ]
         [ renderPageContent state
-        , renderMegaFooter
+        --, renderSpacer
+        --, renderMegaFooter
         ]
       ]
 
@@ -312,6 +326,13 @@ demoContainer =
         DemoProgress.demoProgress
         (DemoProgress.init { progress: 0 })
         (HE.input OnDemoProgressMessage)
+    Spinners ->
+      HH.slot'
+        cpDemoSpinners
+        DemoSpinnersSlot
+        DemoSpinners.demoSpinners
+        (DemoSpinners.init unit)
+        (HE.input OnDemoSpinnersMessage)
     Tabs ->
       HH.slot'
         cpDemoTabs
@@ -330,6 +351,12 @@ demoContainer =
           , linkList: dummyLinkList
           }
       }
+
+  renderSpacer :: DemoContainerHTML eff
+  renderSpacer =
+    HH.div
+      [ HP.class_ Layout.cl.layoutSpacer ]
+      []
 
   dummyDropDownSection :: Int -> MegaFooter.DropDownSectionBlock
   dummyDropDownSection i =
@@ -381,6 +408,8 @@ demoContainer =
     OnDemoListsMessage _ next -> do
       pure next
     OnDemoProgressMessage _ next -> do
+      pure next
+    OnDemoSpinnersMessage _ next -> do
       pure next
     OnDemoTabsMessage _ next -> do
       pure next
