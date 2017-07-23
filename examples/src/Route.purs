@@ -10,6 +10,7 @@ data Route
   | Chips
   | Dialogs
   | Lists
+  | Menus
   | Progress
   | Spinners
   | Tabs
@@ -22,6 +23,7 @@ urlSegment Cards = "cards"
 urlSegment Chips = "chips"
 urlSegment Dialogs = "dialogs"
 urlSegment Lists = "lists"
+urlSegment Menus = "menus"
 urlSegment Progress = "progress"
 urlSegment Spinners = "spinners"
 urlSegment Tabs = "tabs"
@@ -40,6 +42,7 @@ show Cards = "Cards"
 show Chips = "Chips"
 show Dialogs = "Dialogs"
 show Lists = "Lists"
+show Menus = "Menus"
 show Progress = "Progress"
 show Spinners = "Spinners"
 show Tabs = "Tabs"

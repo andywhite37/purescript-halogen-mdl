@@ -20,6 +20,7 @@ str ::
   , addShoppingCart :: String
   , alarm :: String
   , cancel :: String
+  , moreVert :: String
   , person :: String
   , share :: String
   , star :: String
@@ -35,6 +36,7 @@ str =
   , addShoppingCart      : "add_shopping_cart"
   , alarm                : "alarm"
   , cancel               : "cancel"
+  , moreVert             : "more_vert"
   , person               : "person"
   , share                : "share"
   , star                 : "star"

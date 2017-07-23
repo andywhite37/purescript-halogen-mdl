@@ -10,6 +10,7 @@ import Data.Maybe (Maybe(..))
 
 import Halogen as H
 import Halogen.Aff as HA
+import Halogen.Component.ChildPath ((:>))
 import Halogen.Component.ChildPath as CP
 import Halogen.Data.Prism (type (\/))
 import Halogen.HTML as HH
@@ -31,6 +32,7 @@ import DemoCards as DemoCards
 import DemoChips as DemoChips
 import DemoDialogs as DemoDialogs
 import DemoLists as DemoLists
+import DemoMenus as DemoMenus
 import DemoProgress as DemoProgress
 import DemoSpinners as DemoSpinners
 import DemoTabs as DemoTabs
@@ -52,6 +54,7 @@ data Query a
   | OnDemoChipsMessage DemoChips.Message a
   | OnDemoDialogsMessage DemoDialogs.Message a
   | OnDemoListsMessage DemoLists.Message a
+  | OnDemoMenusMessage DemoMenus.Message a
   | OnDemoProgressMessage DemoProgress.Message a
   | OnDemoSpinnersMessage DemoSpinners.Message a
   | OnDemoTabsMessage DemoTabs.Message a
@@ -59,6 +62,8 @@ data Query a
 data Input = Initialize State
 
 type Message = Void
+
+-- TODO: use custom sum type?
 
 type ChildQuery
   =    DemoHome.Query
@@ -68,6 +73,7 @@ type ChildQuery
   <\/> DemoChips.Query
   <\/> DemoDialogs.Query
   <\/> DemoLists.Query
+  <\/> DemoMenus.Query
   <\/> DemoProgress.Query
   <\/> DemoSpinners.Query
   <\/> DemoTabs.Query
@@ -81,6 +87,7 @@ type ChildSlot
   \/ DemoChipsSlot
   \/ DemoDialogsSlot
   \/ DemoListsSlot
+  \/ DemoMenusSlot
   \/ DemoProgressSlot
   \/ DemoSpinnersSlot
   \/ DemoTabsSlot
@@ -129,23 +136,33 @@ derive instance ordDemoListsSlot :: Ord DemoListsSlot
 cpDemoLists :: CP.ChildPath DemoLists.Query ChildQuery DemoListsSlot ChildSlot
 cpDemoLists = CP.cp7
 
+data DemoMenusSlot = DemoMenusSlot
+derive instance eqDemoMenusSlot :: Eq DemoMenusSlot
+derive instance ordDemoMenusSlot :: Ord DemoMenusSlot
+cpDemoMenus :: CP.ChildPath DemoMenus.Query ChildQuery DemoMenusSlot ChildSlot
+cpDemoMenus = CP.cp8
+
 data DemoProgressSlot = DemoProgressSlot
 derive instance eqDemoProgressSlot :: Eq DemoProgressSlot
 derive instance ordDemoProgressSlot :: Ord DemoProgressSlot
 cpDemoProgress :: CP.ChildPath DemoProgress.Query ChildQuery DemoProgressSlot ChildSlot
-cpDemoProgress = CP.cp8
+cpDemoProgress = CP.cp9
 
 data DemoSpinnersSlot = DemoSpinnersSlot
 derive instance eqDemoSpinnersSlot :: Eq DemoSpinnersSlot
 derive instance ordDemoSpinnersSlot :: Ord DemoSpinnersSlot
 cpDemoSpinners :: CP.ChildPath DemoSpinners.Query ChildQuery DemoSpinnersSlot ChildSlot
-cpDemoSpinners = CP.cp9
+cpDemoSpinners = CP.cp10
 
 data DemoTabsSlot = DemoTabsSlot
 derive instance eqDemoTabsSlot :: Eq DemoTabsSlot
 derive instance ordDemoTabsSlot :: Ord DemoTabsSlot
 cpDemoTabs :: CP.ChildPath DemoTabs.Query ChildQuery DemoTabsSlot ChildSlot
-cpDemoTabs = CP.cp10
+cpDemoTabs =
+  -- CP 11
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
+  CP.cpL
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -194,8 +211,8 @@ demoContainer =
           [ renderLayoutHeader
           , renderLayoutDrawer
           , renderLayoutContent state
-          , renderSpacer
-          , renderMegaFooter
+          --, renderSpacer
+          --, renderMegaFooter
           ]
       ]
 
@@ -241,6 +258,7 @@ demoContainer =
         , renderLayoutDrawerLink Chips
         , renderLayoutDrawerLink Dialogs
         , renderLayoutDrawerLink Lists
+        , renderLayoutDrawerLink Menus
         , renderLayoutDrawerLink Progress
         , renderLayoutDrawerLink Spinners
         , renderLayoutDrawerLink Tabs
@@ -263,8 +281,8 @@ demoContainer =
       [ HH.div
         [ HP.classes [ HH.ClassName "page-content" ] ]
         [ renderPageContent state
-        --, renderSpacer
-        --, renderMegaFooter
+        , renderSpacer
+        , renderMegaFooter
         ]
       ]
 
@@ -319,6 +337,13 @@ demoContainer =
         DemoLists.demoLists
         (DemoLists.init unit)
         (HE.input OnDemoListsMessage)
+    Menus ->
+      HH.slot'
+        cpDemoMenus
+        DemoMenusSlot
+        DemoMenus.demoMenus
+        (DemoMenus.init unit)
+        (HE.input OnDemoMenusMessage)
     Progress ->
       HH.slot'
         cpDemoProgress
@@ -406,6 +431,8 @@ demoContainer =
     OnDemoDialogsMessage _ next -> do
       pure next
     OnDemoListsMessage _ next -> do
+      pure next
+    OnDemoMenusMessage _ next -> do
       pure next
     OnDemoProgressMessage _ next -> do
       pure next

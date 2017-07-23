@@ -43,3 +43,12 @@ upgradeElementsByRefs refs = void $ traverse upgradeElementByRef refs
 -- Remove class from an element
 -- Hacky solution to removing classes added outside of our rendering control
 foreign import removeClass :: ∀ e. HTMLElement -> String -> Eff (dom :: DOM | e) Unit
+
+attr ::
+  { disabled :: HH.AttrName
+  , for :: HH.AttrName
+  }
+attr =
+  { disabled : HH.AttrName "data-mdl-disabled"
+  , for      : HH.AttrName "data-mdl-for"
+  }

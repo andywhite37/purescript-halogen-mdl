@@ -34,6 +34,7 @@ matchRoute
   <|> chips
   <|> dialogs
   <|> lists
+  <|> menus
   <|> progress
   <|> spinners
   <|> tabs
@@ -45,6 +46,7 @@ matchRoute
     chips = Chips <$ route (urlSegment Chips)
     dialogs = Dialogs <$ route (urlSegment Dialogs)
     lists = Lists <$ route (urlSegment Lists)
+    menus = Menus <$ route (urlSegment Menus)
     progress = Progress <$ route (urlSegment Progress)
     spinners = Spinners <$ route (urlSegment Spinners)
     tabs = Tabs <$ route (urlSegment Tabs)
