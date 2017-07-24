@@ -166,7 +166,7 @@ demoTabs =
   eval :: Query ~> DemoTabsDSL eff
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassName Tabs.cl.jsTabs
+      H.liftEff $ MDL.upgradeElementsByClassNames [Tabs.cl.jsTabs, RE.cl.jsRippleEffect]
       pure next
     FinalizeComponent next -> do
       pure next
