@@ -2,17 +2,13 @@ module DemoSpinners where
 
 import Prelude
 
-import Control.Monad.Aff (Aff, delay)
---import Control.Monad.Eff.Timer (setInterval)
+import Control.Monad.Aff (Aff)
 import Data.Maybe (Maybe(..))
-import Data.Time.Duration (Milliseconds(..))
 
-import CSS as C
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
-import Halogen.HTML.CSS as HC
 
 import Halogen.MDL as MDL
 import Halogen.MDL.Cell as Cell

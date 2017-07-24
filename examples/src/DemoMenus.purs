@@ -1,16 +1,14 @@
 module DemoMenus where
 
 import Prelude
-
-import CSS as C
-import Control.Monad.Aff (Aff, delay)
+import Control.Monad.Aff (Aff)
 import Data.Maybe (Maybe(..))
-import Data.Time.Duration (Milliseconds(..))
+
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
-import Halogen.HTML.CSS as HC
 import Halogen.HTML.Properties as HP
+
 import Halogen.MDL as MDL
 import Halogen.MDL.Button as Button
 import Halogen.MDL.Cell as Cell

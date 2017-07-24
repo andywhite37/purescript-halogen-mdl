@@ -12,6 +12,7 @@ data Route
   | Lists
   | Menus
   | Progress
+  | Sliders
   | Spinners
   | Tabs
 
@@ -25,6 +26,7 @@ urlSegment Dialogs = "dialogs"
 urlSegment Lists = "lists"
 urlSegment Menus = "menus"
 urlSegment Progress = "progress"
+urlSegment Sliders = "sliders"
 urlSegment Spinners = "spinners"
 urlSegment Tabs = "tabs"
 
@@ -44,5 +46,6 @@ show Dialogs = "Dialogs"
 show Lists = "Lists"
 show Menus = "Menus"
 show Progress = "Progress"
+show Sliders = "Sliders"
 show Spinners = "Spinners"
 show Tabs = "Tabs"
