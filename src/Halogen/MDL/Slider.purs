@@ -116,6 +116,10 @@ slider = H.lifecycleComponent
 
   render :: State -> SliderHTML
   render state =
+    -- Note: here I'm faking the HTML structure that is normally created by
+    -- the MDL MaterialSlider JS component.  This is done because we can't
+    -- use "upgradeElement" because it changes the structure of the HTML
+    -- underneath us, so successive renders mess it up.
     HH.div
       [ HP.class_ cl.sliderContainer ]
       [ HH.input
