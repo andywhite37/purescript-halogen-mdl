@@ -140,7 +140,7 @@ slider = H.lifecycleComponent
           [ HH.div
               [ HP.class_ cl.sliderBackgroundLower
               , HC.style do
-                  C.flexShrink 1000
+                  C.flexShrink 1
                   C.flexGrow $ getBackgroundLowerFlexGrow state
                   C.flexBasis $ C.pct 0.0
               ]
@@ -148,7 +148,7 @@ slider = H.lifecycleComponent
           , HH.div
               [ HP.class_ cl.sliderBackgroundUpper
               , HC.style do
-                  C.flexShrink 1000
+                  C.flexShrink 1
                   C.flexGrow $ getBackgroundUpperFlexGrow state
                   C.flexBasis $ C.pct 0.0
               ]
@@ -167,10 +167,13 @@ slider = H.lifecycleComponent
   getBackgroundLowerFlexGrow :: State -> Int
   getBackgroundLowerFlexGrow state =
     -- TODO: flex-grow is typed as Int... need a better way to set this
+    -- Pending: https://github.com/slamdata/purescript-css/pull/64
     round (1000.0 * getLowerFraction state)
 
   getBackgroundUpperFlexGrow :: State -> Int
   getBackgroundUpperFlexGrow state =
+    -- TODO: flex-grow is typed as Int... need a better way to set this
+    -- Pending: https://github.com/slamdata/purescript-css/pull/64
     round (1000.0 * getUpperFraction state)
 
   eval :: Query ~> SliderDSL eff

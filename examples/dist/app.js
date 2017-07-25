@@ -11253,6 +11253,7 @@ var PS = {};
   var ul = element("ul");
   var ul_ = ul([  ]);
   var div = element("div");
+  var div_ = div([  ]);
   var dialog = element("dialog");
   var button = element("button");
   var b = element("b");
@@ -11264,6 +11265,7 @@ var PS = {};
   exports["button"] = button;
   exports["dialog"] = dialog;
   exports["div"] = div;
+  exports["div_"] = div_;
   exports["element"] = element;
   exports["em"] = em;
   exports["em_"] = em_;
@@ -14633,11 +14635,11 @@ var PS = {};
           return Data_Int.round(1000.0 * getLowerFraction(state));
       };
       var render = function (state) {
-          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderContainer) ])([ Halogen_HTML_Elements.input([ Halogen_HTML_Properties.classes([ cl.slider, cl.jsSlider, cl.isUpgraded ]), Halogen_HTML_Properties.type_(Halogen_HTML_Core.inputTypeIsProp)(DOM_HTML_Indexed_InputType.InputRange.value), Halogen_HTML_Properties.min(state.min), Halogen_HTML_Properties.max(state.max), Halogen_HTML_Properties.step(new DOM_HTML_Indexed_StepValue.Step(state.step)), Halogen_HTML_Properties.value(Data_Show.show(Data_Show.showNumber)(state.value)), Halogen_HTML_Properties.tabIndex(0), Halogen_HTML_Properties.attr(attr.dataUpgraded)(",MaterialSlider"), Halogen_HTML_Properties.disabled(state.disabled), Halogen_HTML_Events.onValueInput(Halogen_HTML_Events.input(OnValueInput.create)), Halogen_HTML_Properties.ref(sliderRef) ]), Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderBackgroundFlex) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderBackgroundLower), Halogen_HTML_CSS.style(Control_Bind.discard(Control_Bind.discardUnit)(CSS_Stylesheet.bindStyleM)(CSS_Flexbox.flexShrink(1000))(function () {
+          return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderContainer) ])([ Halogen_HTML_Elements.input([ Halogen_HTML_Properties.classes([ cl.slider, cl.jsSlider, cl.isUpgraded ]), Halogen_HTML_Properties.type_(Halogen_HTML_Core.inputTypeIsProp)(DOM_HTML_Indexed_InputType.InputRange.value), Halogen_HTML_Properties.min(state.min), Halogen_HTML_Properties.max(state.max), Halogen_HTML_Properties.step(new DOM_HTML_Indexed_StepValue.Step(state.step)), Halogen_HTML_Properties.value(Data_Show.show(Data_Show.showNumber)(state.value)), Halogen_HTML_Properties.tabIndex(0), Halogen_HTML_Properties.attr(attr.dataUpgraded)(",MaterialSlider"), Halogen_HTML_Properties.disabled(state.disabled), Halogen_HTML_Events.onValueInput(Halogen_HTML_Events.input(OnValueInput.create)), Halogen_HTML_Properties.ref(sliderRef) ]), Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderBackgroundFlex) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderBackgroundLower), Halogen_HTML_CSS.style(Control_Bind.discard(Control_Bind.discardUnit)(CSS_Stylesheet.bindStyleM)(CSS_Flexbox.flexShrink(1))(function () {
               return Control_Bind.discard(Control_Bind.discardUnit)(CSS_Stylesheet.bindStyleM)(CSS_Flexbox.flexGrow(getBackgroundLowerFlexGrow(state)))(function () {
                   return CSS_Flexbox.flexBasis(CSS_Size.pct(0.0));
               });
-          })) ])([  ]), Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderBackgroundUpper), Halogen_HTML_CSS.style(Control_Bind.discard(Control_Bind.discardUnit)(CSS_Stylesheet.bindStyleM)(CSS_Flexbox.flexShrink(1000))(function () {
+          })) ])([  ]), Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(cl.sliderBackgroundUpper), Halogen_HTML_CSS.style(Control_Bind.discard(Control_Bind.discardUnit)(CSS_Stylesheet.bindStyleM)(CSS_Flexbox.flexShrink(1))(function () {
               return Control_Bind.discard(Control_Bind.discardUnit)(CSS_Stylesheet.bindStyleM)(CSS_Flexbox.flexGrow(getBackgroundUpperFlexGrow(state)))(function () {
                   return CSS_Flexbox.flexBasis(CSS_Size.pct(0.0));
               });
@@ -14719,7 +14721,7 @@ var PS = {};
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0(v1.value));
               });
           };
-          throw new Error("Failed pattern match at Halogen.MDL.Slider line 177, column 10 - line 211, column 26: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Halogen.MDL.Slider line 180, column 10 - line 214, column 26: " + [ v.constructor.name ]);
       };
       return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
           initialState: initialState, 
@@ -15021,6 +15023,261 @@ var PS = {};
   exports["eqChildSlot"] = eqChildSlot;
   exports["ordChildSlot"] = ordChildSlot;
 })(PS["DemoSliders"] = PS["DemoSliders"] || {});
+(function(exports) {exports.showSnackbarNoAction = function(element) {
+    return function(data) {
+      element.MaterialSnackbar.showSnackbar(data);
+      return {};
+    };
+  };
+
+  exports.showSnackbarWithAction = function(element) {
+    return function(data) {
+      element.MaterialSnackbar.showSnackbar(data);
+      return {};
+    };
+  };
+})(PS["Halogen.MDL.Snackbar"] = PS["Halogen.MDL.Snackbar"] || {});
+(function(exports) {
+  // Generated by purs version 0.11.6
+  "use strict";
+  var $foreign = PS["Halogen.MDL.Snackbar"];
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var DOM = PS["DOM"];
+  var DOM_HTML_Types = PS["DOM.HTML.Types"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Unit = PS["Data.Unit"];
+  var Halogen = PS["Halogen"];
+  var Halogen_HTML = PS["Halogen.HTML"];
+  var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
+  var Halogen_Query = PS["Halogen.Query"];
+  var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
+  var Prelude = PS["Prelude"];        
+  var showSnackbarWithActionByRef = function (dictMonadEff) {
+      return function (ref) {
+          return function (data_) {
+              return Control_Bind.bind(Halogen_Query_HalogenM.bindHalogenM)(Halogen_Query.getHTMLElementRef(ref))(function (v) {
+                  if (v instanceof Data_Maybe.Just) {
+                      return Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(dictMonadEff))($foreign.showSnackbarWithAction(v.value0)(data_));
+                  };
+                  if (v instanceof Data_Maybe.Nothing) {
+                      return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Unit.unit);
+                  };
+                  throw new Error("Failed pattern match at Halogen.MDL.Snackbar line 39, column 3 - line 41, column 25: " + [ v.constructor.name ]);
+              });
+          };
+      };
+  };
+  var showSnackbarNoActionByRef = function (dictMonadEff) {
+      return function (ref) {
+          return function (data_) {
+              return Control_Bind.bind(Halogen_Query_HalogenM.bindHalogenM)(Halogen_Query.getHTMLElementRef(ref))(function (v) {
+                  if (v instanceof Data_Maybe.Just) {
+                      return Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(dictMonadEff))($foreign.showSnackbarNoAction(v.value0)(data_));
+                  };
+                  if (v instanceof Data_Maybe.Nothing) {
+                      return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Unit.unit);
+                  };
+                  throw new Error("Failed pattern match at Halogen.MDL.Snackbar line 32, column 3 - line 34, column 25: " + [ v.constructor.name ]);
+              });
+          };
+      };
+  };
+  var cl = {
+      snackbar: "mdl-snackbar", 
+      jsSnackbar: "mdl-js-snackbar", 
+      snackbarText: "mdl-snackbar__text", 
+      snackbarAction: "mdl-snackbar__action", 
+      snackbarActive: "mdl-snackbar--active"
+  };
+  exports["cl"] = cl;
+  exports["showSnackbarNoActionByRef"] = showSnackbarNoActionByRef;
+  exports["showSnackbarWithActionByRef"] = showSnackbarWithActionByRef;
+})(PS["Halogen.MDL.Snackbar"] = PS["Halogen.MDL.Snackbar"] || {});
+(function(exports) {
+    "use strict";
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_State_Class = PS["Control.Monad.State.Class"];
+  var DOM_HTML_Indexed_ButtonType = PS["DOM.HTML.Indexed.ButtonType"];
+  var Data_Function = PS["Data.Function"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Data_Semiring = PS["Data.Semiring"];
+  var Data_Show = PS["Data.Show"];
+  var Data_Unit = PS["Data.Unit"];
+  var Halogen = PS["Halogen"];
+  var Halogen_Aff = PS["Halogen.Aff"];
+  var Halogen_Component = PS["Halogen.Component"];
+  var Halogen_HTML = PS["Halogen.HTML"];
+  var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
+  var Halogen_HTML_Elements = PS["Halogen.HTML.Elements"];
+  var Halogen_HTML_Events = PS["Halogen.HTML.Events"];
+  var Halogen_HTML_Properties = PS["Halogen.HTML.Properties"];
+  var Halogen_MDL = PS["Halogen.MDL"];
+  var Halogen_MDL_Button = PS["Halogen.MDL.Button"];
+  var Halogen_MDL_Cell = PS["Halogen.MDL.Cell"];
+  var Halogen_MDL_Grid = PS["Halogen.MDL.Grid"];
+  var Halogen_MDL_RippleEffect = PS["Halogen.MDL.RippleEffect"];
+  var Halogen_MDL_Snackbar = PS["Halogen.MDL.Snackbar"];
+  var Halogen_Query = PS["Halogen.Query"];
+  var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
+  var Halogen_Query_InputF = PS["Halogen.Query.InputF"];
+  var Prelude = PS["Prelude"];        
+  var InitializeComponent = (function () {
+      function InitializeComponent(value0) {
+          this.value0 = value0;
+      };
+      InitializeComponent.create = function (value0) {
+          return new InitializeComponent(value0);
+      };
+      return InitializeComponent;
+  })();
+  var FinalizeComponent = (function () {
+      function FinalizeComponent(value0) {
+          this.value0 = value0;
+      };
+      FinalizeComponent.create = function (value0) {
+          return new FinalizeComponent(value0);
+      };
+      return FinalizeComponent;
+  })();
+  var UpdateState = (function () {
+      function UpdateState(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      UpdateState.create = function (value0) {
+          return function (value1) {
+              return new UpdateState(value0, value1);
+          };
+      };
+      return UpdateState;
+  })();
+  var OnButton1Click = (function () {
+      function OnButton1Click(value0) {
+          this.value0 = value0;
+      };
+      OnButton1Click.create = function (value0) {
+          return new OnButton1Click(value0);
+      };
+      return OnButton1Click;
+  })();
+  var OnButton2Click = (function () {
+      function OnButton2Click(value0) {
+          this.value0 = value0;
+      };
+      OnButton2Click.create = function (value0) {
+          return new OnButton2Click(value0);
+      };
+      return OnButton2Click;
+  })();
+  var OnSnackbar2Action = (function () {
+      function OnSnackbar2Action(value0) {
+          this.value0 = value0;
+      };
+      OnSnackbar2Action.create = function (value0) {
+          return new OnSnackbar2Action(value0);
+      };
+      return OnSnackbar2Action;
+  })();
+  var Initialize = (function () {
+      function Initialize(value0) {
+          this.value0 = value0;
+      };
+      Initialize.create = function (value0) {
+          return new Initialize(value0);
+      };
+      return Initialize;
+  })();
+  var init = Initialize.create;
+  var demoSnackbars = (function () {
+      var render = function (state) {
+          return Halogen_MDL_Grid.el.grid_([ Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Snackbars") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.button([ Halogen_HTML_Properties.classes([ Halogen_MDL_Button.cl.button, Halogen_MDL_Button.cl.jsButton, Halogen_MDL_Button.cl.buttonRaised, Halogen_MDL_RippleEffect.cl.jsRippleEffect ]), Halogen_HTML_Properties.type_(Halogen_HTML_Core.buttonTypeIsProp)(DOM_HTML_Indexed_ButtonType.ButtonButton.value), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input_(OnButton1Click.create)) ])([ Halogen_HTML_Core.text("Show snackbar no action") ]), Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Snackbar.cl.snackbar, Halogen_MDL_Snackbar.cl.jsSnackbar ]), Halogen_HTML_Properties.ref("snackbar-1-ref") ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Snackbar.cl.snackbarText) ])([ Halogen_HTML_Core.text("") ]), Halogen_HTML_Elements.button([ Halogen_HTML_Properties.class_(Halogen_MDL_Snackbar.cl.snackbarAction) ])([ Halogen_HTML_Core.text("") ]) ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.button([ Halogen_HTML_Properties.classes([ Halogen_MDL_Button.cl.button, Halogen_MDL_Button.cl.jsButton, Halogen_MDL_Button.cl.buttonRaised, Halogen_MDL_RippleEffect.cl.jsRippleEffect ]), Halogen_HTML_Properties.type_(Halogen_HTML_Core.buttonTypeIsProp)(DOM_HTML_Indexed_ButtonType.ButtonButton.value), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input_(OnButton2Click.create)) ])([ Halogen_HTML_Core.text("Show snackbar with action") ]), Halogen_HTML_Elements.div_([ Halogen_HTML_Core.text("Action has been clicked " + (Data_Show.show(Data_Show.showInt)(state.snackbar2ActionCount) + " time(s)")) ]), Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Snackbar.cl.snackbar, Halogen_MDL_Snackbar.cl.jsSnackbar ]), Halogen_HTML_Properties.ref("snackbar-2-ref") ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Snackbar.cl.snackbarText) ])([ Halogen_HTML_Core.text("") ]), Halogen_HTML_Elements.button([ Halogen_HTML_Properties.class_(Halogen_MDL_Snackbar.cl.snackbarAction), Halogen_HTML_Events.onClick(Halogen_HTML_Events.input_(OnSnackbar2Action.create)) ])([ Halogen_HTML_Core.text("") ]) ]) ]) ]);
+      };
+      var receiver = function (v) {
+          return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
+      };
+      var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
+      var initialState = function (v) {
+          return v.value0;
+      };
+      var finalizer = Data_Maybe.Just.create(Halogen_Query.action(FinalizeComponent.create));
+      var $$eval = function (v) {
+          if (v instanceof InitializeComponent) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(Control_Monad_Aff.monadEffAff))(Halogen_MDL.upgradeElementsByClassNames([ Halogen_MDL_Snackbar.cl.jsSnackbar, Halogen_MDL_Button.cl.jsButton ])))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+              });
+          };
+          if (v instanceof FinalizeComponent) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+          };
+          if (v instanceof UpdateState) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.put(Halogen_Query_HalogenM.monadStateHalogenM)(v.value0))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
+          };
+          if (v instanceof OnButton1Click) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Halogen_MDL_Snackbar.showSnackbarNoActionByRef(Control_Monad_Aff.monadEffAff)("snackbar-1-ref")({
+                  message: "Snackbar 1 (no action)", 
+                  timeout: 2750
+              }))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+              });
+          };
+          if (v instanceof OnButton2Click) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Halogen_MDL_Snackbar.showSnackbarWithActionByRef(Control_Monad_Aff.monadEffAff)("snackbar-2-ref")({
+                  message: "Snackbar 2 (with action)", 
+                  timeout: 2750, 
+                  actionHandler: function (v1) {
+                      return Control_Applicative.pure(Control_Monad_Eff.applicativeEff)(Data_Unit.unit);
+                  }, 
+                  actionText: "Action"
+              }))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+              });
+          };
+          if (v instanceof OnSnackbar2Action) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
+                  var $16 = {};
+                  for (var $17 in state) {
+                      if ({}.hasOwnProperty.call(state, $17)) {
+                          $16[$17] = state[$17];
+                      };
+                  };
+                  $16.snackbar2ActionCount = state.snackbar2ActionCount + 1 | 0;
+                  return $16;
+              }))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+              });
+          };
+          throw new Error("Failed pattern match at DemoSnackbars line 121, column 10 - line 148, column 12: " + [ v.constructor.name ]);
+      };
+      return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
+          initialState: initialState, 
+          initializer: initializer, 
+          finalizer: finalizer, 
+          receiver: receiver, 
+          render: render, 
+          "eval": $$eval
+      });
+  })();
+  exports["Initialize"] = Initialize;
+  exports["InitializeComponent"] = InitializeComponent;
+  exports["FinalizeComponent"] = FinalizeComponent;
+  exports["UpdateState"] = UpdateState;
+  exports["OnButton1Click"] = OnButton1Click;
+  exports["OnButton2Click"] = OnButton2Click;
+  exports["OnSnackbar2Action"] = OnSnackbar2Action;
+  exports["demoSnackbars"] = demoSnackbars;
+  exports["init"] = init;
+})(PS["DemoSnackbars"] = PS["DemoSnackbars"] || {});
 (function(exports) {
     "use strict";
   var Control_Applicative = PS["Control.Applicative"];
@@ -15605,6 +15862,13 @@ var PS = {};
       Sliders.value = new Sliders();
       return Sliders;
   })();
+  var Snackbars = (function () {
+      function Snackbars() {
+
+      };
+      Snackbars.value = new Snackbars();
+      return Snackbars;
+  })();
   var Spinners = (function () {
       function Spinners() {
 
@@ -15650,13 +15914,16 @@ var PS = {};
       if (v instanceof Sliders) {
           return "sliders";
       };
+      if (v instanceof Snackbars) {
+          return "snackbars";
+      };
       if (v instanceof Spinners) {
           return "spinners";
       };
       if (v instanceof Tabs) {
           return "tabs";
       };
-      throw new Error("Failed pattern match at Route line 19, column 1 - line 19, column 30: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Route line 20, column 1 - line 20, column 30: " + [ v.constructor.name ]);
   };
   var showRoute = new Data_Show.Show(function (v) {
       if (v instanceof Home) {
@@ -15689,13 +15956,16 @@ var PS = {};
       if (v instanceof Sliders) {
           return "Sliders";
       };
+      if (v instanceof Snackbars) {
+          return "Snackbars";
+      };
       if (v instanceof Spinners) {
           return "Spinners";
       };
       if (v instanceof Tabs) {
           return "Tabs";
       };
-      throw new Error("Failed pattern match at Route line 39, column 1 - line 39, column 33: " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Route line 41, column 1 - line 41, column 33: " + [ v.constructor.name ]);
   });
   var label = Data_Show.show(showRoute);
   var href = function (route) {
@@ -15711,6 +15981,7 @@ var PS = {};
   exports["Menus"] = Menus;
   exports["Progress"] = Progress;
   exports["Sliders"] = Sliders;
+  exports["Snackbars"] = Snackbars;
   exports["Spinners"] = Spinners;
   exports["Tabs"] = Tabs;
   exports["href"] = href;
@@ -15749,6 +16020,7 @@ var PS = {};
   var DemoMenus = PS["DemoMenus"];
   var DemoProgress = PS["DemoProgress"];
   var DemoSliders = PS["DemoSliders"];
+  var DemoSnackbars = PS["DemoSnackbars"];
   var DemoSpinners = PS["DemoSpinners"];
   var DemoTabs = PS["DemoTabs"];
   var Halogen = PS["Halogen"];
@@ -15942,6 +16214,18 @@ var PS = {};
       };
       return OnDemoSlidersMessage;
   })();
+  var OnDemoSnackbarsMessage = (function () {
+      function OnDemoSnackbarsMessage(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      OnDemoSnackbarsMessage.create = function (value0) {
+          return function (value1) {
+              return new OnDemoSnackbarsMessage(value0, value1);
+          };
+      };
+      return OnDemoSnackbarsMessage;
+  })();
   var OnDemoSpinnersMessage = (function () {
       function OnDemoSpinnersMessage(value0, value1) {
           this.value0 = value0;
@@ -15988,6 +16272,13 @@ var PS = {};
       };
       DemoSpinnersSlot.value = new DemoSpinnersSlot();
       return DemoSpinnersSlot;
+  })();
+  var DemoSnackbarsSlot = (function () {
+      function DemoSnackbarsSlot() {
+
+      };
+      DemoSnackbarsSlot.value = new DemoSnackbarsSlot();
+      return DemoSnackbarsSlot;
   })();
   var DemoSlidersSlot = (function () {
       function DemoSlidersSlot() {
@@ -16081,6 +16372,18 @@ var PS = {};
   });
   var ordDemoSpinnersSlot = new Data_Ord.Ord(function () {
       return eqDemoSpinnersSlot;
+  }, function (x) {
+      return function (y) {
+          return Data_Ordering.EQ.value;
+      };
+  });
+  var eqDemoSnackbarsSlot = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          return true;
+      };
+  });
+  var ordDemoSnackbarsSlot = new Data_Ord.Ord(function () {
+      return eqDemoSnackbarsSlot;
   }, function (x) {
       return function (y) {
           return Data_Ordering.EQ.value;
@@ -16206,8 +16509,9 @@ var PS = {};
           return Data_Ordering.EQ.value;
       };
   });
-  var cpDemoTabs = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
-  var cpDemoSpinners = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
+  var cpDemoTabs = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
+  var cpDemoSpinners = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
+  var cpDemoSnackbars = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
   var cpDemoSliders = Halogen_Component_ChildPath.cp10;
   var cpDemoProgress = Halogen_Component_ChildPath.cp9;
   var cpDemoMenus = Halogen_Component_ChildPath.cp8;
@@ -16264,6 +16568,11 @@ var PS = {};
                   slider3: 20.0
               }))(Halogen_HTML_Events.input(OnDemoSlidersMessage.create));
           };
+          if (state.currentRoute instanceof Route.Snackbars) {
+              return Halogen_HTML["slot'"](cpDemoSnackbars)(DemoSnackbarsSlot.value)(DemoSnackbars.demoSnackbars)(DemoSnackbars.init({
+                  snackbar2ActionCount: 0
+              }))(Halogen_HTML_Events.input(OnDemoSnackbarsMessage.create));
+          };
           if (state.currentRoute instanceof Route.Spinners) {
               return Halogen_HTML["slot'"](cpDemoSpinners)(DemoSpinnersSlot.value)(DemoSpinners.demoSpinners)(DemoSpinners.init(Data_Unit.unit))(Halogen_HTML_Events.input(OnDemoSpinnersMessage.create));
           };
@@ -16272,7 +16581,7 @@ var PS = {};
                   currentTab: DemoTabs.About.value
               }))(Halogen_HTML_Events.input(OnDemoTabsMessage.create));
           };
-          throw new Error("Failed pattern match at DemoContainer line 303, column 29 - line 387, column 37: " + [ state.currentRoute.constructor.name ]);
+          throw new Error("Failed pattern match at DemoContainer line 317, column 29 - line 408, column 37: " + [ state.currentRoute.constructor.name ]);
       };
       var renderLayoutHeaderLink = function (link) {
           return Halogen_HTML_Elements.a([ Halogen_HTML_Properties.href(link.href), Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigationLink ]) ])([ Halogen_HTML_Core.text(link.text) ]);
@@ -16350,14 +16659,14 @@ var PS = {};
           };
           if (v instanceof UpdateRoute) {
               return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  var $111 = {};
-                  for (var $112 in state) {
-                      if ({}.hasOwnProperty.call(state, $112)) {
-                          $111[$112] = state[$112];
+                  var $119 = {};
+                  for (var $120 in state) {
+                      if ({}.hasOwnProperty.call(state, $120)) {
+                          $119[$120] = state[$120];
                       };
                   };
-                  $111.currentRoute = v.value0;
-                  return $111;
+                  $119.currentRoute = v.value0;
+                  return $119;
               }))(function () {
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
@@ -16371,7 +16680,7 @@ var PS = {};
                       if (v1 instanceof Data_Maybe.Nothing) {
                           return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at DemoContainer line 437, column 7 - line 439, column 29: " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at DemoContainer line 458, column 7 - line 460, column 29: " + [ v1.constructor.name ]);
                   })())(function () {
                       return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
                   });
@@ -16407,19 +16716,22 @@ var PS = {};
           if (v instanceof OnDemoSlidersMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
+          if (v instanceof OnDemoSnackbarsMessage) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+          };
           if (v instanceof OnDemoSpinnersMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
           if (v instanceof OnDemoTabsMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
-          throw new Error("Failed pattern match at DemoContainer line 423, column 10 - line 464, column 12: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at DemoContainer line 444, column 10 - line 487, column 12: " + [ v.constructor.name ]);
       };
-      var renderLayoutDrawer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutDrawer ]), Halogen_HTML_Properties.ref("mdl-layout-drawer") ])([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutTitle ]) ])([ Halogen_HTML_Core.text("Halogen MDL") ]), Halogen_HTML_Elements.nav([ Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigation ]) ])([ renderLayoutDrawerLink(Route.Home.value), renderLayoutDrawerLink(Route.Badges.value), renderLayoutDrawerLink(Route.Buttons.value), renderLayoutDrawerLink(Route.Cards.value), renderLayoutDrawerLink(Route.Chips.value), renderLayoutDrawerLink(Route.Dialogs.value), renderLayoutDrawerLink(Route.Lists.value), renderLayoutDrawerLink(Route.Menus.value), renderLayoutDrawerLink(Route.Progress.value), renderLayoutDrawerLink(Route.Sliders.value), renderLayoutDrawerLink(Route.Spinners.value), renderLayoutDrawerLink(Route.Tabs.value) ]) ]);
+      var renderLayoutDrawer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutDrawer ]), Halogen_HTML_Properties.ref("mdl-layout-drawer") ])([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutTitle ]) ])([ Halogen_HTML_Core.text("Halogen MDL") ]), Halogen_HTML_Elements.nav([ Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigation ]) ])([ renderLayoutDrawerLink(Route.Home.value), renderLayoutDrawerLink(Route.Badges.value), renderLayoutDrawerLink(Route.Buttons.value), renderLayoutDrawerLink(Route.Cards.value), renderLayoutDrawerLink(Route.Chips.value), renderLayoutDrawerLink(Route.Dialogs.value), renderLayoutDrawerLink(Route.Lists.value), renderLayoutDrawerLink(Route.Menus.value), renderLayoutDrawerLink(Route.Progress.value), renderLayoutDrawerLink(Route.Sliders.value), renderLayoutDrawerLink(Route.Snackbars.value), renderLayoutDrawerLink(Route.Spinners.value), renderLayoutDrawerLink(Route.Tabs.value) ]) ]);
       var render = function (state) {
           return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Layout.cl.layoutContainer) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layout, Halogen_MDL_Layout.cl.jsLayout, Halogen_MDL_Layout.cl.layoutFixedHeader ]), Halogen_HTML_Properties.ref("mdl-layout-ref") ])([ renderLayoutHeader, renderLayoutDrawer, renderLayoutContent(state) ]) ]);
       };
-      return Halogen_Component.lifecycleParentComponent(Data_Either.ordEither(ordDemoHomeSlot)(Data_Either.ordEither(ordDemoBadgesSlot)(Data_Either.ordEither(ordDemoButtonsSlot)(Data_Either.ordEither(ordDemoCardsSlot)(Data_Either.ordEither(ordDemoChipsSlot)(Data_Either.ordEither(ordDemoDialogsSlot)(Data_Either.ordEither(ordDemoListsSlot)(Data_Either.ordEither(ordDemoMenusSlot)(Data_Either.ordEither(ordDemoProgressSlot)(Data_Either.ordEither(ordDemoSlidersSlot)(Data_Either.ordEither(ordDemoSpinnersSlot)(Data_Either.ordEither(ordDemoTabsSlot)(Data_Ord.ordVoid)))))))))))))({
+      return Halogen_Component.lifecycleParentComponent(Data_Either.ordEither(ordDemoHomeSlot)(Data_Either.ordEither(ordDemoBadgesSlot)(Data_Either.ordEither(ordDemoButtonsSlot)(Data_Either.ordEither(ordDemoCardsSlot)(Data_Either.ordEither(ordDemoChipsSlot)(Data_Either.ordEither(ordDemoDialogsSlot)(Data_Either.ordEither(ordDemoListsSlot)(Data_Either.ordEither(ordDemoMenusSlot)(Data_Either.ordEither(ordDemoProgressSlot)(Data_Either.ordEither(ordDemoSlidersSlot)(Data_Either.ordEither(ordDemoSnackbarsSlot)(Data_Either.ordEither(ordDemoSpinnersSlot)(Data_Either.ordEither(ordDemoTabsSlot)(Data_Ord.ordVoid))))))))))))))({
           initialState: initialState, 
           initializer: initializer, 
           finalizer: finalizer, 
@@ -16438,6 +16750,7 @@ var PS = {};
   exports["DemoMenusSlot"] = DemoMenusSlot;
   exports["DemoProgressSlot"] = DemoProgressSlot;
   exports["DemoSlidersSlot"] = DemoSlidersSlot;
+  exports["DemoSnackbarsSlot"] = DemoSnackbarsSlot;
   exports["DemoSpinnersSlot"] = DemoSpinnersSlot;
   exports["DemoTabsSlot"] = DemoTabsSlot;
   exports["Initialize"] = Initialize;
@@ -16456,6 +16769,7 @@ var PS = {};
   exports["OnDemoMenusMessage"] = OnDemoMenusMessage;
   exports["OnDemoProgressMessage"] = OnDemoProgressMessage;
   exports["OnDemoSlidersMessage"] = OnDemoSlidersMessage;
+  exports["OnDemoSnackbarsMessage"] = OnDemoSnackbarsMessage;
   exports["OnDemoSpinnersMessage"] = OnDemoSpinnersMessage;
   exports["OnDemoTabsMessage"] = OnDemoTabsMessage;
   exports["cpDemoBadges"] = cpDemoBadges;
@@ -16468,6 +16782,7 @@ var PS = {};
   exports["cpDemoMenus"] = cpDemoMenus;
   exports["cpDemoProgress"] = cpDemoProgress;
   exports["cpDemoSliders"] = cpDemoSliders;
+  exports["cpDemoSnackbars"] = cpDemoSnackbars;
   exports["cpDemoSpinners"] = cpDemoSpinners;
   exports["cpDemoTabs"] = cpDemoTabs;
   exports["demoContainer"] = demoContainer;
@@ -16492,6 +16807,8 @@ var PS = {};
   exports["ordDemoProgressSlot"] = ordDemoProgressSlot;
   exports["eqDemoSlidersSlot"] = eqDemoSlidersSlot;
   exports["ordDemoSlidersSlot"] = ordDemoSlidersSlot;
+  exports["eqDemoSnackbarsSlot"] = eqDemoSnackbarsSlot;
+  exports["ordDemoSnackbarsSlot"] = ordDemoSnackbarsSlot;
   exports["eqDemoSpinnersSlot"] = eqDemoSpinnersSlot;
   exports["ordDemoSpinnersSlot"] = ordDemoSpinnersSlot;
   exports["eqDemoTabsSlot"] = eqDemoTabsSlot;
@@ -18318,6 +18635,7 @@ var PS = {};
           return Control_Apply.applySecond(Routing_Match.matchApply)(Routing_Match_Class.lit(Routing_Match.matchMatchClass)(""))(Routing_Match_Class.lit(Routing_Match.matchMatchClass)(str));
       };
       var sliders = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Sliders.value)(route(Route.urlSegment(Route.Sliders.value)));
+      var snackbars = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Snackbars.value)(route(Route.urlSegment(Route.Snackbars.value)));
       var spinners = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Spinners.value)(route(Route.urlSegment(Route.Spinners.value)));
       var tabs = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Tabs.value)(route(Route.urlSegment(Route.Tabs.value)));
       var progress = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Progress.value)(route(Route.urlSegment(Route.Progress.value)));
@@ -18329,7 +18647,7 @@ var PS = {};
       var cards = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Cards.value)(route(Route.urlSegment(Route.Cards.value)));
       var buttons = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Buttons.value)(route(Route.urlSegment(Route.Buttons.value)));
       var badges = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Badges.value)(route(Route.urlSegment(Route.Badges.value)));
-      return Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(badges)(buttons))(cards))(chips))(dialogs))(lists))(menus))(progress))(sliders))(spinners))(tabs))(home);
+      return Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(badges)(buttons))(cards))(chips))(dialogs))(lists))(menus))(progress))(sliders))(snackbars))(spinners))(tabs))(home);
   })();
   var goToRoute = function (driver) {
       return function (v) {
@@ -18387,7 +18705,7 @@ var PS = {};
           if (v instanceof OnDemoContainerMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
-          throw new Error("Failed pattern match at Router line 110, column 12 - line 116, column 14: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Router line 112, column 12 - line 118, column 14: " + [ v.constructor.name ]);
       };
       return Halogen_Component.parentComponent(ordSlot)({
           initialState: initialState, 

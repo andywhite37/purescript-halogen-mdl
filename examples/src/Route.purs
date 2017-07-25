@@ -13,6 +13,7 @@ data Route
   | Menus
   | Progress
   | Sliders
+  | Snackbars
   | Spinners
   | Tabs
 
@@ -27,6 +28,7 @@ urlSegment Lists = "lists"
 urlSegment Menus = "menus"
 urlSegment Progress = "progress"
 urlSegment Sliders = "sliders"
+urlSegment Snackbars = "snackbars"
 urlSegment Spinners = "spinners"
 urlSegment Tabs = "tabs"
 
@@ -47,5 +49,6 @@ show Lists = "Lists"
 show Menus = "Menus"
 show Progress = "Progress"
 show Sliders = "Sliders"
+show Snackbars = "Snackbars"
 show Spinners = "Spinners"
 show Tabs = "Tabs"

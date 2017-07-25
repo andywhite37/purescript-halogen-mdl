@@ -37,6 +37,7 @@ matchRoute
   <|> menus
   <|> progress
   <|> sliders
+  <|> snackbars
   <|> spinners
   <|> tabs
   <|> home
@@ -50,6 +51,7 @@ matchRoute
     menus = Menus <$ route (urlSegment Menus)
     progress = Progress <$ route (urlSegment Progress)
     sliders = Sliders <$ route (urlSegment Sliders)
+    snackbars = Snackbars <$ route (urlSegment Snackbars)
     spinners = Spinners <$ route (urlSegment Spinners)
     tabs = Tabs <$ route (urlSegment Tabs)
     home = Home <$ lit ""

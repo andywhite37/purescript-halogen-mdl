@@ -35,6 +35,7 @@ import DemoLists as DemoLists
 import DemoMenus as DemoMenus
 import DemoProgress as DemoProgress
 import DemoSliders as DemoSliders
+import DemoSnackbars as DemoSnackbars
 import DemoSpinners as DemoSpinners
 import DemoTabs as DemoTabs
 
@@ -58,6 +59,7 @@ data Query a
   | OnDemoMenusMessage DemoMenus.Message a
   | OnDemoProgressMessage DemoProgress.Message a
   | OnDemoSlidersMessage DemoSliders.Message a
+  | OnDemoSnackbarsMessage DemoSnackbars.Message a
   | OnDemoSpinnersMessage DemoSpinners.Message a
   | OnDemoTabsMessage DemoTabs.Message a
 
@@ -78,6 +80,7 @@ type ChildQuery
   <\/> DemoMenus.Query
   <\/> DemoProgress.Query
   <\/> DemoSliders.Query
+  <\/> DemoSnackbars.Query
   <\/> DemoSpinners.Query
   <\/> DemoTabs.Query
   <\/> Const Void
@@ -93,6 +96,7 @@ type ChildSlot
   \/ DemoMenusSlot
   \/ DemoProgressSlot
   \/ DemoSlidersSlot
+  \/ DemoSnackbarsSlot
   \/ DemoSpinnersSlot
   \/ DemoTabsSlot
   \/ Void
@@ -158,6 +162,15 @@ derive instance ordDemoSlidersSlot :: Ord DemoSlidersSlot
 cpDemoSliders :: CP.ChildPath DemoSliders.Query ChildQuery DemoSlidersSlot ChildSlot
 cpDemoSliders = CP.cp10
 
+data DemoSnackbarsSlot = DemoSnackbarsSlot
+derive instance eqDemoSnackbarsSlot :: Eq DemoSnackbarsSlot
+derive instance ordDemoSnackbarsSlot :: Ord DemoSnackbarsSlot
+cpDemoSnackbars :: CP.ChildPath DemoSnackbars.Query ChildQuery DemoSnackbarsSlot ChildSlot
+cpDemoSnackbars =
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
+  CP.cpL
+
 data DemoSpinnersSlot = DemoSpinnersSlot
 derive instance eqDemoSpinnersSlot :: Eq DemoSpinnersSlot
 derive instance ordDemoSpinnersSlot :: Ord DemoSpinnersSlot
@@ -165,7 +178,7 @@ cpDemoSpinners :: CP.ChildPath DemoSpinners.Query ChildQuery DemoSpinnersSlot Ch
 cpDemoSpinners =
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
-  CP.cpL
+  CP.cpR :> CP.cpL
 
 data DemoTabsSlot = DemoTabsSlot
 derive instance eqDemoTabsSlot :: Eq DemoTabsSlot
@@ -174,7 +187,7 @@ cpDemoTabs :: CP.ChildPath DemoTabs.Query ChildQuery DemoTabsSlot ChildSlot
 cpDemoTabs =
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
-  CP.cpR :> CP.cpL
+  CP.cpR :> CP.cpR :> CP.cpL
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -273,6 +286,7 @@ demoContainer =
         , renderLayoutDrawerLink Menus
         , renderLayoutDrawerLink Progress
         , renderLayoutDrawerLink Sliders
+        , renderLayoutDrawerLink Snackbars
         , renderLayoutDrawerLink Spinners
         , renderLayoutDrawerLink Tabs
         ]
@@ -371,6 +385,13 @@ demoContainer =
         DemoSliders.demoSliders
         (DemoSliders.init { slider1: 0.0, slider2: 20.0, slider3: 20.0 })
         (HE.input OnDemoSlidersMessage)
+    Snackbars ->
+      HH.slot'
+        cpDemoSnackbars
+        DemoSnackbarsSlot
+        DemoSnackbars.demoSnackbars
+        (DemoSnackbars.init { snackbar2ActionCount: 0 })
+        (HE.input OnDemoSnackbarsMessage)
     Spinners ->
       HH.slot'
         cpDemoSpinners
@@ -457,6 +478,8 @@ demoContainer =
     OnDemoProgressMessage _ next -> do
       pure next
     OnDemoSlidersMessage _ next -> do
+      pure next
+    OnDemoSnackbarsMessage _ next -> do
       pure next
     OnDemoSpinnersMessage _ next -> do
       pure next
