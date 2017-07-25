@@ -3,17 +3,16 @@
   height: 0;
 }
 
+/* page content width */
 .page-content > .mdl-grid {
   max-width: 960px;
 }
 
 /* sticky footer */
-/*
 .mdl-layout__content {
   -webkit-flex: 1 0 auto;
   flex: 1 0 auto;
 }
-*/
 
 /*
 dialog {

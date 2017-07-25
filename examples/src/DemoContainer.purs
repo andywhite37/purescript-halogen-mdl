@@ -236,8 +236,8 @@ demoContainer =
           [ renderLayoutHeader
           , renderLayoutDrawer
           , renderLayoutContent state
-          --, renderSpacer
-          --, renderMegaFooter
+          , renderSpacer
+          , renderMegaFooter
           ]
       ]
 
@@ -308,8 +308,8 @@ demoContainer =
       [ HH.div
         [ HP.classes [ HH.ClassName "page-content" ] ]
         [ renderPageContent state
-        , renderSpacer
-        , renderMegaFooter
+        --, renderSpacer
+        --, renderMegaFooter
         ]
       ]
 
