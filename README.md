@@ -27,19 +27,22 @@ This function is used to "upgrade" the DOM elements to give them the custom MDL 
 ## Setup
 
 ```
-npm install
-bower install
+> npm install
+> bower install
 ```
 
 ## Examples
 
 ```
-# In a terminal
-npm run watch:examples
+# In a terminal:
+# Run compiler watch task:
+> npm run watch:examples
 
-# In another terminal
-cd examples/dist
-
-# Run http server from this location (e.g. node-static)
-static .
+# In another terminal:
+# Run static http file server from this location (e.g. node-static, live-server, etc.)
+> cd examples/dist
+> live-server .
+or
+> static .
+etc.
 ```

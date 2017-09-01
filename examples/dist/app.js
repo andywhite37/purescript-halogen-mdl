@@ -11179,7 +11179,8 @@ var PS = {};
   var min = prop(Halogen_HTML_Core.numberIsProp)("min");          
   var max = prop(Halogen_HTML_Core.numberIsProp)("max");   
   var id_ = prop(Halogen_HTML_Core.stringIsProp)("id");
-  var href = prop(Halogen_HTML_Core.stringIsProp)("href");           
+  var href = prop(Halogen_HTML_Core.stringIsProp)("href"); 
+  var $$for = prop(Halogen_HTML_Core.stringIsProp)("htmlFor");       
   var disabled = prop(Halogen_HTML_Core.booleanIsProp)("disabled");
   var classes = function ($8) {
       return prop(Halogen_HTML_Core.stringIsProp)("className")(Data_String.joinWith(" ")(Data_Functor.map(Data_Functor.functorArray)(Data_Newtype.unwrap(Halogen_HTML_Core.newtypeClassName))($8)));
@@ -11194,6 +11195,7 @@ var PS = {};
   exports["class_"] = class_;
   exports["classes"] = classes;
   exports["disabled"] = disabled;
+  exports["for"] = $$for;
   exports["href"] = href;
   exports["id_"] = id_;
   exports["max"] = max;
@@ -11232,6 +11234,7 @@ var PS = {};
   var h3 = element("h3");
   var h3_ = h3([  ]);
   var h4 = element("h4");
+  var h4_ = h4([  ]);    
   var header = element("header");
   var i = element("i");
   var img = function (props) {
@@ -11239,7 +11242,8 @@ var PS = {};
   };
   var input = function (props) {
       return element("input")(props)([  ]);
-  };                         
+  };                   
+  var label = element("label");
   var li = element("li");
   var li_ = li([  ]);      
   var nav = element("nav");  
@@ -11276,10 +11280,12 @@ var PS = {};
   exports["h3"] = h3;
   exports["h3_"] = h3_;
   exports["h4"] = h4;
+  exports["h4_"] = h4_;
   exports["header"] = header;
   exports["i"] = i;
   exports["img"] = img;
   exports["input"] = input;
+  exports["label"] = label;
   exports["li"] = li;
   exports["li_"] = li_;
   exports["nav"] = nav;
@@ -15619,6 +15625,231 @@ var PS = {};
 })(PS["DemoTabs"] = PS["DemoTabs"] || {});
 (function(exports) {
     "use strict";
+  var DOM_Event_Types = PS["DOM.Event.Types"];
+  var DOM_HTML_Indexed_InputType = PS["DOM.HTML.Indexed.InputType"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Halogen_HTML = PS["Halogen.HTML"];
+  var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
+  var Halogen_HTML_Elements = PS["Halogen.HTML.Elements"];
+  var Halogen_HTML_Events = PS["Halogen.HTML.Events"];
+  var Halogen_HTML_Properties = PS["Halogen.HTML.Properties"];
+  var Halogen_MDL_RippleEffect = PS["Halogen.MDL.RippleEffect"];
+  var Prelude = PS["Prelude"];        
+  var cl = {
+      checkbox: "mdl-checkbox", 
+      jsCheckbox: "mdl-js-checkbox", 
+      checkboxInput: "mdl-checkbox__input", 
+      checkboxLabel: "mdl-checkbox__label"
+  };
+  var bl = {
+      checkbox: function (options) {
+          return Halogen_HTML_Elements.label([ Halogen_HTML_Properties.classes(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ cl.checkbox, cl.jsCheckbox ])((function () {
+              if (options.ripple) {
+                  return [ Halogen_MDL_RippleEffect.cl.jsRippleEffect ];
+              };
+              return [  ];
+          })())), Halogen_HTML_Properties["for"](options.id) ])([ Halogen_HTML_Elements.input([ Halogen_HTML_Properties.type_(Halogen_HTML_Core.inputTypeIsProp)(DOM_HTML_Indexed_InputType.InputCheckbox.value), Halogen_HTML_Properties.id_(options.id), Halogen_HTML_Properties.class_(cl.checkboxInput), Halogen_HTML_Properties.checked(options.checked), Halogen_HTML_Events.onClick(options.onClick) ]), Halogen_HTML_Elements.span([ Halogen_HTML_Properties.class_(cl.checkboxLabel) ])([ Halogen_HTML_Core.text(options.label) ]) ]);
+      }
+  };
+  exports["bl"] = bl;
+  exports["cl"] = cl;
+})(PS["Halogen.MDL.Checkbox"] = PS["Halogen.MDL.Checkbox"] || {});
+(function(exports) {
+    "use strict";
+  var Control_Applicative = PS["Control.Applicative"];
+  var Control_Bind = PS["Control.Bind"];
+  var Control_Monad_Aff = PS["Control.Monad.Aff"];
+  var Control_Monad_Eff_Class = PS["Control.Monad.Eff.Class"];
+  var Control_Monad_State_Class = PS["Control.Monad.State.Class"];
+  var DOM_Event_Types = PS["DOM.Event.Types"];
+  var Data_Function = PS["Data.Function"];
+  var Data_HeytingAlgebra = PS["Data.HeytingAlgebra"];
+  var Data_Maybe = PS["Data.Maybe"];
+  var Data_Semigroup = PS["Data.Semigroup"];
+  var Halogen = PS["Halogen"];
+  var Halogen_Aff = PS["Halogen.Aff"];
+  var Halogen_Component = PS["Halogen.Component"];
+  var Halogen_HTML = PS["Halogen.HTML"];
+  var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
+  var Halogen_HTML_Elements = PS["Halogen.HTML.Elements"];
+  var Halogen_HTML_Events = PS["Halogen.HTML.Events"];
+  var Halogen_HTML_Properties = PS["Halogen.HTML.Properties"];
+  var Halogen_MDL = PS["Halogen.MDL"];
+  var Halogen_MDL_Cell = PS["Halogen.MDL.Cell"];
+  var Halogen_MDL_Checkbox = PS["Halogen.MDL.Checkbox"];
+  var Halogen_MDL_Grid = PS["Halogen.MDL.Grid"];
+  var Halogen_Query = PS["Halogen.Query"];
+  var Halogen_Query_HalogenM = PS["Halogen.Query.HalogenM"];
+  var Prelude = PS["Prelude"];        
+  var InitializeComponent = (function () {
+      function InitializeComponent(value0) {
+          this.value0 = value0;
+      };
+      InitializeComponent.create = function (value0) {
+          return new InitializeComponent(value0);
+      };
+      return InitializeComponent;
+  })();
+  var FinalizeComponent = (function () {
+      function FinalizeComponent(value0) {
+          this.value0 = value0;
+      };
+      FinalizeComponent.create = function (value0) {
+          return new FinalizeComponent(value0);
+      };
+      return FinalizeComponent;
+  })();
+  var UpdateState = (function () {
+      function UpdateState(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      UpdateState.create = function (value0) {
+          return function (value1) {
+              return new UpdateState(value0, value1);
+          };
+      };
+      return UpdateState;
+  })();
+  var OnCheckbox1Click = (function () {
+      function OnCheckbox1Click(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      OnCheckbox1Click.create = function (value0) {
+          return function (value1) {
+              return new OnCheckbox1Click(value0, value1);
+          };
+      };
+      return OnCheckbox1Click;
+  })();
+  var OnCheckbox2Click = (function () {
+      function OnCheckbox2Click(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      OnCheckbox2Click.create = function (value0) {
+          return function (value1) {
+              return new OnCheckbox2Click(value0, value1);
+          };
+      };
+      return OnCheckbox2Click;
+  })();
+  var Initialize = (function () {
+      function Initialize(value0) {
+          this.value0 = value0;
+      };
+      Initialize.create = function (value0) {
+          return new Initialize(value0);
+      };
+      return Initialize;
+  })();
+  var init = new Initialize({
+      checkbox1Checked: false, 
+      checkbox2Checked: true, 
+      radio1Checked: false, 
+      radio2Checked: true, 
+      radio3Checked: false
+  });
+  var demoToggles = (function () {
+      var render = function (state) {
+          return Halogen_MDL_Grid.el.grid_([ Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h3_([ Halogen_HTML_Core.text("Toggles") ]) ]), Halogen_MDL_Cell.el.cell12Col_([ Halogen_HTML_Elements.h4_([ Halogen_HTML_Core.text("Checkboxes") ]), Halogen_MDL_Checkbox.bl.checkbox({
+              id: "my-checkbox-1", 
+              label: "Checkbox", 
+              ripple: true, 
+              checked: state.checkbox1Checked, 
+              onClick: Halogen_HTML_Events.input(OnCheckbox1Click.create)
+          }), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Checkbox is: " + (function () {
+              if (state.checkbox1Checked) {
+                  return "checked";
+              };
+              return "not checked";
+          })()) ]), Halogen_MDL_Checkbox.bl.checkbox({
+              id: "my-checkbox-2", 
+              label: "Checkbox (no ripple)", 
+              ripple: false, 
+              checked: state.checkbox2Checked, 
+              onClick: Halogen_HTML_Events.input(OnCheckbox2Click.create)
+          }), Halogen_HTML_Elements.p_([ Halogen_HTML_Core.text("Checkbox is: " + (function () {
+              if (state.checkbox2Checked) {
+                  return "checked";
+              };
+              return "not checked";
+          })()) ]) ]) ]);
+      };
+      var receiver = function (v) {
+          return Data_Maybe.Just.create(Halogen_Query.action(UpdateState.create(v.value0)));
+      };
+      var initializer = Data_Maybe.Just.create(Halogen_Query.action(InitializeComponent.create));
+      var initialState = function (v) {
+          return v.value0;
+      };
+      var finalizer = Data_Maybe.Just.create(Halogen_Query.action(FinalizeComponent.create));
+      var $$eval = function (v) {
+          if (v instanceof InitializeComponent) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_Eff_Class.liftEff(Halogen_Query_HalogenM.monadEffHalogenM(Control_Monad_Aff.monadEffAff))(Halogen_MDL.upgradeElementsByClassNames([ Halogen_MDL_Checkbox.cl.jsCheckbox ])))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+              });
+          };
+          if (v instanceof FinalizeComponent) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
+          };
+          if (v instanceof UpdateState) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.put(Halogen_Query_HalogenM.monadStateHalogenM)(v.value0))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
+          };
+          if (v instanceof OnCheckbox1Click) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
+                  var $16 = {};
+                  for (var $17 in state) {
+                      if ({}.hasOwnProperty.call(state, $17)) {
+                          $16[$17] = state[$17];
+                      };
+                  };
+                  $16.checkbox1Checked = !state.checkbox1Checked;
+                  return $16;
+              }))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
+          };
+          if (v instanceof OnCheckbox2Click) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
+                  var $21 = {};
+                  for (var $22 in state) {
+                      if ({}.hasOwnProperty.call(state, $22)) {
+                          $21[$22] = state[$22];
+                      };
+                  };
+                  $21.checkbox2Checked = !state.checkbox2Checked;
+                  return $21;
+              }))(function () {
+                  return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+              });
+          };
+          throw new Error("Failed pattern match at DemoToggles line 103, column 10 - line 117, column 12: " + [ v.constructor.name ]);
+      };
+      return Halogen_Component.lifecycleComponent(Halogen_HTML_Core.bifunctorHTML)({
+          initialState: initialState, 
+          initializer: initializer, 
+          finalizer: finalizer, 
+          receiver: receiver, 
+          render: render, 
+          "eval": $$eval
+      });
+  })();
+  exports["Initialize"] = Initialize;
+  exports["InitializeComponent"] = InitializeComponent;
+  exports["FinalizeComponent"] = FinalizeComponent;
+  exports["UpdateState"] = UpdateState;
+  exports["OnCheckbox1Click"] = OnCheckbox1Click;
+  exports["OnCheckbox2Click"] = OnCheckbox2Click;
+  exports["demoToggles"] = demoToggles;
+  exports["init"] = init;
+})(PS["DemoToggles"] = PS["DemoToggles"] || {});
+(function(exports) {
+    "use strict";
   var Halogen_HTML = PS["Halogen.HTML"];
   var Halogen_HTML_Core = PS["Halogen.HTML.Core"];
   var Halogen_HTML_Elements = PS["Halogen.HTML.Elements"];
@@ -15883,6 +16114,13 @@ var PS = {};
       Tabs.value = new Tabs();
       return Tabs;
   })();
+  var Toggles = (function () {
+      function Toggles() {
+
+      };
+      Toggles.value = new Toggles();
+      return Toggles;
+  })();
   var urlSegment = function (v) {
       if (v instanceof Home) {
           return "home";
@@ -15923,7 +16161,10 @@ var PS = {};
       if (v instanceof Tabs) {
           return "tabs";
       };
-      throw new Error("Failed pattern match at Route line 20, column 1 - line 20, column 30: " + [ v.constructor.name ]);
+      if (v instanceof Toggles) {
+          return "toggles";
+      };
+      throw new Error("Failed pattern match at Route line 21, column 1 - line 21, column 30: " + [ v.constructor.name ]);
   };
   var showRoute = new Data_Show.Show(function (v) {
       if (v instanceof Home) {
@@ -15965,7 +16206,10 @@ var PS = {};
       if (v instanceof Tabs) {
           return "Tabs";
       };
-      throw new Error("Failed pattern match at Route line 41, column 1 - line 41, column 33: " + [ v.constructor.name ]);
+      if (v instanceof Toggles) {
+          return "Toggles";
+      };
+      throw new Error("Failed pattern match at Route line 43, column 1 - line 43, column 33: " + [ v.constructor.name ]);
   });
   var label = Data_Show.show(showRoute);
   var href = function (route) {
@@ -15984,13 +16228,15 @@ var PS = {};
   exports["Snackbars"] = Snackbars;
   exports["Spinners"] = Spinners;
   exports["Tabs"] = Tabs;
+  exports["Toggles"] = Toggles;
   exports["href"] = href;
   exports["label"] = label;
   exports["urlSegment"] = urlSegment;
   exports["showRoute"] = showRoute;
 })(PS["Route"] = PS["Route"] || {});
 (function(exports) {
-    "use strict";
+  // Generated by purs version 0.11.6
+  "use strict";
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Bind = PS["Control.Bind"];
   var Control_Monad_Aff = PS["Control.Monad.Aff"];
@@ -16022,6 +16268,7 @@ var PS = {};
   var DemoSnackbars = PS["DemoSnackbars"];
   var DemoSpinners = PS["DemoSpinners"];
   var DemoTabs = PS["DemoTabs"];
+  var DemoToggles = PS["DemoToggles"];
   var Halogen = PS["Halogen"];
   var Halogen_Aff = PS["Halogen.Aff"];
   var Halogen_Component = PS["Halogen.Component"];
@@ -16249,6 +16496,18 @@ var PS = {};
       };
       return OnDemoTabsMessage;
   })();
+  var OnDemoTogglesMessage = (function () {
+      function OnDemoTogglesMessage(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      OnDemoTogglesMessage.create = function (value0) {
+          return function (value1) {
+              return new OnDemoTogglesMessage(value0, value1);
+          };
+      };
+      return OnDemoTogglesMessage;
+  })();
   var Initialize = (function () {
       function Initialize(value0) {
           this.value0 = value0;
@@ -16257,6 +16516,13 @@ var PS = {};
           return new Initialize(value0);
       };
       return Initialize;
+  })();
+  var DemoTogglesSlot = (function () {
+      function DemoTogglesSlot() {
+
+      };
+      DemoTogglesSlot.value = new DemoTogglesSlot();
+      return DemoTogglesSlot;
   })();
   var DemoTabsSlot = (function () {
       function DemoTabsSlot() {
@@ -16307,8 +16573,6 @@ var PS = {};
       DemoListsSlot.value = new DemoListsSlot();
       return DemoListsSlot;
   })();
-
-  // Slots
   var DemoHomeSlot = (function () {
       function DemoHomeSlot() {
 
@@ -16354,6 +16618,18 @@ var PS = {};
   var init = function (state) {
       return new Initialize(state);
   };
+  var eqDemoTogglesSlot = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          return true;
+      };
+  });
+  var ordDemoTogglesSlot = new Data_Ord.Ord(function () {
+      return eqDemoTogglesSlot;
+  }, function (x) {
+      return function (y) {
+          return Data_Ordering.EQ.value;
+      };
+  });
   var eqDemoTabsSlot = new Data_Eq.Eq(function (x) {
       return function (y) {
           return true;
@@ -16510,6 +16786,7 @@ var PS = {};
           return Data_Ordering.EQ.value;
       };
   });
+  var cpDemoToggles = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
   var cpDemoTabs = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
   var cpDemoSpinners = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
   var cpDemoSnackbars = Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.compose(Halogen_Component_ChildPath.cpR)(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpR))(Halogen_Component_ChildPath.cpL);
@@ -16582,7 +16859,10 @@ var PS = {};
                   currentTab: DemoTabs.About.value
               }))(Halogen_HTML_Events.input(OnDemoTabsMessage.create));
           };
-          throw new Error("Failed pattern match at DemoContainer line 317, column 29 - line 408, column 37: " + [ state.currentRoute.constructor.name ]);
+          if (state.currentRoute instanceof Route.Toggles) {
+              return Halogen_HTML["slot'"](cpDemoToggles)(DemoTogglesSlot.value)(DemoToggles.demoToggles)(DemoToggles.init)(Halogen_HTML_Events.input(OnDemoTogglesMessage.create));
+          };
+          throw new Error("Failed pattern match at DemoContainer line 331, column 29 - line 429, column 40: " + [ state.currentRoute.constructor.name ]);
       };
       var renderLayoutHeaderLink = function (link) {
           return Halogen_HTML_Elements.a([ Halogen_HTML_Properties.href(link.href), Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigationLink ]) ])([ Halogen_HTML_Core.text(link.text) ]);
@@ -16660,14 +16940,14 @@ var PS = {};
           };
           if (v instanceof UpdateRoute) {
               return Control_Bind.discard(Control_Bind.discardUnit)(Halogen_Query_HalogenM.bindHalogenM)(Control_Monad_State_Class.modify(Halogen_Query_HalogenM.monadStateHalogenM)(function (state) {
-                  var $119 = {};
-                  for (var $120 in state) {
-                      if ({}.hasOwnProperty.call(state, $120)) {
-                          $119[$120] = state[$120];
+                  var $127 = {};
+                  for (var $128 in state) {
+                      if ({}.hasOwnProperty.call(state, $128)) {
+                          $127[$128] = state[$128];
                       };
                   };
-                  $119.currentRoute = v.value0;
-                  return $119;
+                  $127.currentRoute = v.value0;
+                  return $127;
               }))(function () {
                   return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
               });
@@ -16681,7 +16961,7 @@ var PS = {};
                       if (v1 instanceof Data_Maybe.Nothing) {
                           return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at DemoContainer line 458, column 7 - line 460, column 29: " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at DemoContainer line 479, column 7 - line 481, column 29: " + [ v1.constructor.name ]);
                   })())(function () {
                       return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value0);
                   });
@@ -16726,13 +17006,16 @@ var PS = {};
           if (v instanceof OnDemoTabsMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
-          throw new Error("Failed pattern match at DemoContainer line 444, column 10 - line 487, column 12: " + [ v.constructor.name ]);
+          if (v instanceof OnDemoTogglesMessage) {
+              return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
+          };
+          throw new Error("Failed pattern match at DemoContainer line 465, column 10 - line 510, column 12: " + [ v.constructor.name ]);
       };
-      var renderLayoutDrawer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutDrawer ]), Halogen_HTML_Properties.ref("mdl-layout-drawer") ])([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutTitle ]) ])([ Halogen_HTML_Core.text("Halogen MDL") ]), Halogen_HTML_Elements.nav([ Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigation ]) ])([ renderLayoutDrawerLink(Route.Home.value), renderLayoutDrawerLink(Route.Badges.value), renderLayoutDrawerLink(Route.Buttons.value), renderLayoutDrawerLink(Route.Cards.value), renderLayoutDrawerLink(Route.Chips.value), renderLayoutDrawerLink(Route.Dialogs.value), renderLayoutDrawerLink(Route.Lists.value), renderLayoutDrawerLink(Route.Menus.value), renderLayoutDrawerLink(Route.Progress.value), renderLayoutDrawerLink(Route.Sliders.value), renderLayoutDrawerLink(Route.Snackbars.value), renderLayoutDrawerLink(Route.Spinners.value), renderLayoutDrawerLink(Route.Tabs.value) ]) ]);
+      var renderLayoutDrawer = Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutDrawer ]), Halogen_HTML_Properties.ref("mdl-layout-drawer") ])([ Halogen_HTML_Elements.span([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layoutTitle ]) ])([ Halogen_HTML_Core.text("Halogen MDL") ]), Halogen_HTML_Elements.nav([ Halogen_HTML_Properties.classes([ Halogen_MDL_Navigation.cl.navigation ]) ])([ renderLayoutDrawerLink(Route.Home.value), renderLayoutDrawerLink(Route.Badges.value), renderLayoutDrawerLink(Route.Buttons.value), renderLayoutDrawerLink(Route.Cards.value), renderLayoutDrawerLink(Route.Chips.value), renderLayoutDrawerLink(Route.Dialogs.value), renderLayoutDrawerLink(Route.Lists.value), renderLayoutDrawerLink(Route.Menus.value), renderLayoutDrawerLink(Route.Progress.value), renderLayoutDrawerLink(Route.Sliders.value), renderLayoutDrawerLink(Route.Snackbars.value), renderLayoutDrawerLink(Route.Spinners.value), renderLayoutDrawerLink(Route.Tabs.value), renderLayoutDrawerLink(Route.Toggles.value) ]) ]);
       var render = function (state) {
           return Halogen_HTML_Elements.div([ Halogen_HTML_Properties.class_(Halogen_MDL_Layout.cl.layoutContainer) ])([ Halogen_HTML_Elements.div([ Halogen_HTML_Properties.classes([ Halogen_MDL_Layout.cl.layout, Halogen_MDL_Layout.cl.jsLayout, Halogen_MDL_Layout.cl.layoutFixedHeader ]), Halogen_HTML_Properties.ref("mdl-layout-ref") ])([ renderLayoutHeader, renderLayoutDrawer, renderLayoutContent(state), renderSpacer, renderMegaFooter ]) ]);
       };
-      return Halogen_Component.lifecycleParentComponent(Data_Either.ordEither(ordDemoHomeSlot)(Data_Either.ordEither(ordDemoBadgesSlot)(Data_Either.ordEither(ordDemoButtonsSlot)(Data_Either.ordEither(ordDemoCardsSlot)(Data_Either.ordEither(ordDemoChipsSlot)(Data_Either.ordEither(ordDemoDialogsSlot)(Data_Either.ordEither(ordDemoListsSlot)(Data_Either.ordEither(ordDemoMenusSlot)(Data_Either.ordEither(ordDemoProgressSlot)(Data_Either.ordEither(ordDemoSlidersSlot)(Data_Either.ordEither(ordDemoSnackbarsSlot)(Data_Either.ordEither(ordDemoSpinnersSlot)(Data_Either.ordEither(ordDemoTabsSlot)(Data_Ord.ordVoid))))))))))))))({
+      return Halogen_Component.lifecycleParentComponent(Data_Either.ordEither(ordDemoHomeSlot)(Data_Either.ordEither(ordDemoBadgesSlot)(Data_Either.ordEither(ordDemoButtonsSlot)(Data_Either.ordEither(ordDemoCardsSlot)(Data_Either.ordEither(ordDemoChipsSlot)(Data_Either.ordEither(ordDemoDialogsSlot)(Data_Either.ordEither(ordDemoListsSlot)(Data_Either.ordEither(ordDemoMenusSlot)(Data_Either.ordEither(ordDemoProgressSlot)(Data_Either.ordEither(ordDemoSlidersSlot)(Data_Either.ordEither(ordDemoSnackbarsSlot)(Data_Either.ordEither(ordDemoSpinnersSlot)(Data_Either.ordEither(ordDemoTabsSlot)(Data_Either.ordEither(ordDemoTogglesSlot)(Data_Ord.ordVoid)))))))))))))))({
           initialState: initialState, 
           initializer: initializer, 
           finalizer: finalizer, 
@@ -16754,6 +17037,7 @@ var PS = {};
   exports["DemoSnackbarsSlot"] = DemoSnackbarsSlot;
   exports["DemoSpinnersSlot"] = DemoSpinnersSlot;
   exports["DemoTabsSlot"] = DemoTabsSlot;
+  exports["DemoTogglesSlot"] = DemoTogglesSlot;
   exports["Initialize"] = Initialize;
   exports["InitializeComponent"] = InitializeComponent;
   exports["FinalizeComponent"] = FinalizeComponent;
@@ -16773,6 +17057,7 @@ var PS = {};
   exports["OnDemoSnackbarsMessage"] = OnDemoSnackbarsMessage;
   exports["OnDemoSpinnersMessage"] = OnDemoSpinnersMessage;
   exports["OnDemoTabsMessage"] = OnDemoTabsMessage;
+  exports["OnDemoTogglesMessage"] = OnDemoTogglesMessage;
   exports["cpDemoBadges"] = cpDemoBadges;
   exports["cpDemoButtons"] = cpDemoButtons;
   exports["cpDemoCards"] = cpDemoCards;
@@ -16786,6 +17071,7 @@ var PS = {};
   exports["cpDemoSnackbars"] = cpDemoSnackbars;
   exports["cpDemoSpinners"] = cpDemoSpinners;
   exports["cpDemoTabs"] = cpDemoTabs;
+  exports["cpDemoToggles"] = cpDemoToggles;
   exports["demoContainer"] = demoContainer;
   exports["init"] = init;
   exports["eqDemoHomeSlot"] = eqDemoHomeSlot;
@@ -16814,6 +17100,8 @@ var PS = {};
   exports["ordDemoSpinnersSlot"] = ordDemoSpinnersSlot;
   exports["eqDemoTabsSlot"] = eqDemoTabsSlot;
   exports["ordDemoTabsSlot"] = ordDemoTabsSlot;
+  exports["eqDemoTogglesSlot"] = eqDemoTogglesSlot;
+  exports["ordDemoTogglesSlot"] = ordDemoTogglesSlot;
 })(PS["DemoContainer"] = PS["DemoContainer"] || {});
 (function(exports) {
   // Generated by purs version 0.11.6
@@ -18639,6 +18927,7 @@ var PS = {};
       var snackbars = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Snackbars.value)(route(Route.urlSegment(Route.Snackbars.value)));
       var spinners = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Spinners.value)(route(Route.urlSegment(Route.Spinners.value)));
       var tabs = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Tabs.value)(route(Route.urlSegment(Route.Tabs.value)));
+      var toggles = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Toggles.value)(route(Route.urlSegment(Route.Toggles.value)));
       var progress = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Progress.value)(route(Route.urlSegment(Route.Progress.value)));
       var menus = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Menus.value)(route(Route.urlSegment(Route.Menus.value)));
       var lists = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Lists.value)(route(Route.urlSegment(Route.Lists.value)));
@@ -18648,7 +18937,7 @@ var PS = {};
       var cards = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Cards.value)(route(Route.urlSegment(Route.Cards.value)));
       var buttons = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Buttons.value)(route(Route.urlSegment(Route.Buttons.value)));
       var badges = Data_Functor.voidRight(Routing_Match.matchFunctor)(Route.Badges.value)(route(Route.urlSegment(Route.Badges.value)));
-      return Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(badges)(buttons))(cards))(chips))(dialogs))(lists))(menus))(progress))(sliders))(snackbars))(spinners))(tabs))(home);
+      return Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(Control_Alt.alt(Routing_Match.matchAlt)(badges)(buttons))(cards))(chips))(dialogs))(lists))(menus))(progress))(sliders))(snackbars))(spinners))(tabs))(toggles))(home);
   })();
   var goToRoute = function (driver) {
       return function (v) {
@@ -18706,7 +18995,7 @@ var PS = {};
           if (v instanceof OnDemoContainerMessage) {
               return Control_Applicative.pure(Halogen_Query_HalogenM.applicativeHalogenM)(v.value1);
           };
-          throw new Error("Failed pattern match at Router line 112, column 12 - line 118, column 14: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Router line 114, column 12 - line 120, column 14: " + [ v.constructor.name ]);
       };
       return Halogen_Component.parentComponent(ordSlot)({
           initialState: initialState, 

@@ -16,6 +16,7 @@ data Route
   | Snackbars
   | Spinners
   | Tabs
+  | Toggles
 
 urlSegment :: Route -> String
 urlSegment Home = "home"
@@ -31,6 +32,7 @@ urlSegment Sliders = "sliders"
 urlSegment Snackbars = "snackbars"
 urlSegment Spinners = "spinners"
 urlSegment Tabs = "tabs"
+urlSegment Toggles = "toggles"
 
 href :: Route -> String
 href route = "#/" <> urlSegment route
@@ -52,3 +54,4 @@ show Sliders = "Sliders"
 show Snackbars = "Snackbars"
 show Spinners = "Spinners"
 show Tabs = "Tabs"
+show Toggles = "Toggles"

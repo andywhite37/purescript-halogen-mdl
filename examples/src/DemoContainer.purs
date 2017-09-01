@@ -38,6 +38,7 @@ import DemoSliders as DemoSliders
 import DemoSnackbars as DemoSnackbars
 import DemoSpinners as DemoSpinners
 import DemoTabs as DemoTabs
+import DemoToggles as DemoToggles
 
 type State =
   { currentRoute :: Route
@@ -62,6 +63,7 @@ data Query a
   | OnDemoSnackbarsMessage DemoSnackbars.Message a
   | OnDemoSpinnersMessage DemoSpinners.Message a
   | OnDemoTabsMessage DemoTabs.Message a
+  | OnDemoTogglesMessage DemoToggles.Message a
 
 data Input = Initialize State
 
@@ -83,6 +85,7 @@ type ChildQuery
   <\/> DemoSnackbars.Query
   <\/> DemoSpinners.Query
   <\/> DemoTabs.Query
+  <\/> DemoToggles.Query
   <\/> Const Void
 
 type ChildSlot
@@ -99,6 +102,7 @@ type ChildSlot
   \/ DemoSnackbarsSlot
   \/ DemoSpinnersSlot
   \/ DemoTabsSlot
+  \/ DemoTogglesSlot
   \/ Void
 
 -- Slots
@@ -188,6 +192,15 @@ cpDemoTabs =
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
   CP.cpR :> CP.cpR :> CP.cpL
+
+data DemoTogglesSlot = DemoTogglesSlot
+derive instance eqDemoTogglesSlot :: Eq DemoTogglesSlot
+derive instance ordDemoTogglesSlot :: Ord DemoTogglesSlot
+cpDemoToggles :: CP.ChildPath DemoToggles.Query ChildQuery DemoTogglesSlot ChildSlot
+cpDemoToggles =
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
+  CP.cpR :> CP.cpR :> CP.cpR :> CP.cpL
 
 type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
 type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
@@ -289,6 +302,7 @@ demoContainer =
         , renderLayoutDrawerLink Snackbars
         , renderLayoutDrawerLink Spinners
         , renderLayoutDrawerLink Tabs
+        , renderLayoutDrawerLink Toggles
         ]
       ]
 
@@ -406,6 +420,13 @@ demoContainer =
         DemoTabs.demoTabs
         (DemoTabs.init { currentTab: DemoTabs.About })
         (HE.input OnDemoTabsMessage)
+    Toggles ->
+      HH.slot'
+        cpDemoToggles
+        DemoTogglesSlot
+        DemoToggles.demoToggles
+        (DemoToggles.init)
+        (HE.input OnDemoTogglesMessage)
 
   renderMegaFooter :: DemoContainerHTML eff
   renderMegaFooter =
@@ -485,3 +506,6 @@ demoContainer =
       pure next
     OnDemoTabsMessage _ next -> do
       pure next
+    OnDemoTogglesMessage _ next -> do
+      pure next
+

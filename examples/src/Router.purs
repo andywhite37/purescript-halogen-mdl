@@ -40,6 +40,7 @@ matchRoute
   <|> snackbars
   <|> spinners
   <|> tabs
+  <|> toggles
   <|> home
   where
     badges = Badges <$ route (urlSegment Badges)
@@ -54,6 +55,7 @@ matchRoute
     snackbars = Snackbars <$ route (urlSegment Snackbars)
     spinners = Spinners <$ route (urlSegment Spinners)
     tabs = Tabs <$ route (urlSegment Tabs)
+    toggles = Toggles <$ route (urlSegment Toggles)
     home = Home <$ lit ""
     route str = lit "" *> lit str
 
