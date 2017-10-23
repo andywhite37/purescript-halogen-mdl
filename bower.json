@@ -14,7 +14,8 @@
     "purescript-halogen-css": "^6.0.0",
     "purescript-js-timers": "^3.0.0",
     "purescript-numbers": "^5.0.0",
-    "purescript-debug": "^3.0.0"
+    "purescript-debug": "^3.0.0",
+    "purescript-arrays": "^4.2.0"
   },
   "devDependencies": {
     "material-design-lite": "mdl#^1.3.0",
