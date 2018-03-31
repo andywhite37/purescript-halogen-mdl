@@ -1,14 +1,36 @@
 module Router where
+---
+import Control.Coroutine as CR
+import Control.Coroutine.Aff as CRA
+import Control.Monad.Aff (Aff)
+import Control.Monad.Aff.AVar (AVAR)
+import Control.Monad.Eff.Class (liftEff)
+import Control.Monad.Except (runExcept)
+import Data.Either (Either(..))
+import Data.Foreign (toForeign)
+import Data.Maybe (Maybe(..))
+import Data.String as Str
+import DOM (DOM)
+import DOM.Event.EventTarget (eventListener, addEventListener) as DOM
+import DOM.HTML (window) as DOM
+import DOM.HTML.Event.EventTypes as ET
+import DOM.HTML.Event.HashChangeEvent as HCE
+import DOM.HTML.Event.Types (HashChangeEvent, readHashChangeEvent) as DOM
+import DOM.HTML.Types (windowToEventTarget) as DOM
 
+
+
+
+---
 import Prelude
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
-import Data.Maybe (Maybe(..))
-import Data.Tuple (Tuple(..))
 
-import Routing (matchesAff)
+
+import Routing (match)
 import Routing.Match (Match)
 import Routing.Match.Class (lit)
+
+
 
 import Halogen as H
 import Halogen.Aff as HA
@@ -19,12 +41,43 @@ import Halogen.HTML.Properties as HP
 import Route (Route(..), urlSegment)
 import DemoContainer as DemoContainer
 
--- Routing logic
+-- A producer coroutine that emits messages whenever the window emits a
+-- `hashchange` event.
+hashChangeProducer
+  :: forall eff
+   . CR.Producer DOM.HashChangeEvent (Aff (avar :: AVAR, dom :: DOM | eff)) Unit
+hashChangeProducer = CRA.produce \emit ->
+  let
+    emitter e =
+      case runExcept (DOM.readHashChangeEvent (toForeign e)) of
+        Left _ -> pure unit
+        Right hce -> emit (Left hce)
+  in
+    liftEff $
+      DOM.window
+        >>= DOM.windowToEventTarget
+        >>> DOM.addEventListener ET.hashchange (DOM.eventListener emitter) false
 
-routeSignal :: ∀ eff. H.HalogenIO Query Void (Aff (HA.HalogenEffects eff)) -> Aff (HA.HalogenEffects eff) Unit
-routeSignal driver = do
-  Tuple old new <- matchesAff matchRoute
-  goToRoute driver old new
+-- A consumer coroutine that takes the `query` function from our component IO
+-- record and sends `ChangeRoute` queries in when it receives inputs from the
+-- producer.
+hashChangeConsumer
+  :: forall eff
+   . (Query ~> Aff (HA.HalogenEffects eff))
+  -> CR.Consumer DOM.HashChangeEvent (Aff (HA.HalogenEffects eff)) Unit
+hashChangeConsumer query = CR.consumer \event -> do
+  let
+    hash = Str.drop 1 $ Str.dropWhile (_ /= '#') $ HCE.newURL event
+  query $ H.action $ GoTo $ matchRouteFromHash hash
+  pure Nothing
+
+
+matchRouteFromHash :: String -> Route
+matchRouteFromHash hash =
+  case (match matchRoute hash) of
+    Left  _ -> Home
+    Right route -> route
+
 
 matchRoute :: Match Route
 matchRoute
@@ -59,13 +112,6 @@ matchRoute
     home = Home <$ lit ""
     route str = lit "" *> lit str
 
-goToRoute :: ∀ eff
-  . H.HalogenIO Query Message (Aff (HA.HalogenEffects eff))
-  -> Maybe Route
-  -> Route
-  -> Aff (HA.HalogenEffects eff) Unit
-goToRoute driver _ =
-  driver.query <<< H.action <<< GoTo
 
 -- Router component
 
